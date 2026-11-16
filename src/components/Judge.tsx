@@ -187,15 +187,19 @@ export function IssuanceJudge({ data, ruleId: fixedId, birthHint }: { data: AppD
                   <option value="중">중학교</option>
                   <option value="고">고등학교</option>
                 </select>
-                {birthYearTyped === null && birthHint && <span className="ml-1 text-[13px] text-accent">② 생년월일에서 자동 입력</span>}
+                {birthYearTyped === null && birthHint && <span className="ml-1 text-[13px] text-accent">① 생년월일에서 자동 입력</span>}
               </div>
-              <p className="mt-2 text-[13px] leading-relaxed text-ink-2">
-                {dates.length > 0 && (
-                  <>
-                    추정 {rule.basis}: <b>{dates.map((d) => `${d.year}년 ${d.month}월`).join(" 또는 ")}</b>
-                    {dates.length > 1 && " (1~2월생은 한 해 일찍 입학했을 수 있음)"} —{" "}
-                  </>
-                )}
+              {/* 출생연도와 졸업연도를 헷갈리지 않게 — 판정 기준이 되는 졸업연월을 크게 (민원 상세와 같음) */}
+              {dates.length > 0 && (
+                <p className="mt-3 text-[15px] text-ink">
+                  →{" "}
+                  <b className="font-bold">
+                    {dates.map((d) => `${d.year}년 ${d.month}월`).join(" 또는 ")} {rule.basis.replace(/연월|연도/, "")}
+                  </b>{" "}
+                  기준으로 판정 <span className="text-[13px] text-muted">({birthYear}년생 추정{dates.length > 1 && " · 1~2월생은 한 해 일찍 입학했을 수 있음"})</span>
+                </p>
+              )}
+              <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
                 정규 진학 기준 추정이라 유급·조기입학·검정고시·전학 등은 반영되지 않습니다. 졸업연도를 꼭 확인하세요.
               </p>
             </div>
@@ -433,16 +437,17 @@ export function JudgePage({ data }: { data: AppData }) {
       <header className="pt-8">
         <h1 className="text-[28px] font-bold leading-tight tracking-[-0.02em] text-ink sm:text-[34px]">발급 경로 판별기</h1>
         <p className="mt-2 max-w-3xl break-keep text-[14.5px] leading-relaxed text-ink-2">
-          졸업(합격·퇴직)연도로 나이스·학교증명발급시스템·정부24·무인발급기·FAX 중 어디서 발급되는지, 누가 방문하면 어떤 신원 확인 서류가
-          필요한지 확인합니다. 민원 상세 화면에도 같은 판별이 들어 있습니다.
+          누가 방문했는지와 생년월일(또는 만 나이)을 한 번 넣으면 신원 확인 서류와, 졸업(합격·퇴직)연도에 따라 나이스·학교증명발급시스템·정부24·무인발급기·FAX
+          중 어디서 발급되는지 함께 확인합니다. 민원 상세 화면에도 같은 판별이 들어 있습니다.
         </p>
       </header>
-      <div className="mt-8 grid gap-4 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-start">
-        <Step n={1} title="연도별 발급 경로">
-          <IssuanceJudge data={data} birthHint={birthHint} />
-        </Step>
-        <Step n={2} title="누가 왔나요?" note="방문 시 신원 확인 서류">
+      {/* 민원 상세와 같은 흐름: 한 줄로 ① 누가 왔나요(생년월일 한 번) → ② 연도별 발급 경로(출생연도 자동 입력) */}
+      <div className="mt-8 flex flex-col gap-4">
+        <Step n={1} title="누가 왔나요?" note="방문 시 신원 확인 서류">
           <IdentityJudge data={data} onBirth={setBirthHint} />
+        </Step>
+        <Step n={2} title="연도별 발급 경로" note="생년월일을 넣으면 출생연도가 자동으로 들어갑니다">
+          <IssuanceJudge data={data} birthHint={birthHint} />
         </Step>
       </div>
       <p className="mt-10 text-xs text-muted">{data.bundle.version} 기준 · 관계 법령이 바뀐 경우 법령이 우선합니다.</p>
