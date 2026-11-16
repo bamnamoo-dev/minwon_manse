@@ -2,8 +2,19 @@
 
 export interface Form {
   name: string;
+  /** 편람 PDF 쪽(원문 보기·인쇄) */
   pdfPages: number[];
+  /** 서식 파일(public/forms 기준 경로) — data/forms_files.json 에서 묶음 만들 때 합침 */
   hwp: string | null;
+  pdf?: string;
+  /** 편람 서식 목록에 없는 추가 서식 파일 */
+  extra?: boolean;
+}
+
+export interface FormFile {
+  name: string;
+  hwp: string;
+  pdf: string;
 }
 
 export interface Minwon {
@@ -147,4 +158,6 @@ export interface Bundle {
   identity: IdentityRules;
   synonyms: Record<string, string[]>;
   manuals: Manuals;
+  /** 여러 민원에 공통으로 쓰는 서식(예: 위임장) */
+  formsCommon?: Record<string, FormFile>;
 }

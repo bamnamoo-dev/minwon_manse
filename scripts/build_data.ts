@@ -32,6 +32,21 @@ const minwon = readdirSync(join(ROOT, "data/minwon"))
     return { ...rest, body: plain(rawMarkdown) };
   });
 
+/* 서식 파일(public/forms) 연결 — data/forms_files.json. 원본 data/minwon 은 고치지 않고 묶음에서만 합친다 */
+const formFiles = read("data/forms_files.json");
+type FormFile = { form?: string; label?: string; file: string };
+for (const m of minwon) {
+  for (const f of (formFiles.minwon[m.id] ?? []) as FormFile[]) {
+    const files = { hwp: `${f.file}.hwpx`, pdf: `${f.file}.pdf` };
+    const hit = f.form ? m.forms.find((x: { name: string }) => x.name === f.form) : undefined;
+    if (hit) Object.assign(hit, files);
+    else m.forms.push({ name: f.label ?? f.form, pdfPages: [], ...files, extra: true });
+  }
+}
+const formsCommon = Object.fromEntries(
+  Object.entries(formFiles.common as Record<string, FormFile>).map(([k, f]) => [k, { name: f.label ?? k, hwp: `${f.file}.hwpx`, pdf: `${f.file}.pdf` }]),
+);
+
 const guides = readdirSync(join(ROOT, "data/guides"))
   .filter((f) => f.endsWith(".json"))
   .sort()
@@ -69,6 +84,7 @@ const bundle = {
   identity,
   synonyms,
   manuals,
+  formsCommon,
 };
 
 mkdirSync(join(ROOT, "public/data"), { recursive: true });

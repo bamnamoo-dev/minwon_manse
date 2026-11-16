@@ -14,7 +14,7 @@
 
 ## 폴더
 - `source/` 원본(읽기 전용) · `scripts/` 추출·검증 스크립트 · `data/` 민원·규칙·업무안내 JSON
-- `public/pages/p{n}.webp` PDF 페이지 이미지(git 제외, `npm run render-pages`로 생성) · `public/forms/` HWP 서식
+- `public/pages/p{n}.webp` PDF 페이지 이미지(git 제외, `npm run render-pages`로 생성) · `public/forms/` 서식 파일(hwpx+pdf 짝, `민원/`·`공무원/`) — 민원 연결은 `data/forms_files.json`
 - `src/` React 앱 (Vite + React + TypeScript)
 
 ## 쪽 번호
@@ -33,6 +33,7 @@
 - `data/rules/identity.json` 방문자 유형 × 대상자 나이 → 구비서류
 - `data/guides/G01~G37.json` II·III·IV·VI장 업무안내(markdown 원문)
 - `data/synonyms.json` 검색 동의어
+- `data/forms_files.json` 민원 ↔ 서식 파일 연결(사람이 관리). `form`=편람 서식 이름과 같으면 그 줄에, 없으면 `label`로 추가 서식. `common.위임장`은 신원 확인(대리인)에 표시. data/minwon 은 고치지 않고 build_data 에서 합침
 - `data/manuals/` 발급 시스템 매뉴얼(민원 상세 「어디서 발급하나요?」)
   - `links.json` 민원 ↔ 매뉴얼 연결(사람이 관리): `neis` 나이스 매뉴얼 쪽 순서, `neisRefs`+`neisRefNote` 전용 화면이 없어 참고로 보여주는 쪽, `certSystem` 학교증명발급시스템 절차 이름, `checked` 담당자 확인, `_meta.systemOrder` 둘 다 가능할 때 먼저 보여줄 시스템
   - `neis.json`·`certsys.json` 매뉴얼 PDF에서 자동 추출(직접 고치지 않음) → `npm run render-manuals` (이미지는 `public/neis/`·`public/certsys/`, git 제외)

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import type { AppData } from "../lib/data";
+import { formUrl, type AppData } from "../lib/data";
 import {
   estimateGraduation,
   guideMessage,
@@ -13,7 +13,7 @@ import {
   type Visitor,
   type Ym,
 } from "../lib/judge";
-import { CheckIcon, CopyIcon } from "./Icons";
+import { CheckIcon, CopyIcon, DownloadIcon } from "./Icons";
 import { DashList, Seg, Step } from "./ui";
 
 /* 입력값(연도·나이)은 이 컴포넌트 상태에만 있고 주소·저장소·서버로 보내지 않는다. */
@@ -276,6 +276,7 @@ export function IdentityJudge({ data }: { data: AppData }) {
 
   // (이전 버전 데이터가 캐시에 남아 있으면 규칙이 없을 수 있음 → 화면을 깨뜨리지 않고 숨김)
   if (!rules) return null;
+  const proxyForm = data.bundle.formsCommon?.["위임장"];
   const res = ageNum === undefined ? null : judgeIdentity(rules, visitor, ageNum);
   const visitors: [Visitor, string][] = [
     ["self", "본인"],
@@ -347,6 +348,18 @@ export function IdentityJudge({ data }: { data: AppData }) {
         ) : (
           <div className="border-l-2 border-amber-600 pl-3.5 text-[15px] text-ink">△ {res.note}</div>
         ))}
+      {visitor === "proxy" && proxyForm && (
+        <p className="flex flex-wrap items-baseline gap-x-3 text-[13px] text-ink-2">
+          {proxyForm.name} 서식
+          <a href={formUrl(proxyForm.hwp)} download className="inline-flex items-center gap-1 font-semibold text-ink underline decoration-line-strong underline-offset-[3px] hover:decoration-ink">
+            <DownloadIcon size={13} />
+            HWP
+          </a>
+          <a href={formUrl(proxyForm.pdf)} target="_blank" rel="noreferrer" className="link-quiet">
+            PDF
+          </a>
+        </p>
+      )}
       <p className="text-xs leading-relaxed text-muted">
         근거: 민원편람 46쪽(인쇄 36쪽) 「신청인 신원 확인 방법(방문 시)」 · 대리인 위임장은 「민원 처리에 관한 법률 시행규칙」 별지 제3호 서식
         {!rules.reviewed && " · 규칙 검수 전"}

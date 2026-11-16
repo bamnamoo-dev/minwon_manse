@@ -47,3 +47,6 @@ export const printedPage = (p: number) => p - 10;
 /** 이 민원에 '어디서 발급하나요?' 단계가 있는지 (연도별 발급 규칙 또는 발급 시스템 매뉴얼 연결) */
 export const hasIssueStep = (data: AppData, m: Minwon) =>
   m.yearRuleIds.some((r) => data.bundle.rules.rules[r]) || !!data.bundle.manuals?.links[m.id];
+
+/** 서식 파일(public/forms 기준 경로) → 주소. 한글·공백·괄호가 있어 경로 조각마다 인코딩 */
+export const formUrl = (path: string) => `${import.meta.env.BASE_URL}forms/${path.split("/").map(encodeURIComponent).join("/")}`;

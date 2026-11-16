@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import type { AppData } from "../lib/data";
-import { hasIssueStep, printedPage } from "../lib/data";
+import { formUrl, hasIssueStep, printedPage } from "../lib/data";
 import { lastSearchHash } from "../lib/router";
 import { pushRecent } from "../lib/storage";
 import type { Minwon } from "../lib/types";
@@ -130,7 +130,7 @@ export function MinwonDetail({ data, m }: { data: AppData; m: Minwon }) {
           </Fold>
         )}
         {instant && (
-          <Fold title="서식" hint={m.forms.length ? m.forms.map((f) => f.name).join(", ") : "붙임 서식 없음"}>
+          <Fold title="서식" hint={formsHint(m)}>
             <Forms m={m} setViewer={setViewer} />
           </Fold>
         )}
@@ -174,6 +174,12 @@ export function MinwonDetail({ data, m }: { data: AppData; m: Minwon }) {
     </div>
   );
 }
+
+const formsHint = (m: Minwon) => {
+  if (!m.forms.length) return "붙임 서식 없음";
+  const files = m.forms.filter((f) => f.hwp).length;
+  return `${files ? `HWP ${files}개 · ` : ""}${m.forms.map((f) => f.name).join(", ")}`;
+};
 
 const docNote = (m: Minwon) => (m.documentsSource && m.documentsSource !== "요약표" ? m.documentsSource : undefined);
 
@@ -267,25 +273,37 @@ function Forms({ m, setViewer }: { m: Minwon; setViewer: (v: Viewer) => void }) 
           <li key={i} className="flex flex-col gap-1.5 py-2.5 first:pt-0 sm:flex-row sm:items-baseline sm:gap-4">
             <div className="min-w-0 flex-1">
               <span className="break-keep text-[15px] text-ink">{f.name}</span>
-              <span className="ml-2 text-xs text-muted">{f.pdfPages.length ? `PDF ${f.pdfPages.join(", ")}쪽` : "쪽 정보 없음"}</span>
+              <span className="ml-2 text-xs text-muted">
+                {f.extra ? "추가 서식" : f.pdfPages.length ? `편람 PDF ${f.pdfPages.join(", ")}쪽` : "편람 쪽 정보 없음"}
+              </span>
             </div>
-            <div className="flex shrink-0 gap-3 text-[13px]">
-              <Act onClick={() => setViewer({ title: f.name, pages: f.pdfPages })} disabled={!f.pdfPages.length} icon={<EyeIcon size={13} />}>
-                원문
-              </Act>
-              <Act onClick={() => printPages(f.name, f.pdfPages)} disabled={!f.pdfPages.length} icon={<PrinterIcon size={13} />}>
-                인쇄
-              </Act>
+            <div className="flex shrink-0 flex-wrap gap-x-3 gap-y-1 text-[13px]">
               {f.hwp ? (
-                <a href={`${import.meta.env.BASE_URL}forms/${f.hwp}`} download className="link-quiet inline-flex items-center gap-1">
+                <a href={formUrl(f.hwp)} download className="inline-flex items-center gap-1 font-semibold text-ink underline decoration-line-strong underline-offset-[3px] hover:decoration-ink">
                   <DownloadIcon size={13} />
                   HWP
                 </a>
               ) : (
-                <span className="inline-flex items-center gap-1 text-line-strong" title="한글(HWP) 서식이 아직 등록되지 않았습니다">
+                <span className="inline-flex items-center gap-1 text-line-strong" title="서식 파일이 아직 연결되지 않았습니다 (data/forms_files.json)">
                   <DownloadIcon size={13} />
                   HWP
                 </span>
+              )}
+              {f.pdf && (
+                <a href={formUrl(f.pdf)} target="_blank" rel="noreferrer" className="link-quiet inline-flex items-center gap-1" title="서식 PDF 새 창에서 보기·인쇄">
+                  <EyeIcon size={13} />
+                  PDF
+                </a>
+              )}
+              {f.pdfPages.length > 0 && (
+                <>
+                  <Act onClick={() => setViewer({ title: f.name, pages: f.pdfPages })} icon={<FileTextIcon size={13} />}>
+                    편람 원문
+                  </Act>
+                  <Act onClick={() => printPages(f.name, f.pdfPages)} icon={<PrinterIcon size={13} />}>
+                    인쇄
+                  </Act>
+                </>
               )}
             </div>
           </li>

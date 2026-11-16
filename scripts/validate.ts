@@ -2,7 +2,7 @@
  * data/ 폴더 JSON 검증 — 형식 오류·참조 오류를 빌드 전에 잡는다.
  * 사용법: npm run validate
  */
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
 
@@ -150,6 +150,29 @@ else {
       for (const p of l.neisRefs ?? []) if (!l.neis?.includes(p)) errors.push(`manuals/links.json ${mid}: neisRefs ${p}쪽이 neis 목록에 없음`);
       if (l.neisRefs?.length && !l.neisRefNote) errors.push(`manuals/links.json ${mid}: neisRefs 가 있으면 neisRefNote(참고 화면 안내) 필요`);
       if (l.certSystem && !cert.data.sections[l.certSystem]) errors.push(`manuals/links.json ${mid}: certsys.json 에 절차 '${l.certSystem}' 없음`);
+    }
+  }
+}
+
+{
+  /* 서식 파일 연결 (data/forms_files.json → public/forms) */
+  const ff = read("data/forms_files.json") as {
+    common: Record<string, { label?: string; file: string }>;
+    minwon: Record<string, { form?: string; label?: string; file: string }[]>;
+  };
+  const checkFile = (where: string, file: string) => {
+    for (const ext of [".hwpx", ".pdf"]) {
+      if (!existsSync(join(ROOT, "public/forms", file + ext))) errors.push(`forms_files.json ${where}: public/forms/${file}${ext} 없음`);
+    }
+  };
+  for (const [k, f] of Object.entries(ff.common)) checkFile(`common.${k}`, f.file);
+  for (const [mid, list] of Object.entries(ff.minwon)) {
+    if (!ids.has(mid)) { errors.push(`forms_files.json: 없는 민원 ${mid}`); continue; }
+    const names = new Set((read(`data/minwon/${mid}.json`).forms as { name: string }[]).map((x) => x.name));
+    for (const f of list) {
+      checkFile(mid, f.file);
+      if (!f.form && !f.label) errors.push(`forms_files.json ${mid}: form(편람 서식 이름) 또는 label(추가 서식 이름) 필요`);
+      if (f.form && !names.has(f.form)) errors.push(`forms_files.json ${mid}: 편람 서식 '${f.form}' 없음 (추가 서식이면 label 사용)`);
     }
   }
 }
