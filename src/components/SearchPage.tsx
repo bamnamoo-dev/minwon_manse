@@ -109,80 +109,83 @@ export function SearchPage({ data, q, cat }: { data: AppData; q: string; cat: st
     </form>
   );
 
-  /* 검색 중: 얇은 남색 띠 + 결과 */
-  if (q) {
-    return (
-      <div>
-        <section className="bg-navy pb-6 pt-6 text-white">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            {searchBox}
-            <nav className="no-scrollbar mt-4 flex gap-2 overflow-x-auto text-[13px] sm:flex-wrap" aria-label="분류">
-              {["", ...data.categories].map((c) => (
-                <a
-                  key={c || "all"}
-                  href={href("/", { q: input.trim() || undefined, c: c || undefined })}
-                  className={`shrink-0 rounded-full px-3 py-1 ring-1 transition ${
-                    filter === c ? "bg-white font-semibold text-navy ring-white" : "text-white/80 ring-white/25 hover:bg-white/10"
-                  }`}
-                >
-                  {c || "전체"}
-                </a>
-              ))}
-            </nav>
-          </div>
-        </section>
-        <div className="mx-auto max-w-6xl px-4 pb-20 pt-6 sm:px-6">
-          <Results data={data} hits={hits} q={q} />
-        </div>
-      </div>
-    );
-  }
-
-  /* 홈: 남색 머리 띠 + 걸쳐 올라오는 카드 */
+  /* 홈과 검색 결과가 같은 구조를 쓴다 — 검색창이 같은 자리에 그대로 있어야 입력 중 포커스·한글 조합이 끊기지 않는다
+     (첫 글자를 치는 순간 화면이 바뀌어도 검색창 요소는 다시 만들어지지 않게) */
   return (
-    <div className="pb-20">
+    <div className={q ? "" : "pb-20"}>
       <section className="bg-navy text-white">
-        <div className="mx-auto grid max-w-6xl items-center gap-8 px-4 pb-28 pt-10 sm:px-6 lg:grid-cols-[1fr_560px]">
-          <div>
-            <h1 className="text-[30px] font-bold leading-[1.25] tracking-[-0.03em] sm:text-[38px]">
-              편람은 찾아보고,
-              <br />
-              발급은 바로 하세요
-            </h1>
-            <p className="mt-4 flex items-center gap-1.5 text-[13.5px] text-white/75">
-              <ShieldIcon size={15} />
-              입력한 생년월일·나이는 이 PC 브라우저에서만 처리됩니다
-            </p>
-            <p className="mt-1 flex items-center gap-1.5 text-[13.5px] text-white/75">
-              <BookIcon size={15} />
-              민원 <b className="text-white">{data.bundle.minwon.length}</b>건 · 업무안내 <b className="text-white">{data.bundle.guides.length}</b>건 · 서식{" "}
-              <b className="text-white">{data.bundle.formsLibrary?.items.length ?? 0}</b>종
-            </p>
-          </div>
+        <div
+          className={`mx-auto grid max-w-6xl items-center gap-8 px-4 sm:px-6 ${
+            q ? "pb-6 pt-6" : "pb-28 pt-10 lg:grid-cols-[1fr_560px]"
+          }`}
+        >
+          {!q && (
+            <div>
+              <h1 className="text-[30px] font-bold leading-[1.25] tracking-[-0.03em] sm:text-[38px]">
+                편람은 찾아보고,
+                <br />
+                발급은 바로 하세요
+              </h1>
+              <p className="mt-4 flex items-center gap-1.5 text-[13.5px] text-white/75">
+                <ShieldIcon size={15} />
+                입력한 생년월일·나이는 이 PC 브라우저에서만 처리됩니다
+              </p>
+              <p className="mt-1 flex items-center gap-1.5 text-[13.5px] text-white/75">
+                <BookIcon size={15} />
+                민원 <b className="text-white">{data.bundle.minwon.length}</b>건 · 업무안내 <b className="text-white">{data.bundle.guides.length}</b>건 · 서식{" "}
+                <b className="text-white">{data.bundle.formsLibrary?.items.length ?? 0}</b>종
+              </p>
+            </div>
+          )}
           <div>
             {searchBox}
-            <div className="mt-4 flex flex-wrap items-center gap-2 text-[13px]">
-              <span className="text-white/70">자주 찾는</span>
-              {QUICK_QUERIES.map((kw) => (
-                <button
-                  key={kw}
-                  type="button"
-                  onClick={() => setInput(kw)}
-                  className="cursor-pointer rounded-full px-3 py-1 text-white/90 ring-1 ring-white/25 transition hover:bg-white/10"
-                >
-                  {kw}
-                </button>
-              ))}
-            </div>
+            {q ? (
+              <nav className="no-scrollbar mt-4 flex gap-2 overflow-x-auto text-[13px] sm:flex-wrap" aria-label="분류">
+                {["", ...data.categories].map((c) => (
+                  <a
+                    key={c || "all"}
+                    href={href("/", { q: input.trim() || undefined, c: c || undefined })}
+                    className={`shrink-0 rounded-full px-3 py-1 ring-1 transition ${
+                      filter === c ? "bg-white font-semibold text-navy ring-white" : "text-white/80 ring-white/25 hover:bg-white/10"
+                    }`}
+                  >
+                    {c || "전체"}
+                  </a>
+                ))}
+              </nav>
+            ) : (
+              <div className="mt-4 flex flex-wrap items-center gap-2 text-[13px]">
+                <span className="text-white/70">자주 찾는</span>
+                {QUICK_QUERIES.map((kw) => (
+                  <button
+                    key={kw}
+                    type="button"
+                    onClick={() => {
+                      setInput(kw);
+                      inputRef.current?.focus();
+                    }}
+                    className="cursor-pointer rounded-full px-3 py-1 text-white/90 ring-1 ring-white/25 transition hover:bg-white/10"
+                  >
+                    {kw}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
 
-      <div className="mx-auto -mt-16 max-w-6xl space-y-10 px-4 sm:px-6">
-        <QuickRow data={data} />
-        <AllMinwon data={data} cat={homeCat} />
-        <BottomRow data={data} />
-      </div>
+      {q ? (
+        <div className="mx-auto max-w-6xl px-4 pb-20 pt-6 sm:px-6">
+          <Results data={data} hits={hits} q={q} />
+        </div>
+      ) : (
+        <div className="mx-auto -mt-16 max-w-6xl space-y-10 px-4 sm:px-6">
+          <QuickRow data={data} />
+          <AllMinwon data={data} cat={homeCat} />
+          <BottomRow data={data} />
+        </div>
+      )}
     </div>
   );
 }
