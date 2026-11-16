@@ -13,7 +13,7 @@ export default function App() {
   const isJudge = route.path[0] === "judge";
 
   return (
-    <div className="min-h-screen bg-[#f8fafc]">
+    <div className="min-h-screen bg-paper">
       <header className="no-print sticky top-0 z-20 border-b border-slate-200/80 bg-white/90 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:px-6">
           <a href="#/" className="flex items-center gap-2 font-bold tracking-tight text-slate-900 transition hover:opacity-80">

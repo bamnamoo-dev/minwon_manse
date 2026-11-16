@@ -1,19 +1,83 @@
 @import "tailwindcss";
 
+/* ───────── 디자인 기준(D0) — docs/디자인_개편계획.md 4장 ─────────
+   톤: A 잉크(따뜻한 무채색 바탕 + 잉크색 글자 + 남색 강조 하나).
+   - 의미 색: paper(바탕) sunk(눌린 바탕) ink(글자) ink-2(보조 글자) muted(흐린 글자) line(구분선) accent(강조) mark(단계 표식)
+     → bg-paper, text-ink, border-line … 로 쓴다. 값은 :root 변수라 시안(.lab[data-tone])에서 바꿔 비교할 수 있다.
+   - 기존 코드의 gray·slate·brand 단계도 같은 톤으로 맞춰 둔다(화면별 정리는 D1~ 에서).
+   - 빨강·초록·노랑(rose·emerald·amber)은 판별 결과 전용. */
+:root {
+  --paper: #f6f5f1;
+  --sunk: #eeece6;
+  --surface: #fffefb;
+  --ink: #1b1c1f;
+  --ink-2: #44454b;
+  --muted: #7a7a80;
+  --line: #dddad2;
+  --line-strong: #c5c1b7;
+  --accent: #26407a;
+  --mark: #26407a;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-sunk: var(--sunk);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-mark: var(--mark);
+}
+
 @theme {
-  --font-sans: "Pretendard Variable", "Pretendard","Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", system-ui, sans-serif;
-  --color-brand-50: #eff4ff;
-  --color-brand-100: #dbe6fe;
-  --color-brand-200: #bfd3fe;
-  --color-brand-600: #1d4ed8;
-  --color-brand-700: #1e40af;
-  --color-brand-900: #172554;
-  --color-brand-950: #0f172a;
+  --font-sans: "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", system-ui, sans-serif;
+
+  /* 모서리: 둥근 카드 느낌을 줄인다 */
+  --radius-md: 5px;
+  --radius-lg: 6px;
+  --radius-xl: 7px;
+  --radius-2xl: 8px;
+
+  /* 강조(잉크 남색) */
+  --color-brand-50: #eef1f7;
+  --color-brand-100: #dfe5f0;
+  --color-brand-200: #c3cde2;
+  --color-brand-600: #26407a;
+  --color-brand-700: #1d3263;
+  --color-brand-900: #121f3d;
+  --color-brand-950: #0b1428;
+
+  /* 무채색(따뜻한 회색) — gray·slate 를 같은 값으로 */
+  --color-gray-50: #f6f5f1;
+  --color-gray-100: #eeece6;
+  --color-gray-200: #dddad2;
+  --color-gray-300: #c5c1b7;
+  --color-gray-400: #9b988f;
+  --color-gray-500: #7a7a80;
+  --color-gray-600: #55565c;
+  --color-gray-700: #3d3e43;
+  --color-gray-800: #2a2b2f;
+  --color-gray-900: #1b1c1f;
+  --color-gray-950: #111214;
+  --color-slate-50: #f6f5f1;
+  --color-slate-100: #eeece6;
+  --color-slate-200: #dddad2;
+  --color-slate-300: #c5c1b7;
+  --color-slate-400: #9b988f;
+  --color-slate-500: #7a7a80;
+  --color-slate-600: #55565c;
+  --color-slate-700: #3d3e43;
+  --color-slate-800: #2a2b2f;
+  --color-slate-900: #1b1c1f;
+  --color-slate-950: #111214;
 }
 
 html {
-  background: #f8fafc;
-  color: #0f172a;
+  background: var(--paper);
+  color: var(--ink);
   -webkit-text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
 }
@@ -31,27 +95,27 @@ html {
   line-height: 1.75;
   word-break: keep-all;
   overflow-wrap: anywhere;
-  color: #1e293b;
+  color: var(--ink);
 }
 .md h1 {
   font-size: 1.35rem;
   font-weight: 700;
   margin: 1.6rem 0 0.6rem;
-  color: #0f172a;
+  color: var(--ink);
 }
 .md h2 {
   font-size: 1.125rem;
   font-weight: 700;
   margin: 1.5rem 0 0.5rem;
   padding-bottom: 0.35rem;
-  border-bottom: 1px solid #e2e8f0;
-  color: var(--color-brand-900);
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
 }
 .md h3,
 .md h4 {
   font-weight: 700;
   margin: 1.1rem 0 0.4rem;
-  color: #0f172a;
+  color: var(--ink);
 }
 .md p {
   margin: 0.5rem 0;
@@ -80,61 +144,30 @@ html {
 }
 .md th,
 .md td {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--line);
   padding: 0.45rem 0.65rem;
   vertical-align: top;
 }
 .md th {
-  background: #f8fafc;
+  background: var(--sunk);
   font-weight: 600;
-  color: #334155;
+  color: var(--ink-2);
 }
 .md tbody tr:nth-child(even) {
-  background: #fafbfc;
+  background: color-mix(in srgb, var(--sunk) 45%, transparent);
 }
 .md img {
   max-width: 100%;
   border-radius: 0.5rem;
 }
 
-/* ───────── 디자인 시안(#/lab) 톤 — docs/디자인_개편계획.md ─────────
-   의미 변수(--paper, --ink …)와 함께 Tailwind 팔레트 변수도 덮어써서
-   기존 부품(판별기 등)도 같은 톤으로 보이게 한다. */
+/* ───────── 디자인 시안(#/lab) 비교용 톤 ─────────
+   A 잉크는 위 :root 기본값. B·C 는 의미 변수와 Tailwind 팔레트 변수를 덮어써 비교한다. */
 .lab {
-  --radius-lg: 5px;
-  --radius-xl: 6px;
-  --radius-2xl: 8px;
   background: var(--paper);
   color: var(--ink);
   font-feature-settings: "tnum" 0;
   letter-spacing: -0.003em;
-}
-.lab[data-tone="ink"] {
-  --paper: #f6f5f1;
-  --sunk: #eeece6;
-  --ink: #1b1c1f;
-  --ink-2: #44454b;
-  --muted: #7a7a80;
-  --line: #dddad2;
-  --line-strong: #c5c1b7;
-  --accent: #26407a;
-  --mark: #26407a;
-  --color-brand-50: #eef1f7;
-  --color-brand-100: #dfe5f0;
-  --color-brand-200: #c3cde2;
-  --color-brand-600: #26407a;
-  --color-brand-700: #1d3263;
-  --color-brand-900: #121f3d;
-  --color-gray-50: #f6f5f1;
-  --color-gray-100: #eeece6;
-  --color-gray-200: #dddad2;
-  --color-gray-300: #c5c1b7;
-  --color-gray-400: #9b988f;
-  --color-gray-500: #7a7a80;
-  --color-gray-600: #55565c;
-  --color-gray-700: #3d3e43;
-  --color-gray-800: #2a2b2f;
-  --color-gray-900: #1b1c1f;
 }
 .lab[data-tone="teal"] {
   --paper: #f4f6f5;

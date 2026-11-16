@@ -101,7 +101,7 @@ export function SearchPage({ data, q, cat }: { data: AppData; q: string; cat: st
   if (q) {
     return (
       <div className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
-        <div className="sticky top-14 z-10 -mx-4 bg-[#f8fafc]/95 px-4 pb-3 pt-4 backdrop-blur-md sm:-mx-6 sm:px-6">
+        <div className="sticky top-14 z-10 -mx-4 bg-paper/95 px-4 pb-3 pt-4 backdrop-blur-md sm:-mx-6 sm:px-6">
           {searchBox(false)}
           <nav className="no-scrollbar mt-3 flex gap-1.5 overflow-x-auto pb-0.5 sm:flex-wrap" aria-label="분류">
             {["", ...data.categories].map((c) => {
@@ -377,8 +377,12 @@ function Browse({ data, cat }: { data: AppData; cat: string }) {
                     <div className="line-clamp-2 text-sm font-semibold leading-snug text-slate-900 group-hover:text-brand-700">
                       {m.title}
                     </div>
-                    <div className="mt-2 flex items-center gap-1.5 text-[11px] text-slate-500">
-                      <span className="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 font-medium text-slate-600">
+                    <div className="mt-2 flex min-w-0 items-center gap-1.5 text-[11px] text-slate-500">
+                      {/* 처리기간이 긴 민원(예: 학교시설 사용)은 말줄임 — 전체는 마우스를 올리면 보임 */}
+                      <span
+                        className="max-w-[70%] shrink-0 truncate rounded bg-slate-100 px-1.5 py-0.5 font-medium text-slate-600"
+                        title={m.period || undefined}
+                      >
                         {m.period || "-"}
                       </span>
                       <span className="truncate">{m.methods.slice(0, 2).join(", ") || "-"}</span>
