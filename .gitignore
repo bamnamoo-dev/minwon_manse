@@ -27,3 +27,4 @@ dist-ssr
 public/pages/
 docs/extract_report.md.bak
 __pycache__/
+public/data/

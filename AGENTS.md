@@ -43,3 +43,12 @@
 ## 작업 방식
 - Phase 단위로, 그 안에서도 파일 단위로 작게 작업하고 끝날 때마다 `npm run validate` + 동작 확인.
 - 판별기 로직은 Vitest 단위 테스트 필수 (경계값: 1951-02, 1982-02, 2002-02, 2003-02, 2003-03, 2013-02, 2014-03).
+
+## 앱 구조 (Phase 2~)
+- `scripts/build_data.ts` → `public/data/bundle.json` (git 제외, `npm run dev`/`build` 전에 자동 생성)
+- `src/lib/search.ts` 검색 엔진(초성·동의어·두 글자 조각 부분일치, 전부 브라우저 안에서 실행) · 테스트 `src/lib/search.test.ts` (`npm test`)
+  - 검색 품질을 바꾸면 반드시 `npm test` 통과 확인. 새 실무 표현은 테스트에 추가
+- `src/lib/router.ts` 해시 라우팅: `#/?q=&c=` 검색, `#/m/M02` 민원, `#/g/G05` 업무안내
+- `src/components/` SearchPage, MinwonDetail(발급경로 표 포함), GuideDetail(marked), PageViewer(원문 이미지·인쇄)
+- 주의: `useEffect(() => window.scrollTo(...))` 처럼 값을 반환하는 축약형 금지 (최신 브라우저는 Promise 반환 → React 오류)
+- 개발 서버: `npm run dev` (http://localhost:5173)

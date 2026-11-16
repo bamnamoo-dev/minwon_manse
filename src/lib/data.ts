@@ -1,0 +1,45 @@
+import { useEffect, useState } from "react";
+import { SearchIndex } from "./search";
+import type { Bundle, Guide, Minwon } from "./types";
+
+export interface AppData {
+  bundle: Bundle;
+  index: SearchIndex;
+  minwonById: Map<string, Minwon>;
+  guideById: Map<string, Guide>;
+  categories: string[];
+}
+
+let cache: Promise<AppData> | null = null;
+
+function load(): Promise<AppData> {
+  cache ??= fetch(`${import.meta.env.BASE_URL}data/bundle.json`)
+    .then((r) => {
+      if (!r.ok) throw new Error(`데이터를 불러오지 못했습니다 (${r.status})`);
+      return r.json() as Promise<Bundle>;
+    })
+    .then((bundle) => ({
+      bundle,
+      index: new SearchIndex(bundle.minwon, bundle.guides, bundle.synonyms),
+      minwonById: new Map(bundle.minwon.map((m) => [m.id, m])),
+      guideById: new Map(bundle.guides.map((g) => [g.id, g])),
+      categories: [...new Set(bundle.minwon.map((m) => m.category))],
+    }));
+  return cache;
+}
+
+export function useAppData(): { data?: AppData; error?: string } {
+  const [state, setState] = useState<{ data?: AppData; error?: string }>({});
+  useEffect(() => {
+    load().then(
+      (data) => setState({ data }),
+      (e: Error) => setState({ error: e.message }),
+    );
+  }, []);
+  return state;
+}
+
+/** PDF 쪽 → 페이지 이미지 경로 */
+export const pageImg = (p: number) => `${import.meta.env.BASE_URL}pages/p${p}.webp`;
+/** PDF 쪽 → 편람 인쇄 쪽수 */
+export const printedPage = (p: number) => p - 10;

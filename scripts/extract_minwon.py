@@ -511,6 +511,10 @@ def extract_guides(lines: list[str], pages: list[int], P: Pages) -> list[dict]:
         m = GUIDE_HEAD_RE.match(lines[i].strip())
         if m:
             starts.append((i, "VI. 기타", m.group(2).strip()))
+    # III장 첫 절은 번호 없는 제목("# 민원처리 과정")이라 위 규칙에 안 걸림 → 직접 추가
+    # (즉시·유기한 민원, 제증명 발급 형태, 신청인 신원 확인·위임장 — 43~46쪽)
+    first_iii = idx_of(lambda l: l == "# 민원처리 과정", ch3)
+    starts.append((first_iii, "III. 민원신청 안내", "민원처리 과정 (즉시·유기한 민원, 발급 형태, 신청인 신원 확인·위임장)"))
 
     starts.sort()
     bounds = [s[0] for s in starts] + [len(lines)]

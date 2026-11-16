@@ -1,68 +1,38 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@import "tailwindcss";
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@theme {
+  --font-sans: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", system-ui, sans-serif;
+  --color-brand-50: #eff4ff;
+  --color-brand-100: #dbe6fe;
+  --color-brand-600: #1d4ed8;
+  --color-brand-700: #1e40af;
+  --color-brand-900: #172554;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+html {
+  background: #f6f7f9;
+  color: #1f2937;
+  -webkit-text-size-adjust: 100%;
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+/* 업무안내 마크다운 본문 */
+.md {
+  line-height: 1.75;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 }
+.md h1 { font-size: 1.35rem; font-weight: 700; margin: 1.6rem 0 0.6rem; }
+.md h2 { font-size: 1.15rem; font-weight: 700; margin: 1.4rem 0 0.5rem; color: var(--color-brand-900); }
+.md h3, .md h4 { font-weight: 700; margin: 1.1rem 0 0.4rem; }
+.md p { margin: 0.45rem 0; }
+.md ul, .md ol { padding-left: 1.3rem; margin: 0.4rem 0; }
+.md ul { list-style: disc; }
+.md ol { list-style: decimal; }
+.md table { border-collapse: collapse; margin: 0.8rem 0; font-size: 0.92rem; display: block; overflow-x: auto; max-width: 100%; }
+.md th, .md td { border: 1px solid #d1d5db; padding: 0.35rem 0.55rem; vertical-align: top; }
+.md th { background: #f3f4f6; font-weight: 600; }
+.md img { max-width: 100%; }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+@media print {
+  .no-print { display: none !important; }
 }

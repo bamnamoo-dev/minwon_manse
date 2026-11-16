@@ -10,11 +10,18 @@
     "preview": "vite preview",
     "validate": "tsx scripts/validate.ts",
     "extract": "py scripts/extract_minwon.py",
-    "render-pages": "py scripts/render_pages.py"
+    "render-pages": "py scripts/render_pages.py",
+    "build-data": "tsx scripts/build_data.ts",
+    "predev": "npm run build-data",
+    "prebuild": "npm run validate && npm run build-data",
+    "test": "vitest run"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.1.11",
+    "marked": "^15.0.12",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "tailwindcss": "^4.1.11",
     "zod": "^4.6.7"
   },
   "devDependencies": {
