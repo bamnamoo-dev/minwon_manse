@@ -25,6 +25,11 @@ dist-ssr
 
 # 생성물(스크립트로 재생성)
 public/pages/
+public/neis/
+public/certsys/
 docs/extract_report.md.bak
 __pycache__/
 public/data/
+# 참고 매뉴얼 원본(공개자료, 저장소에는 넣지 않음 — 외장하드 source/에만 보관)
+source/2025 나이스 민원 사용자매뉴얼(일반행정-민원).pdf
+source/학교증명발급시스템+사용자+매뉴얼(최종).pdf

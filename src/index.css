@@ -4,15 +4,26 @@
   --font-sans: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", system-ui, sans-serif;
   --color-brand-50: #eff4ff;
   --color-brand-100: #dbe6fe;
+  --color-brand-200: #bfd3fe;
   --color-brand-600: #1d4ed8;
   --color-brand-700: #1e40af;
   --color-brand-900: #172554;
+  --color-brand-950: #0f172a;
 }
 
 html {
-  background: #f6f7f9;
-  color: #1f2937;
+  background: #f8fafc;
+  color: #0f172a;
   -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 /* 업무안내 마크다운 본문 */
@@ -20,19 +31,196 @@ html {
   line-height: 1.75;
   word-break: keep-all;
   overflow-wrap: anywhere;
+  color: #1e293b;
 }
-.md h1 { font-size: 1.35rem; font-weight: 700; margin: 1.6rem 0 0.6rem; }
-.md h2 { font-size: 1.15rem; font-weight: 700; margin: 1.4rem 0 0.5rem; color: var(--color-brand-900); }
-.md h3, .md h4 { font-weight: 700; margin: 1.1rem 0 0.4rem; }
-.md p { margin: 0.45rem 0; }
-.md ul, .md ol { padding-left: 1.3rem; margin: 0.4rem 0; }
-.md ul { list-style: disc; }
-.md ol { list-style: decimal; }
-.md table { border-collapse: collapse; margin: 0.8rem 0; font-size: 0.92rem; display: block; overflow-x: auto; max-width: 100%; }
-.md th, .md td { border: 1px solid #d1d5db; padding: 0.35rem 0.55rem; vertical-align: top; }
-.md th { background: #f3f4f6; font-weight: 600; }
-.md img { max-width: 100%; }
+.md h1 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 1.6rem 0 0.6rem;
+  color: #0f172a;
+}
+.md h2 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 1.5rem 0 0.5rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid #e2e8f0;
+  color: var(--color-brand-900);
+}
+.md h3,
+.md h4 {
+  font-weight: 700;
+  margin: 1.1rem 0 0.4rem;
+  color: #0f172a;
+}
+.md p {
+  margin: 0.5rem 0;
+}
+.md ul,
+.md ol {
+  padding-left: 1.35rem;
+  margin: 0.45rem 0;
+}
+.md ul {
+  list-style: disc;
+}
+.md ol {
+  list-style: decimal;
+}
+.md li {
+  margin: 0.2rem 0;
+}
+.md table {
+  border-collapse: collapse;
+  margin: 0.9rem 0;
+  font-size: 0.9rem;
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
+}
+.md th,
+.md td {
+  border: 1px solid #e2e8f0;
+  padding: 0.45rem 0.65rem;
+  vertical-align: top;
+}
+.md th {
+  background: #f8fafc;
+  font-weight: 600;
+  color: #334155;
+}
+.md tbody tr:nth-child(even) {
+  background: #fafbfc;
+}
+.md img {
+  max-width: 100%;
+  border-radius: 0.5rem;
+}
+
+/* ───────── 디자인 시안(#/lab) 톤 — docs/디자인_개편계획.md ─────────
+   의미 변수(--paper, --ink …)와 함께 Tailwind 팔레트 변수도 덮어써서
+   기존 부품(판별기 등)도 같은 톤으로 보이게 한다. */
+.lab {
+  --radius-lg: 5px;
+  --radius-xl: 6px;
+  --radius-2xl: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  font-feature-settings: "tnum" 0;
+  letter-spacing: -0.003em;
+}
+.lab[data-tone="ink"] {
+  --paper: #f6f5f1;
+  --sunk: #eeece6;
+  --ink: #1b1c1f;
+  --ink-2: #44454b;
+  --muted: #7a7a80;
+  --line: #dddad2;
+  --line-strong: #c5c1b7;
+  --accent: #26407a;
+  --mark: #26407a;
+  --color-brand-50: #eef1f7;
+  --color-brand-100: #dfe5f0;
+  --color-brand-200: #c3cde2;
+  --color-brand-600: #26407a;
+  --color-brand-700: #1d3263;
+  --color-brand-900: #121f3d;
+  --color-gray-50: #f6f5f1;
+  --color-gray-100: #eeece6;
+  --color-gray-200: #dddad2;
+  --color-gray-300: #c5c1b7;
+  --color-gray-400: #9b988f;
+  --color-gray-500: #7a7a80;
+  --color-gray-600: #55565c;
+  --color-gray-700: #3d3e43;
+  --color-gray-800: #2a2b2f;
+  --color-gray-900: #1b1c1f;
+}
+.lab[data-tone="teal"] {
+  --paper: #f4f6f5;
+  --sunk: #e9eeec;
+  --ink: #18201e;
+  --ink-2: #3f4a47;
+  --muted: #6f7b78;
+  --line: #d6dedb;
+  --line-strong: #b9c5c1;
+  --accent: #17675b;
+  --mark: #17675b;
+  --color-brand-50: #ebf4f1;
+  --color-brand-100: #d4e8e2;
+  --color-brand-200: #a8d0c5;
+  --color-brand-600: #17675b;
+  --color-brand-700: #10524a;
+  --color-brand-900: #0a2f2a;
+  --color-gray-50: #f4f6f5;
+  --color-gray-100: #e9eeec;
+  --color-gray-200: #d6dedb;
+  --color-gray-300: #b9c5c1;
+  --color-gray-400: #93a09c;
+  --color-gray-500: #6f7b78;
+  --color-gray-600: #505b58;
+  --color-gray-700: #3a4441;
+  --color-gray-800: #27302e;
+  --color-gray-900: #18201e;
+}
+.lab[data-tone="mono"] {
+  --paper: #ffffff;
+  --sunk: #f3f3f3;
+  --ink: #111111;
+  --ink-2: #444444;
+  --muted: #777777;
+  --line: #e2e2e2;
+  --line-strong: #c8c8c8;
+  --accent: #111111;
+  --mark: #d4480f;
+  --color-brand-50: #f3f3f3;
+  --color-brand-100: #e6e6e6;
+  --color-brand-200: #cfcfcf;
+  --color-brand-600: #111111;
+  --color-brand-700: #000000;
+  --color-brand-900: #000000;
+  --color-gray-50: #f7f7f7;
+  --color-gray-100: #efefef;
+  --color-gray-200: #e2e2e2;
+  --color-gray-300: #c8c8c8;
+  --color-gray-400: #9e9e9e;
+  --color-gray-500: #777777;
+  --color-gray-600: #555555;
+  --color-gray-700: #3a3a3a;
+  --color-gray-800: #262626;
+  --color-gray-900: #111111;
+}
+/* 시안 안에서는 기존 판별기의 카드 테두리·배경을 걷어 낸다 */
+.lab-judge section,
+.lab-judge > div {
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+}
+/* 신원 확인 compact 상자의 자체 제목 — 시안에서는 단계 제목과 겹치므로 숨김 */
+.lab-judge > div.mt-4 > div:first-child {
+  display: none;
+}
+.lab-link {
+  color: var(--ink-2);
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.lab-link:hover {
+  color: var(--ink);
+  text-decoration-color: var(--ink);
+}
+.lab-link:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
 
 @media print {
-  .no-print { display: none !important; }
+  .no-print {
+    display: none !important;
+  }
 }

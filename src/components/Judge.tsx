@@ -13,18 +13,39 @@ import {
   type Visitor,
   type Ym,
 } from "../lib/judge";
+import { AlertIcon, CheckIcon, CopyIcon } from "./Icons";
 import { Badge, Button, List, Section } from "./ui";
 
 /* 입력값(연도·나이)은 이 컴포넌트 상태에만 있고 주소·저장소·서버로 보내지 않는다. */
 
 const inputCls =
-  "rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-base outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100";
+  "rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-base outline-none transition focus:border-brand-600 focus:ring-2 focus:ring-brand-100";
 
-const VERDICT: Record<Verdict, { label: string; cls: string; icon: string }> = {
-  ok: { label: "가능", cls: "bg-emerald-50 text-emerald-800 ring-emerald-200", icon: "○" },
-  check: { label: "확인 필요", cls: "bg-amber-50 text-amber-800 ring-amber-200", icon: "△" },
-  need: { label: "입력 필요", cls: "bg-gray-50 text-gray-600 ring-gray-200", icon: "?" },
-  no: { label: "불가", cls: "bg-white text-gray-400 ring-gray-200", icon: "×" },
+const VERDICT: Record<Verdict, { label: string; cls: string; dot: string; icon: string }> = {
+  ok: {
+    label: "가능",
+    cls: "bg-emerald-50/70 text-emerald-900 ring-emerald-200/80",
+    dot: "bg-emerald-600 text-white",
+    icon: "○",
+  },
+  check: {
+    label: "확인 필요",
+    cls: "bg-amber-50/70 text-amber-900 ring-amber-200/80",
+    dot: "bg-amber-500 text-white",
+    icon: "△",
+  },
+  need: {
+    label: "입력 필요",
+    cls: "bg-gray-50 text-gray-600 ring-gray-200",
+    dot: "bg-gray-300 text-gray-700",
+    icon: "?",
+  },
+  no: {
+    label: "불가",
+    cls: "bg-white text-gray-400 ring-gray-200/70",
+    dot: "bg-gray-100 text-gray-400",
+    icon: "×",
+  },
 };
 
 const ESTIMATE_BASIS = ["졸업연월", "제적연월", "해당연월"];
@@ -86,13 +107,14 @@ export function IssuanceJudge({ data, ruleId: fixedId }: { data: AppData; ruleId
 
   return (
     <Section
-      title={fixedId ? `발급 경로 판별 — ${rule.label}` : "발급 경로 판별기"}
+      title={fixedId ? `발급 경로 판별 — ${rule.label}` : "연도별 발급 경로 판별"}
+      subtitle="연도를 입력하면 NEIS·정부24·무인발급기·FAX 가능 여부를 즉시 확인합니다."
       right={!reviewed ? <Badge tone="amber">규칙 검수 전</Badge> : undefined}
     >
-      <div className="space-y-3">
+      <div className="space-y-3.5">
         {!fixedId && (
           <label className="block">
-            <span className="mb-1 block text-sm font-semibold text-gray-600">증명서</span>
+            <span className="mb-1.5 block text-xs font-semibold text-gray-500">증명서 선택</span>
             <select
               className={inputCls + " w-full"}
               value={pickedId}
@@ -115,18 +137,22 @@ export function IssuanceJudge({ data, ruleId: fixedId }: { data: AppData; ruleId
         )}
 
         {needs.needsDate && (
-          <div className="rounded-lg bg-gray-50 p-3">
-            <div className="mb-2 flex flex-wrap items-center gap-2">
-              <span className="text-sm font-semibold text-gray-600">기준: {rule.basis}</span>
-              {rule.basis.includes("연") && <span className="text-xs text-gray-500">(출생연도가 아닙니다)</span>}
+          <div className="rounded-xl border border-gray-200/70 bg-gray-50/90 p-3.5">
+            <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-xs font-bold text-gray-700 sm:text-sm">기준: {rule.basis}</span>
+                {rule.basis.includes("연") && <span className="text-xs text-gray-500">(출생연도 아님)</span>}
+              </div>
               {canEstimate && (
-                <div className="ml-auto flex overflow-hidden rounded-lg ring-1 ring-gray-300">
+                <div className="inline-flex rounded-xl bg-gray-200/80 p-0.5">
                   {(["direct", "birth"] as const).map((md) => (
                     <button
                       key={md}
                       type="button"
                       onClick={() => setMode(md)}
-                      className={`px-3 py-1 text-sm ${mode === md ? "bg-brand-600 text-white" : "bg-white text-gray-700"}`}
+                      className={`cursor-pointer rounded-lg px-2.5 py-1 text-xs font-medium transition ${
+                        mode === md ? "bg-white text-gray-900 shadow-2xs" : "text-gray-600 hover:text-gray-900"
+                      }`}
                     >
                       {md === "direct" ? "직접 입력" : "출생연도로 추정"}
                     </button>
@@ -146,7 +172,7 @@ export function IssuanceJudge({ data, ruleId: fixedId }: { data: AppData; ruleId
                   onChange={(e) => setYear(e.target.value.replace(/\D/g, ""))}
                   aria-label={`${rule.basis} — 연도`}
                 />
-                <span>년</span>
+                <span className="text-sm text-gray-700">년</span>
                 {rule.basis.includes("월") && (
                   <>
                     <select className={inputCls} value={month} onChange={(e) => setMonth(e.target.value)} aria-label="월">
@@ -173,7 +199,7 @@ export function IssuanceJudge({ data, ruleId: fixedId }: { data: AppData; ruleId
                     onChange={(e) => setBirthYear(e.target.value.replace(/\D/g, ""))}
                     aria-label="출생연도"
                   />
-                  <span>년생</span>
+                  <span className="text-sm text-gray-700">년생</span>
                   <select className={inputCls} value={birthMonth} onChange={(e) => setBirthMonth(e.target.value)} aria-label="출생월">
                     <option value="">생월 모름</option>
                     {Array.from({ length: 12 }, (_, i) => (
@@ -190,12 +216,13 @@ export function IssuanceJudge({ data, ruleId: fixedId }: { data: AppData; ruleId
                 </div>
                 {dates.length > 0 && (
                   <p className="text-sm text-gray-700">
-                    추정 {rule.basis}: <b>{dates.map((d) => `${d.year}년 ${d.month}월`).join(" 또는 ")}</b>
-                    {dates.length > 1 && " (1~2월생은 한 해 일찍 입학했을 수 있음)"}
+                    추정 {rule.basis}: <b className="text-brand-700">{dates.map((d) => `${d.year}년 ${d.month}월`).join(" 또는 ")}</b>
+                    {dates.length > 1 && <span className="text-xs text-gray-500"> (1~2월생은 한 해 일찍 입학했을 수 있음)</span>}
                   </p>
                 )}
-                <p className="text-xs text-amber-700">
-                  ⚠ 정규 진학 기준 추정입니다. 유급·조기입학·검정고시·전학 등은 반영되지 않으니 졸업연도를 꼭 확인하세요.
+                <p className="flex items-start gap-1.5 text-xs text-amber-700">
+                  <AlertIcon size={14} className="mt-0.5" />
+                  <span>정규 진학 기준 추정입니다. 유급·조기입학·검정고시·전학 등은 반영되지 않으니 졸업연도를 꼭 확인하세요.</span>
                 </p>
               </div>
             )}
@@ -203,13 +230,13 @@ export function IssuanceJudge({ data, ruleId: fixedId }: { data: AppData; ruleId
         )}
 
         {needs.statuses.length > 0 && (
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="text-sm font-semibold text-gray-600">해당 신분</span>
+          <div className="flex flex-wrap items-center gap-3 rounded-xl bg-gray-50/70 px-3.5 py-2.5">
+            <span className="text-xs font-bold text-gray-600">해당 신분</span>
             {needs.statuses.map((s) => (
-              <label key={s} className="inline-flex items-center gap-1.5 text-sm">
+              <label key={s} className="inline-flex cursor-pointer items-center gap-1.5 text-sm text-gray-800">
                 <input
                   type="checkbox"
-                  className="h-4 w-4 accent-brand-600"
+                  className="h-4 w-4 rounded accent-brand-600"
                   checked={statuses.includes(s)}
                   onChange={(e) => setStatuses((cur) => (e.target.checked ? [...cur, s] : cur.filter((x) => x !== s)))}
                 />
@@ -222,10 +249,13 @@ export function IssuanceJudge({ data, ruleId: fixedId }: { data: AppData; ruleId
         <ResultList results={results} />
 
         {hasInput && (
-          <div className="rounded-lg border border-brand-100 bg-brand-50/50 p-3">
-            <div className="mb-1 flex items-center justify-between">
-              <span className="text-sm font-semibold text-brand-900">민원인 안내 문구</span>
-              <Button onClick={copy}>{copied ? "✓ 복사됨" : "📋 복사"}</Button>
+          <div className="rounded-xl border border-brand-200/80 bg-brand-50/50 p-3.5">
+            <div className="mb-1.5 flex items-center justify-between gap-2">
+              <span className="text-xs font-bold text-brand-900">민원인 안내 문구</span>
+              <Button size="sm" onClick={copy}>
+                {copied ? <CheckIcon size={13} className="text-emerald-600" /> : <CopyIcon size={13} />}
+                {copied ? "복사됨" : "복사"}
+              </Button>
             </div>
             <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-gray-800">{message}</pre>
           </div>
@@ -237,7 +267,7 @@ export function IssuanceJudge({ data, ruleId: fixedId }: { data: AppData; ruleId
           </div>
         )}
         <p className="text-xs text-gray-400">
-          근거: 민원편람 47~48쪽(인쇄 37~38쪽) 「민원 창구별 종류 및 발급 가능 연도」. 입력한 연도는 저장되지 않습니다.
+          근거: 민원편람 47~48쪽(인쇄 37~38쪽) 「민원 창구별 종류 및 발급 가능 연도」 · 입력한 연도는 저장되지 않습니다.
         </p>
       </div>
     </Section>
@@ -248,17 +278,19 @@ function ResultList({ results }: { results: CellResult[] }) {
   const order: Verdict[] = ["ok", "check", "need", "no"];
   const sorted = [...results].sort((a, b) => order.indexOf(a.verdict) - order.indexOf(b.verdict));
   return (
-    <ul className="grid gap-1.5 sm:grid-cols-2">
+    <ul className="grid gap-2 sm:grid-cols-2">
       {sorted.map((r) => {
         const v = VERDICT[r.verdict];
         return (
-          <li key={r.channel.id} className={`rounded-lg px-3 py-2 ring-1 ${v.cls}`}>
+          <li key={r.channel.id} className={`rounded-xl px-3.5 py-2.5 ring-1 ring-inset ${v.cls}`}>
             <div className="flex items-center gap-2">
-              <span className="w-4 text-center font-bold">{v.icon}</span>
-              <span className="font-medium">{r.channel.label}</span>
-              <span className="ml-auto shrink-0 text-xs font-semibold">{v.label}</span>
+              <span className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold ${v.dot}`}>
+                {v.icon}
+              </span>
+              <span className="font-semibold">{r.channel.label}</span>
+              <span className="ml-auto shrink-0 text-xs font-bold">{v.label}</span>
             </div>
-            <div className="mt-0.5 pl-6 text-xs opacity-90">{r.reason}</div>
+            <div className="mt-1 pl-7 text-xs leading-relaxed opacity-90">{r.reason}</div>
           </li>
         );
       })}
@@ -291,20 +323,22 @@ export function IdentityJudge({ data, compact }: { data: AppData; compact?: bool
 
   const body = (
     <div className="space-y-3">
-      <div className="flex flex-wrap gap-2">
+      <div className="inline-flex flex-wrap gap-1 rounded-xl bg-gray-100 p-1">
         {visitors.map(([v, label]) => (
           <button
             key={v}
             type="button"
             onClick={() => setVisitor(v)}
-            className={`rounded-lg px-3 py-1.5 text-sm ring-1 ${visitor === v ? "bg-brand-600 text-white ring-brand-600" : "bg-white text-gray-700 ring-gray-300"}`}
+            className={`cursor-pointer rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+              visitor === v ? "bg-white text-brand-700 shadow-2xs" : "text-gray-600 hover:text-gray-900"
+            }`}
           >
             {label}
           </button>
         ))}
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm font-semibold text-gray-600">증명서 대상자</span>
+        <span className="text-xs font-bold text-gray-600 sm:text-sm">증명서 대상자</span>
         <select className={inputCls} value={ageMode} onChange={(e) => setAgeMode(e.target.value as "age" | "birth")} aria-label="나이 입력 방식">
           <option value="age">만 나이</option>
           <option value="birth">생년월일</option>
@@ -320,27 +354,29 @@ export function IdentityJudge({ data, compact }: { data: AppData; compact?: bool
               onChange={(e) => setAge(e.target.value.replace(/\D/g, ""))}
               aria-label="만 나이"
             />
-            <span>세</span>
+            <span className="text-sm text-gray-700">세</span>
           </>
         ) : (
           <input type="date" className={inputCls} value={birth} onChange={(e) => setBirth(e.target.value)} aria-label="생년월일" />
         )}
-        {ageMode === "birth" && ageNum !== undefined && <span className="text-sm text-gray-600">→ 만 {ageNum}세</span>}
+        {ageMode === "birth" && ageNum !== undefined && (
+          <span className="rounded-md bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-700">만 {ageNum}세</span>
+        )}
       </div>
 
       {res &&
         (res.matched ? (
           res.case.denied ? (
-            <div className="rounded-lg bg-rose-50 p-3 text-sm text-rose-900 ring-1 ring-rose-200">
-              <div className="font-semibold">
+            <div className="rounded-xl bg-rose-50 p-3.5 text-sm text-rose-900 ring-1 ring-inset ring-rose-200">
+              <div className="font-bold">
                 × {res.case.visitor} · 대상자 {res.case.subject} → 신청 불가
               </div>
-              <p className="mt-1">{res.case.message}</p>
+              <p className="mt-1 leading-relaxed">{res.case.message}</p>
               {res.case.source && <p className="mt-1.5 text-xs opacity-75">근거: {res.case.source}</p>}
             </div>
           ) : (
-            <div className="rounded-lg bg-emerald-50 p-3 ring-1 ring-emerald-200">
-              <div className="mb-1.5 text-sm font-semibold text-emerald-900">
+            <div className="rounded-xl bg-emerald-50/80 p-3.5 ring-1 ring-inset ring-emerald-200">
+              <div className="mb-1.5 text-sm font-bold text-emerald-900">
                 {res.case.visitor} · 대상자 {res.case.subject} → 필요 서류
               </div>
               <List items={res.case.documents} />
@@ -348,7 +384,7 @@ export function IdentityJudge({ data, compact }: { data: AppData; compact?: bool
             </div>
           )
         ) : (
-          <div className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">△ {res.note}</div>
+          <div className="rounded-xl bg-amber-50 p-3.5 text-sm text-amber-900 ring-1 ring-inset ring-amber-200">△ {res.note}</div>
         ))}
       <p className="text-xs text-gray-400">
         근거: 민원편람 46쪽(인쇄 36쪽) 「신청인 신원 확인 방법(방문 시)」 · 대리인 위임장은 「민원 처리에 관한 법률 시행규칙」 별지 제3호 서식
@@ -357,28 +393,31 @@ export function IdentityJudge({ data, compact }: { data: AppData; compact?: bool
     </div>
   );
 
-  if (compact)
+  if (compact) {
     return (
-      <div className="mt-4 rounded-lg border border-gray-200 p-3">
-        <div className="mb-2 text-sm font-bold text-gray-800">누가 신청하나요? (방문 시 신원 확인 서류)</div>
+      <div className="mt-4 rounded-xl border border-gray-200/90 bg-gray-50/50 p-3.5">
+        <div className="mb-2.5 text-sm font-bold text-gray-800">누가 신청하나요? (방문 시 신원 확인 서류)</div>
         {body}
       </div>
     );
+  }
   return <Section title="대리 발급·신원 확인 서류 판별">{body}</Section>;
 }
 
 export function JudgePage({ data }: { data: AppData }) {
   return (
-    <div className="mx-auto max-w-4xl space-y-4 px-4 pb-16 pt-5">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">발급 경로 판별기</h1>
-        <p className="mt-1 text-gray-600">
-          졸업(합격·퇴직)연도에 따라 NEIS·정부24·무인발급기·FAX 중 어디서 발급되는지, 누가 오면 어떤 서류가 필요한지 확인합니다.
+    <div className="mx-auto max-w-6xl space-y-5 px-4 pb-16 pt-6 sm:px-6">
+      <div className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
+        <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">발급 경로 판별기</h1>
+        <p className="mt-1 text-sm leading-relaxed text-slate-600">
+          졸업(합격·퇴직)연도에 따라 NEIS·정부24·무인발급기·FAX 중 어디서 발급되는지, 누가 방문하면 어떤 신원 확인 서류가 필요한지 동시에 확인합니다.
         </p>
       </div>
-      <IssuanceJudge data={data} />
-      <IdentityJudge data={data} />
-      <p className="text-center text-xs text-gray-400">{data.bundle.version} 기준 · 관계 법령이 바뀐 경우 법령이 우선합니다.</p>
+      <div className="grid gap-5 lg:grid-cols-2 lg:items-start">
+        <IssuanceJudge data={data} />
+        <IdentityJudge data={data} />
+      </div>
+      <p className="pt-1 text-center text-xs text-slate-400">{data.bundle.version} 기준 · 관계 법령이 바뀐 경우 법령이 우선합니다.</p>
     </div>
   );
 }
