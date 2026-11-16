@@ -61,8 +61,8 @@ export function FormsPage({ data }: { data: AppData }) {
 
       {/* 검색 + 분류 */}
       <div className="sticky top-14 z-10 -mx-4 mt-6 bg-paper/95 px-4 pb-3 pt-3 backdrop-blur-md sm:-mx-6 sm:px-6">
-        <div className="flex items-center gap-3 border-b-2 border-ink pb-2 focus-within:border-accent">
-          <SearchIcon size={19} className="text-ink" />
+        <div className="panel flex items-center gap-3 px-4 py-2.5 transition focus-within:border-accent focus-within:ring-4 focus-within:ring-accent/10">
+          <SearchIcon size={19} className="text-accent" />
           <input
             ref={inputRef}
             value={q}
@@ -84,7 +84,7 @@ export function FormsPage({ data }: { data: AppData }) {
               key={g || "all"}
               type="button"
               onClick={() => setGroup(g)}
-              className={`flex shrink-0 cursor-pointer items-baseline gap-1 ${group === g ? "font-semibold text-ink underline underline-offset-4" : "text-muted hover:text-ink"}`}
+              className={`flex shrink-0 cursor-pointer items-baseline gap-1 ${group === g ? "rounded-md bg-accent-soft px-2 font-semibold text-accent-ink" : "px-2 text-muted hover:text-ink"}`}
             >
               {g || "전체"}
               <span className="text-xs tabular-nums text-muted">{g ? countOf(g) : lib.items.filter(match).length}</span>
@@ -105,7 +105,7 @@ export function FormsPage({ data }: { data: AppData }) {
                 <h2 className="text-lg font-bold tracking-[-0.01em] text-ink">{g}</h2>
                 <span className="text-sm tabular-nums text-muted">{items.length}</span>
               </div>
-              <ul className="border-t border-ink">
+              <ul className="panel px-4">
                 {items.map((f) => (
                   <Row key={f.hwp} f={f} data={data} />
                 ))}
@@ -126,7 +126,7 @@ export function FormsPage({ data }: { data: AppData }) {
 function Row({ f, data }: { f: LibraryForm; data: AppData }) {
   const linked = f.minwon.map((id) => data.minwonById.get(id)).filter(Boolean);
   return (
-    <li className="grid gap-x-6 gap-y-1 border-b border-line px-1 py-2.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-baseline">
+    <li className="grid gap-x-6 gap-y-1 border-b border-line px-1 py-2.5 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-baseline">
       <span className="min-w-0 text-[15px] text-ink">
         {f.no && <span className="mr-2 text-xs tabular-nums text-muted">{f.no}</span>}
         {f.name}
@@ -146,7 +146,7 @@ function Row({ f, data }: { f: LibraryForm; data: AppData }) {
         <a
           href={formUrl(f.hwp)}
           download
-          className="inline-flex items-center gap-1 font-semibold text-ink underline decoration-line-strong underline-offset-[3px] hover:decoration-ink"
+          className="link-strong"
         >
           <DownloadIcon size={13} />
           HWP

@@ -1,22 +1,24 @@
 @import "tailwindcss";
 
-/* ───────── 디자인 기준(D0) — docs/디자인_개편계획.md 4장 ─────────
-   톤: A 잉크(따뜻한 무채색 바탕 + 잉크색 글자 + 남색 강조 하나).
-   - 의미 색: paper(바탕) sunk(눌린 바탕) ink(글자) ink-2(보조 글자) muted(흐린 글자) line(구분선) accent(강조) mark(단계 표식)
-     → bg-paper, text-ink, border-line … 로 쓴다. 값은 :root 변수(나중에 다크 모드 등으로 바꿀 수 있음).
-   - 기존 코드의 gray·slate·brand 단계도 같은 톤으로 맞춰 둔다(화면별 정리는 D1~ 에서).
-   - 빨강·초록·노랑(rose·emerald·amber)은 판별 결과 전용. */
+/* ───────── 디자인 기준 — docs/디자인_개편계획.md 4장 ─────────
+   톤(2026-11-16 담당자 요청으로 재배색): 차가운 연회색 바탕 + 흰 패널 + 블루 강조 하나. 심플하지만 심심하지 않게.
+   - 의미 색: paper(바탕) sunk(눌린 바탕) surface(패널) ink(글자) ink-2(보조 글자) muted(흐린 글자)
+     line(구분선) accent(강조: 단계 번호·현재 메뉴·즉시·핵심 링크) accent-soft(강조 옅은 바탕) mark(단계 표식)
+     → bg-paper, text-ink, border-line, bg-accent-soft … 로 쓴다
+   - 빨강·초록·노랑(rose·emerald·amber)은 판별 결과 전용 */
 :root {
-  --paper: #f6f5f1;
-  --sunk: #eeece6;
-  --surface: #fffefb;
-  --ink: #1b1c1f;
-  --ink-2: #44454b;
-  --muted: #7a7a80;
-  --line: #dddad2;
-  --line-strong: #c5c1b7;
-  --accent: #26407a;
-  --mark: #26407a;
+  --paper: #f4f6f9;
+  --sunk: #eceff4;
+  --surface: #ffffff;
+  --ink: #141824;
+  --ink-2: #454c5b;
+  --muted: #7c8392;
+  --line: #e3e7ee;
+  --line-strong: #c8cfdb;
+  --accent: #2f56d6;
+  --accent-ink: #1f3fae;
+  --accent-soft: #edf2ff;
+  --mark: #2f56d6;
 }
 
 @theme inline {
@@ -29,50 +31,52 @@
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
   --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
   --color-mark: var(--mark);
 }
 
 @theme {
   --font-sans: "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", system-ui, sans-serif;
 
-  /* 모서리: 둥근 카드 느낌을 줄인다 */
-  --radius-md: 5px;
-  --radius-lg: 6px;
-  --radius-xl: 7px;
-  --radius-2xl: 8px;
+  /* 모서리: 패널은 부드럽게, 입력칸은 단정하게 */
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
 
-  /* 강조(잉크 남색) */
-  --color-brand-50: #eef1f7;
-  --color-brand-100: #dfe5f0;
-  --color-brand-200: #c3cde2;
-  --color-brand-600: #26407a;
-  --color-brand-700: #1d3263;
-  --color-brand-900: #121f3d;
-  --color-brand-950: #0b1428;
+  /* 강조(블루) */
+  --color-brand-50: #edf2ff;
+  --color-brand-100: #dbe4ff;
+  --color-brand-200: #bac8ff;
+  --color-brand-600: #2f56d6;
+  --color-brand-700: #1f3fae;
+  --color-brand-900: #142a73;
+  --color-brand-950: #0b1a4d;
 
-  /* 무채색(따뜻한 회색) — gray·slate 를 같은 값으로 */
-  --color-gray-50: #f6f5f1;
-  --color-gray-100: #eeece6;
-  --color-gray-200: #dddad2;
-  --color-gray-300: #c5c1b7;
-  --color-gray-400: #9b988f;
-  --color-gray-500: #7a7a80;
-  --color-gray-600: #55565c;
-  --color-gray-700: #3d3e43;
-  --color-gray-800: #2a2b2f;
-  --color-gray-900: #1b1c1f;
-  --color-gray-950: #111214;
-  --color-slate-50: #f6f5f1;
-  --color-slate-100: #eeece6;
-  --color-slate-200: #dddad2;
-  --color-slate-300: #c5c1b7;
-  --color-slate-400: #9b988f;
-  --color-slate-500: #7a7a80;
-  --color-slate-600: #55565c;
-  --color-slate-700: #3d3e43;
-  --color-slate-800: #2a2b2f;
-  --color-slate-900: #1b1c1f;
-  --color-slate-950: #111214;
+  /* 무채색(차가운 회색) — gray·slate 를 같은 값으로 */
+  --color-gray-50: #f4f6f9;
+  --color-gray-100: #eceff4;
+  --color-gray-200: #e3e7ee;
+  --color-gray-300: #c8cfdb;
+  --color-gray-400: #9ba2b0;
+  --color-gray-500: #7c8392;
+  --color-gray-600: #5a6170;
+  --color-gray-700: #3d4350;
+  --color-gray-800: #272c37;
+  --color-gray-900: #141824;
+  --color-gray-950: #0c0f17;
+  --color-slate-50: #f4f6f9;
+  --color-slate-100: #eceff4;
+  --color-slate-200: #e3e7ee;
+  --color-slate-300: #c8cfdb;
+  --color-slate-400: #9ba2b0;
+  --color-slate-500: #7c8392;
+  --color-slate-600: #5a6170;
+  --color-slate-700: #3d4350;
+  --color-slate-800: #272c37;
+  --color-slate-900: #141824;
+  --color-slate-950: #0c0f17;
 }
 
 html {
@@ -161,12 +165,9 @@ html {
   border-radius: 0.5rem;
 }
 
-/* 민원 상세 단계: 한 줄로 쌓고 단계 사이에 구분선 */
-.steps > * > section + section,
-.steps > * + * > section:first-child {
-  margin-top: 2.5rem;
-  padding-top: 2.5rem;
-  border-top: 1px solid var(--line);
+/* 민원 상세 단계: 한 줄로 쌓고 단계 사이 간격 (각 단계는 Step 의 흰 패널) */
+.steps {
+  gap: 1rem;
 }
 
 /* 조용한 글자 링크 — 버튼 대신 쓰는 보조 동작(원문 보기·인쇄·복사 등) */
@@ -178,8 +179,42 @@ html {
   cursor: pointer;
 }
 .link-quiet:hover {
-  color: var(--ink);
-  text-decoration-color: var(--ink);
+  color: var(--accent);
+  text-decoration-color: var(--accent);
+}
+
+/* 내려받기 등 주요 글자 링크 */
+.link-strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  text-underline-offset: 3px;
+}
+.link-strong:hover {
+  color: var(--accent-ink);
+  text-decoration-color: var(--accent-ink);
+}
+
+/* 패널 안 두 단 목록: 맨 아래 줄은 구분선 없음 */
+.rows-2 > li:last-child {
+  border-bottom: 0;
+}
+@media (min-width: 80rem) {
+  .rows-2 > li:nth-last-child(2):nth-child(odd) {
+    border-bottom: 0;
+  }
+}
+
+/* 흰 패널 */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgb(20 24 36 / 0.04);
 }
 .link-quiet:disabled {
   opacity: 0.4;

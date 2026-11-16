@@ -54,14 +54,14 @@ export function MinwonDetail({ data, m }: { data: AppData; m: Minwon }) {
       {/* 머리: 민원명 + 창구에서 바로 말할 3가지 */}
       <header className="pt-5">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-[13px] text-muted">
-          <span>{m.category}</span>
+          <span className="rounded-md bg-accent-soft px-2 py-0.5 text-[12.5px] font-semibold text-accent-ink">{m.category}</span>
           <span>민원 {m.no}</span>
           {!m.reviewed && <span className="text-amber-700">검수 전 데이터 — 원문과 다를 수 있음</span>}
         </div>
         <h1 className="mt-2 text-[28px] font-bold leading-tight tracking-[-0.02em] text-ink sm:text-[34px]">{title}</h1>
         {m.summary && <p className="mt-2 max-w-3xl break-keep text-[14.5px] leading-relaxed text-ink-2">{m.summary}</p>}
 
-        <dl className="mt-6 grid border-y border-line sm:grid-cols-3">
+        <dl className="panel mt-6 grid px-5 sm:grid-cols-3 sm:px-0">
           <Fact label="처리기간" value={m.period || "편람에 없음"} accent={m.period === "즉시"} />
           <Fact label="수수료" value={m.fee || "-"} />
           {instant ? (
@@ -129,7 +129,7 @@ export function MinwonDetail({ data, m }: { data: AppData; m: Minwon }) {
       </div>
 
       {/* 덜 쓰는 정보: 접어 둠 */}
-      <div className="mt-14 border-t border-line">
+      <div className="panel mt-4 px-5 sm:px-7">
         {instant && issue && m.process.length > 0 && (
           <Fold title="다른 신청 방법" hint={m.process.map((p) => p.channel || "처리").join(" · ")}>
             <Process m={m} />
@@ -201,7 +201,7 @@ export function BackLink() {
 
 function Fact({ label, value, accent, small, note }: { label: string; value: string; accent?: boolean; small?: boolean; note?: string }) {
   return (
-    <div className="flex items-baseline justify-between gap-4 border-t border-line py-3 first:border-t-0 sm:block sm:border-l sm:border-t-0 sm:py-3.5 sm:pl-4 sm:first:border-l-0 sm:first:pl-0">
+    <div className="flex items-baseline justify-between gap-4 border-t border-line py-3.5 first:border-t-0 sm:block sm:border-l sm:border-t-0 sm:px-6 sm:py-4 sm:first:border-l-0">
       <dt className="text-xs text-muted">{label}</dt>
       <dd
         className={`break-keep text-right font-semibold tracking-[-0.01em] sm:mt-1 sm:text-left ${
@@ -285,7 +285,7 @@ function Forms({ m, setViewer }: { m: Minwon; setViewer: (v: Viewer) => void }) 
             </div>
             <div className="flex shrink-0 flex-wrap gap-x-3 gap-y-1 text-[13px]">
               {f.hwp ? (
-                <a href={formUrl(f.hwp)} download className="inline-flex items-center gap-1 font-semibold text-ink underline decoration-line-strong underline-offset-[3px] hover:decoration-ink">
+                <a href={formUrl(f.hwp)} download className="link-strong">
                   <DownloadIcon size={13} />
                   HWP
                 </a>

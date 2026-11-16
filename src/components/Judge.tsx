@@ -20,7 +20,7 @@ import { DashList, Seg, Step } from "./ui";
 
 /* 입력값(연도·나이)은 이 컴포넌트 상태에만 있고 주소·저장소·서버로 보내지 않는다. */
 
-const inputCls = "rounded-md border border-line-strong bg-surface px-2.5 py-1.5 text-[15px] text-ink outline-none focus:border-ink";
+const inputCls = "rounded-md border border-line-strong bg-surface px-2.5 py-1.5 text-[15px] text-ink outline-none focus:border-accent focus:ring-2 focus:ring-accent/15";
 
 /* 판별 결과 표시 — 색은 판별 결과에만 쓴다(○ 초록 · △ 노랑 · × 흐림) */
 const VERDICT: Record<Verdict, { label: string; sym: string; cls: string }> = {
@@ -309,7 +309,7 @@ export function IdentityJudge({ data, onBirth }: { data: AppData; onBirth?: (b: 
             onClick={() => setVisitor(v)}
             aria-pressed={visitor === v}
             className={`cursor-pointer border-b-2 pb-1 ${
-              visitor === v ? "border-ink font-semibold text-ink" : "border-transparent text-muted hover:text-ink"
+              visitor === v ? "border-accent font-semibold text-accent-ink" : "border-transparent text-muted hover:text-ink"
             }`}
           >
             {label}
@@ -362,7 +362,7 @@ export function IdentityJudge({ data, onBirth }: { data: AppData; onBirth?: (b: 
         <span className="flex items-center gap-1">
           만
           <input
-            className={inputCls + ` w-16 tabular-nums ${birthAge !== undefined ? "bg-sunk font-semibold" : ""}`}
+            className={inputCls + ` w-16 tabular-nums ${birthAge !== undefined ? "bg-accent-soft font-semibold text-accent-ink" : ""}`}
             inputMode="numeric"
             maxLength={3}
             placeholder="16"
@@ -409,7 +409,7 @@ export function IdentityJudge({ data, onBirth }: { data: AppData; onBirth?: (b: 
       {visitor === "proxy" && proxyForm && (
         <p className="flex flex-wrap items-baseline gap-x-3 text-[13px] text-ink-2">
           {proxyForm.name} 서식
-          <a href={formUrl(proxyForm.hwp)} download className="inline-flex items-center gap-1 font-semibold text-ink underline decoration-line-strong underline-offset-[3px] hover:decoration-ink">
+          <a href={formUrl(proxyForm.hwp)} download className="link-strong">
             <DownloadIcon size={13} />
             HWP
           </a>
@@ -437,7 +437,7 @@ export function JudgePage({ data }: { data: AppData }) {
           필요한지 확인합니다. 민원 상세 화면에도 같은 판별이 들어 있습니다.
         </p>
       </header>
-      <div className="mt-9 grid gap-x-10 gap-y-10 border-t border-line pt-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-start">
+      <div className="mt-8 grid gap-4 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-start">
         <Step n={1} title="연도별 발급 경로">
           <IssuanceJudge data={data} birthHint={birthHint} />
         </Step>

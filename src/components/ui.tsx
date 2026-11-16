@@ -7,7 +7,7 @@ export function Mark({ n, active, size = 22 }: { n: number; active?: boolean; si
   return (
     <span
       className={`inline-flex shrink-0 items-center justify-center rounded-full font-bold tabular-nums leading-none ${
-        active ? "bg-mark text-white" : "bg-ink text-paper"
+        active ? "bg-ink text-white" : "bg-mark text-white"
       }`}
       style={{ width: size, height: size, fontSize: size * 0.55 }}
     >
@@ -19,9 +19,9 @@ export function Mark({ n, active, size = 22 }: { n: number; active?: boolean; si
 /** 번호가 붙은 단계 구획 (카드 없이 제목 + 내용) */
 export function Step({ n, title, note, right, children }: { n: number; title: string; note?: string; right?: ReactNode; children: ReactNode }) {
   return (
-    <section>
-      <div className="mb-4 flex items-center gap-2.5">
-        <Mark n={n} />
+    <section className="panel p-5 sm:p-7">
+      <div className="mb-5 flex items-center gap-2.5">
+        <Mark n={n} size={24} />
         <h2 className="text-lg font-bold tracking-[-0.01em] text-ink">{title}</h2>
         {note && <span className="ml-auto text-xs text-muted">{note}</span>}
         {right && <span className={note ? "" : "ml-auto"}>{right}</span>}
@@ -34,9 +34,9 @@ export function Step({ n, title, note, right, children }: { n: number; title: st
 /** 접어 두는 줄 — 덜 쓰는 정보. 제목 옆 hint 로 접힌 상태에서도 요약이 보인다 */
 export function Fold({ title, hint, open, children }: { title: string; hint?: string; open?: boolean; children: ReactNode }) {
   return (
-    <details className="group border-b border-line" open={open}>
+    <details className="group border-b border-line last:border-b-0" open={open}>
       <summary className="flex cursor-pointer list-none items-baseline gap-3 py-3.5 [&::-webkit-details-marker]:hidden">
-        <span className="w-3 text-muted transition-transform group-open:rotate-90">›</span>
+        <span className="w-3 text-accent transition-transform group-open:rotate-90">›</span>
         <span className="shrink-0 font-semibold text-ink">{title}</span>
         {hint && <span className="min-w-0 truncate text-sm text-muted">{hint}</span>}
       </summary>
@@ -54,7 +54,7 @@ export function Seg<T extends string>({ value, onChange, options }: { value: T; 
           key={v}
           type="button"
           onClick={() => onChange(v)}
-          className={`cursor-pointer ${v === value ? "font-semibold text-ink underline underline-offset-4" : "text-muted hover:text-ink"}`}
+          className={`cursor-pointer rounded-md px-2 py-0.5 ${v === value ? "bg-accent-soft font-semibold text-accent-ink" : "text-muted hover:text-ink"}`}
         >
           {label}
         </button>
@@ -69,7 +69,7 @@ export function DashList({ items }: { items: string[] }) {
     <ul className="space-y-2 text-[15px] leading-relaxed text-ink">
       {items.map((x, i) => (
         <li key={i} className="flex gap-2.5">
-          <span className="mt-[0.7em] h-px w-2.5 shrink-0 bg-ink" />
+          <span className="mt-[0.62em] h-1.5 w-1.5 shrink-0 rounded-full bg-accent/70" />
           <span className="break-keep">{x}</span>
         </li>
       ))}

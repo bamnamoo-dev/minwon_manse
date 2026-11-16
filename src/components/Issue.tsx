@@ -32,7 +32,7 @@ const MARK: Record<Verdict, { sym: string; label: string; cls: string }> = {
   no: { sym: "×", label: "해당 없음", cls: "text-muted" },
 };
 
-const inputCls = "rounded-md border border-line-strong bg-surface px-2.5 py-1.5 text-[15px] text-ink outline-none focus:border-ink";
+const inputCls = "rounded-md border border-line-strong bg-surface px-2.5 py-1.5 text-[15px] text-ink outline-none focus:border-accent focus:ring-2 focus:ring-accent/15";
 
 /** 규칙 칸 → 사람이 읽는 조건 (예: "2003년 2월 이후 졸업") */
 function cond(c: RuleCell | undefined, basis: string): string {
@@ -208,7 +208,7 @@ export function WhereToIssue({ data, m, birthHint }: { data: AppData; m: Minwon;
               >
                 <span className={`w-5 shrink-0 text-center text-lg font-bold leading-none ${v.cls}`}>{hasInput ? v.sym : "·"}</span>
                 <span className="min-w-0 flex-1">
-                  <span className={`text-[17px] font-bold text-ink ${on ? "underline decoration-2 underline-offset-[6px]" : ""}`}>{SYSTEM_NAME[s]}</span>
+                  <span className={`text-[17px] font-bold ${on ? "text-accent-ink underline decoration-accent decoration-2 underline-offset-[6px]" : "text-ink"}`}>{SYSTEM_NAME[s]}</span>
                   {rule && <span className="ml-2.5 text-[13.5px] text-ink-2">{cond(rule.cells[s], rule.basis)}</span>}
                 </span>
                 {hasInput && <span className={`shrink-0 text-[13px] font-semibold ${v.cls}`}>{v.label}</span>}
@@ -276,7 +276,7 @@ function Quiet({ children }: { children: ReactNode }) {
 
 function SystemTitle({ name, source }: { name: string; source: string }) {
   return (
-    <div className="mb-3 flex items-baseline justify-between gap-3 border-b-2 border-ink pb-2">
+    <div className="mb-3 flex items-baseline justify-between gap-3 border-b-2 border-accent pb-2">
       <span className="text-[15px] font-bold text-ink">{name}에서 처리 순서</span>
       <span className="text-xs text-muted">{source}</span>
     </div>
@@ -293,7 +293,7 @@ function StepTabs({ titles, value, onChange }: { titles: string[]; value: number
             type="button"
             onClick={() => onChange(i)}
             className={`flex cursor-pointer items-center gap-1.5 rounded-md px-1.5 py-1 transition-colors ${
-              i === value ? "bg-sunk font-semibold text-ink" : "text-muted hover:text-ink"
+              i === value ? "bg-accent-soft font-semibold text-accent-ink" : "text-muted hover:text-ink"
             }`}
           >
             <Mark n={i + 1} size={17} active={i === value} />
@@ -376,7 +376,7 @@ function NeisFlow({ pages, refs, refNote }: { pages: NeisPage[]; refs: number[];
               type="button"
               onClick={() => setSel(sel === it.n ? null : it.n)}
               className={`flex w-full cursor-pointer gap-3 py-2.5 text-left text-[14.5px] leading-relaxed text-ink transition-colors ${
-                sel === it.n ? "bg-sunk" : "hover:bg-sunk"
+                sel === it.n ? "bg-accent-soft" : "hover:bg-sunk"
               }`}
             >
               <span

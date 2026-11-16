@@ -80,8 +80,8 @@ export function SearchPage({ data, q, cat }: { data: AppData; q: string; cat: st
           <label htmlFor="q" className="sr-only">
             민원 검색
           </label>
-          <div className="flex items-center gap-3 border-b-2 border-ink pb-2.5 focus-within:border-accent">
-            <SearchIcon size={22} className="text-ink" />
+          <div className="panel flex items-center gap-3 px-4 py-3 transition focus-within:border-accent focus-within:ring-4 focus-within:ring-accent/10">
+            <SearchIcon size={22} className="text-accent" />
             <input
               id="q"
               ref={inputRef}
@@ -119,7 +119,7 @@ export function SearchPage({ data, q, cat }: { data: AppData; q: string; cat: st
               <a
                 key={c || "all"}
                 href={href("/", { q: input.trim() || undefined, c: c || undefined })}
-                className={`shrink-0 ${filter === c ? "font-semibold text-ink underline underline-offset-4" : "text-muted hover:text-ink"}`}
+                className={`shrink-0 rounded-md px-2 py-0.5 ${filter === c ? "bg-accent-soft font-semibold text-accent-ink" : "text-muted hover:text-ink"}`}
               >
                 {c || "전체"}
               </a>
@@ -167,12 +167,12 @@ function Results({ hits, q }: { hits: Hit[]; q: string }) {
         </span>
         <span className="hidden sm:inline">Enter — 첫 번째 결과 열기</span>
       </p>
-      <ol className="divide-y divide-line border-y border-line">
+      <ol className="panel divide-y divide-line overflow-hidden">
         {hits.map((h, i) => (
           <li key={h.doc.id}>
             <a
               href={hitHref(h)}
-              className={`group grid gap-x-5 gap-y-1 px-2 py-3.5 transition-colors hover:bg-sunk sm:grid-cols-[108px_1fr] ${i === 0 ? "bg-sunk/60" : ""}`}
+              className={`group grid gap-x-5 gap-y-1 px-4 py-3.5 transition-colors hover:bg-accent-soft/60 sm:grid-cols-[108px_1fr] ${i === 0 ? "bg-accent-soft/70" : ""}`}
             >
               <span className="pt-0.5 text-[13px] text-muted">{h.doc.kind === "minwon" ? h.doc.item.category : "업무안내"}</span>
               <span className="min-w-0">
@@ -223,7 +223,7 @@ function Home({ data, cat, counts }: { data: AppData; cat: string; counts: Map<s
               key={c || "all"}
               href={href("/", { c: c || ALL })}
               className={`flex shrink-0 items-baseline justify-between gap-3 rounded-md py-1.5 lg:px-2.5 ${
-                active ? "font-semibold text-ink lg:bg-sunk" : "text-ink-2 hover:text-ink"
+                active ? "font-semibold text-accent-ink lg:bg-accent-soft" : "text-ink-2 hover:text-ink"
               }`}
             >
               <span className="truncate">{c || "전체 민원"}</span>
@@ -265,12 +265,12 @@ function Home({ data, cat, counts }: { data: AppData; cat: string; counts: Map<s
                   </a>
                 )}
               </div>
-              <ul className="grid border-t border-ink xl:grid-cols-2 xl:gap-x-8">
+              <ul className="panel rows-2 grid px-4 xl:grid-cols-2 xl:gap-x-8">
                 {items.map((m) => (
                   <li key={m.id} className="border-b border-line">
                     <a
                       href={`#/m/${m.id}`}
-                      className="group grid grid-cols-[1fr_auto] items-baseline gap-x-4 px-1 py-2.5 transition-colors hover:bg-sunk"
+                      className="group grid grid-cols-[1fr_auto] items-baseline gap-x-4 px-1 py-2.5 transition-colors hover:bg-accent-soft/60"
                     >
                       <span className="min-w-0 truncate text-[15px] text-ink group-hover:underline group-hover:underline-offset-4" title={m.title}>
                         {m.title.replace(/ 신청$/, "")}
@@ -323,10 +323,10 @@ function Guides({ guides }: { guides: Guide[] }) {
           </button>
         ))}
       </div>
-      <ul className="grid border-t border-ink xl:grid-cols-2 xl:gap-x-8">
+      <ul className="panel rows-2 grid px-4 xl:grid-cols-2 xl:gap-x-8">
         {(byChapter.get(active) ?? []).map((g) => (
           <li key={g.id} className="border-b border-line">
-            <a href={`#/g/${g.id}`} className="block truncate px-1 py-2.5 text-[15px] text-ink transition-colors hover:bg-sunk hover:underline hover:underline-offset-4">
+            <a href={`#/g/${g.id}`} className="block truncate px-1 py-2.5 text-[15px] text-ink transition-colors hover:bg-accent-soft/60 hover:underline hover:underline-offset-4">
               {g.title}
             </a>
           </li>

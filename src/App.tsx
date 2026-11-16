@@ -17,7 +17,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-paper">
-      <header className="no-print sticky top-0 z-20 border-b border-line bg-paper/90 backdrop-blur-md">
+      <header className="no-print sticky top-0 z-20 border-b border-line bg-surface/90 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-4 whitespace-nowrap px-4 sm:px-6">
           <a href="#/" className="flex items-center gap-2 text-ink hover:opacity-80">
             <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="h-6 w-6" />
@@ -86,7 +86,7 @@ function NavLink({ href, active, icon, children }: { href: string; active: boole
       href={href}
       aria-current={active ? "page" : undefined}
       className={`-mb-px inline-flex items-center gap-1.5 border-b-2 transition-colors ${
-        active ? "border-ink font-semibold text-ink" : "border-transparent text-ink-2 hover:text-ink"
+        active ? "border-accent font-semibold text-accent-ink" : "border-transparent text-ink-2 hover:text-ink"
       }`}
     >
       {icon}
