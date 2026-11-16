@@ -76,3 +76,12 @@ export function DashList({ items }: { items: string[] }) {
     </ul>
   );
 }
+
+/** 포털(aisen.kr) 컨셉의 남색 머리 띠 — 제목을 담고, 아래 내용(-mt-14)이 띠에 걸쳐 올라온다 */
+export function NavyHero({ children, overlap = true }: { children: ReactNode; overlap?: boolean }) {
+  return (
+    <section className="bg-navy text-white">
+      <div className={`mx-auto max-w-6xl px-4 pt-5 sm:px-6 ${overlap ? "pb-20" : "pb-9"}`}>{children}</div>
+    </section>
+  );
+}

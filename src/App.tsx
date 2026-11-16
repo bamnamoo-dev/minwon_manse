@@ -17,14 +17,14 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-paper">
-      <header className="no-print sticky top-0 z-20 border-b border-line bg-surface/90 backdrop-blur-md">
+      <header className="no-print sticky top-0 z-20 bg-navy text-white">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-4 whitespace-nowrap px-4 sm:px-6">
-          <a href="#/" className="flex items-center gap-2 text-ink hover:opacity-80">
-            <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="h-6 w-6" />
+          <a href="#/" className="flex items-center gap-2 text-white hover:opacity-90">
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-white text-[13px] font-bold text-navy">민</span>
             <span className="text-[17px] font-bold tracking-[-0.02em]">민원만세</span>
           </a>
-          <span className="hidden text-[13px] text-muted md:inline">서울시교육청 민원편람 실무 검색</span>
-          <nav className="ml-auto flex h-full items-stretch gap-5 text-sm" aria-label="주 메뉴">
+          <span className="hidden text-[13px] text-white/60 md:inline">서울시교육청 민원편람 실무 검색</span>
+          <nav className="ml-auto flex items-center gap-1 text-sm" aria-label="주 메뉴">
             <NavLink href="#/" active={!isJudge && !isForms} icon={<SearchIcon size={14} />}>
               민원 검색
             </NavLink>
@@ -35,7 +35,7 @@ export default function App() {
               서식함
             </NavLink>
           </nav>
-          {data && <span className="hidden text-xs text-muted lg:inline">{data.bundle.version}</span>}
+          {data && <span className="ml-2 hidden text-xs text-white/50 lg:inline">{data.bundle.version}</span>}
         </div>
       </header>
 
@@ -85,8 +85,8 @@ function NavLink({ href, active, icon, children }: { href: string; active: boole
     <a
       href={href}
       aria-current={active ? "page" : undefined}
-      className={`-mb-px inline-flex items-center gap-1.5 border-b-2 transition-colors ${
-        active ? "border-accent font-semibold text-accent-ink" : "border-transparent text-ink-2 hover:text-ink"
+      className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-colors ${
+        active ? "bg-white/12 font-semibold text-white" : "text-white/75 hover:bg-white/8 hover:text-white"
       }`}
     >
       {icon}

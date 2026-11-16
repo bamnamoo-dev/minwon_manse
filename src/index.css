@@ -19,6 +19,10 @@
   --accent-ink: #1f3fae;
   --accent-soft: #edf2ff;
   --mark: #2f56d6;
+  /* 포털(aisen.kr) 컨셉: 진한 남색 머리 띠 */
+  --navy: #142049;
+  --navy-2: #1d2c63;
+  --cream: #fff8ec;
 }
 
 @theme inline {
@@ -34,6 +38,9 @@
   --color-accent-ink: var(--accent-ink);
   --color-accent-soft: var(--accent-soft);
   --color-mark: var(--mark);
+  --color-navy: var(--navy);
+  --color-navy-2: var(--navy-2);
+  --color-cream: var(--cream);
 }
 
 @theme {

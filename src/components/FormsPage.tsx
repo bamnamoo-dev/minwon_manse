@@ -3,6 +3,7 @@ import { formUrl, type AppData } from "../lib/data";
 import { choseong, compact, isChoseongOnly } from "../lib/hangul";
 import type { LibraryForm } from "../lib/types";
 import { CloseIcon, DownloadIcon, EyeIcon, SearchIcon } from "./Icons";
+import { NavyHero } from "./ui";
 
 /*
  * 서식함 (#/forms) — public/forms 폴더의 서식 파일 전체
@@ -51,17 +52,18 @@ export function FormsPage({ data }: { data: AppData }) {
   const countOf = (g: string) => lib.items.filter((f) => f.group === g && match(f)).length;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
-      <header className="pt-8">
-        <h1 className="text-[28px] font-bold leading-tight tracking-[-0.02em] text-ink sm:text-[34px]">서식함</h1>
-        <p className="mt-2 max-w-3xl break-keep text-[14.5px] leading-relaxed text-ink-2">
+    <div>
+      <NavyHero overlap={false}>
+      <header className="pt-4">
+        <h1 className="text-[28px] font-bold leading-tight tracking-[-0.02em] text-white sm:text-[34px]">서식함</h1>
+        <p className="mt-2 max-w-3xl break-keep text-[14.5px] leading-relaxed text-white/75">
           민원·인사 서식 {lib.items.length}종을 한글(HWP) 파일과 PDF로 내려받습니다. 민원 상세 화면의 서식 줄에도 같은 파일이 연결되어 있습니다.
         </p>
       </header>
 
       {/* 검색 + 분류 */}
-      <div className="sticky top-14 z-10 -mx-4 mt-6 bg-paper/95 px-4 pb-3 pt-3 backdrop-blur-md sm:-mx-6 sm:px-6">
-        <div className="panel flex items-center gap-3 px-4 py-2.5 transition focus-within:border-accent focus-within:ring-4 focus-within:ring-accent/10">
+      <div className="mt-6">
+        <div className="flex items-center gap-3 rounded-xl bg-white px-4 py-2.5 shadow-[0_8px_30px_rgb(0_0_0/0.18)] ring-4 ring-white/10 focus-within:ring-white/25">
           <SearchIcon size={19} className="text-accent" />
           <input
             ref={inputRef}
@@ -78,20 +80,22 @@ export function FormsPage({ data }: { data: AppData }) {
             </button>
           )}
         </div>
-        <nav className="no-scrollbar mt-3 flex gap-x-4 overflow-x-auto text-sm" aria-label="서식 분류">
+        <nav className="no-scrollbar mt-4 flex gap-2 overflow-x-auto text-[13px]" aria-label="서식 분류">
           {["", ...lib.groups].map((g) => (
             <button
               key={g || "all"}
               type="button"
               onClick={() => setGroup(g)}
-              className={`flex shrink-0 cursor-pointer items-baseline gap-1 ${group === g ? "rounded-md bg-accent-soft px-2 font-semibold text-accent-ink" : "px-2 text-muted hover:text-ink"}`}
+              className={`flex shrink-0 cursor-pointer items-baseline gap-1 rounded-full px-3 py-1 ring-1 transition ${group === g ? "bg-white font-semibold text-navy ring-white" : "text-white/80 ring-white/25 hover:bg-white/10"}`}
             >
               {g || "전체"}
-              <span className="text-xs tabular-nums text-muted">{g ? countOf(g) : lib.items.filter(match).length}</span>
+              <span className={`text-xs tabular-nums ${group === g ? "text-navy/60" : "text-white/55"}`}>{g ? countOf(g) : lib.items.filter(match).length}</span>
             </button>
           ))}
         </nav>
       </div>
+      </NavyHero>
+      <div className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
 
       <div className="mt-6 space-y-10">
         {!shown.length && (
@@ -119,6 +123,7 @@ export function FormsPage({ data }: { data: AppData }) {
         서식 파일은 담당자가 넣은 자료입니다. 법령·지침이 바뀌면 최신 서식인지 확인하세요. 새 서식은 public/forms 폴더에 hwpx·pdf 짝으로 넣으면 이 목록에
         추가됩니다(민원 연결은 data/forms_files.json).
       </p>
+      </div>
     </div>
   );
 }

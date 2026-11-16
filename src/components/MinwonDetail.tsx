@@ -9,7 +9,8 @@ import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, CopyIcon, DownloadIcon, EyeIc
 import { WhereToIssue } from "./Issue";
 import { IdentityJudge } from "./Judge";
 import { PageViewer, printPages } from "./PageViewer";
-import { DashList, Fold, Step } from "./ui";
+import { DashList, Fold, NavyHero, Step } from "./ui";
+import { categoryTint } from "../lib/colors";
 
 /*
  * 민원 상세 — 창구형 배치 (docs/디자인_개편계획.md 3장)
@@ -41,10 +42,11 @@ export function MinwonDetail({ data, m }: { data: AppData; m: Minwon }) {
   const next = () => ++n;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
-      <div className="no-print flex items-center justify-between pt-4">
+    <div>
+      <NavyHero>
+      <div className="no-print flex items-center justify-between">
         <BackLink />
-        <button type="button" onClick={openSource} className="link-quiet inline-flex items-center gap-1 text-[13px]">
+        <button type="button" onClick={openSource} className="inline-flex cursor-pointer items-center gap-1 text-[13px] text-white/75 underline decoration-white/30 underline-offset-[3px] hover:text-white">
           <FileTextIcon size={13} />
           편람 원문 {printedPage(m.sourcePages[0])}
           {m.sourcePages.length > 1 && `~${printedPage(m.sourcePages.at(-1)!)}`}쪽
@@ -53,15 +55,23 @@ export function MinwonDetail({ data, m }: { data: AppData; m: Minwon }) {
 
       {/* 머리: 민원명 + 창구에서 바로 말할 3가지 */}
       <header className="pt-5">
-        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-[13px] text-muted">
-          <span className="rounded-md bg-accent-soft px-2 py-0.5 text-[12.5px] font-semibold text-accent-ink">{m.category}</span>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-white/60">
+          <span
+            className="rounded-md px-2 py-0.5 text-[12.5px] font-semibold"
+            style={{ background: categoryTint(data.categories, m.category).bg, color: categoryTint(data.categories, m.category).fg }}
+          >
+            {m.category}
+          </span>
           <span>민원 {m.no}</span>
-          {!m.reviewed && <span className="text-amber-700">검수 전 데이터 — 원문과 다를 수 있음</span>}
+          {!m.reviewed && <span className="text-amber-300">검수 전 데이터 — 원문과 다를 수 있음</span>}
         </div>
-        <h1 className="mt-2 text-[28px] font-bold leading-tight tracking-[-0.02em] text-ink sm:text-[34px]">{title}</h1>
-        {m.summary && <p className="mt-2 max-w-3xl break-keep text-[14.5px] leading-relaxed text-ink-2">{m.summary}</p>}
+        <h1 className="mt-2 text-[28px] font-bold leading-tight tracking-[-0.02em] text-white sm:text-[34px]">{title}</h1>
+        {m.summary && <p className="mt-2 max-w-3xl break-keep text-[14.5px] leading-relaxed text-white/75">{m.summary}</p>}
+      </header>
+      </NavyHero>
 
-        <dl className="panel mt-6 grid px-5 sm:grid-cols-3 sm:px-0">
+      <div className="mx-auto -mt-14 max-w-6xl px-4 pb-20 sm:px-6">
+        <dl className="panel grid px-5 shadow-[0_10px_30px_rgb(20_32_73/0.10)] sm:grid-cols-3 sm:px-0">
           <Fact label="처리기간" value={m.period || "편람에 없음"} accent={m.period === "즉시"} />
           <Fact label="수수료" value={m.fee || "-"} />
           {instant ? (
@@ -70,7 +80,6 @@ export function MinwonDetail({ data, m }: { data: AppData; m: Minwon }) {
             <Fact label="신청방법" value={m.methods.join(", ") || "-"} small />
           )}
         </dl>
-      </header>
 
       {/* 단계는 한 줄로 위에서 아래로 ①→②→③ (담당자 요청: 두 단보다 순서대로 내려가는 편이 낫다) */}
       <div className="steps mt-10 flex flex-col">
@@ -176,6 +185,7 @@ export function MinwonDetail({ data, m }: { data: AppData; m: Minwon }) {
         </button>
       </p>
 
+      </div>
       {viewer && <PageViewer title={viewer.title} pages={viewer.pages} onClose={() => setViewer(null)} />}
     </div>
   );
@@ -192,7 +202,7 @@ const docNote = (m: Minwon) => (m.documentsSource && m.documentsSource !== "요�
 export function BackLink() {
   // 마지막 검색어·분류를 유지한 채 검색 화면으로
   return (
-    <a href={lastSearchHash()} className="no-print -ml-1 inline-flex items-center gap-1 text-[13px] font-medium text-ink-2 hover:text-ink">
+    <a href={lastSearchHash()} className="no-print -ml-1 inline-flex items-center gap-1 text-[13px] font-medium text-white/75 hover:text-white">
       <ArrowLeftIcon size={15} />
       검색으로
     </a>

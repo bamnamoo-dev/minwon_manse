@@ -16,7 +16,7 @@ import {
   type Ym,
 } from "../lib/judge";
 import { CheckIcon, CopyIcon, DownloadIcon } from "./Icons";
-import { DashList, Seg, Step } from "./ui";
+import { DashList, NavyHero, Seg, Step } from "./ui";
 
 /* 입력값(연도·나이)은 이 컴포넌트 상태에만 있고 주소·저장소·서버로 보내지 않는다. */
 
@@ -433,16 +433,19 @@ export function IdentityJudge({ data, onBirth }: { data: AppData; onBirth?: (b: 
 export function JudgePage({ data }: { data: AppData }) {
   const [birthHint, setBirthHint] = useState<BirthHint | null>(null);
   return (
-    <div className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
-      <header className="pt-8">
-        <h1 className="text-[28px] font-bold leading-tight tracking-[-0.02em] text-ink sm:text-[34px]">발급 경로 판별기</h1>
-        <p className="mt-2 max-w-3xl break-keep text-[14.5px] leading-relaxed text-ink-2">
+    <div>
+      <NavyHero>
+      <header className="pt-4">
+        <h1 className="text-[28px] font-bold leading-tight tracking-[-0.02em] text-white sm:text-[34px]">발급 경로 판별기</h1>
+        <p className="mt-2 max-w-3xl break-keep text-[14.5px] leading-relaxed text-white/75">
           누가 방문했는지와 생년월일(또는 만 나이)을 한 번 넣으면 신원 확인 서류와, 졸업(합격·퇴직)연도에 따라 나이스·학교증명발급시스템·정부24·무인발급기·FAX
           중 어디서 발급되는지 함께 확인합니다. 민원 상세 화면에도 같은 판별이 들어 있습니다.
         </p>
       </header>
+      </NavyHero>
+      <div className="mx-auto -mt-14 max-w-6xl px-4 pb-20 sm:px-6">
       {/* 민원 상세와 같은 흐름: 한 줄로 ① 누가 왔나요(생년월일 한 번) → ② 연도별 발급 경로(출생연도 자동 입력) */}
-      <div className="mt-8 flex flex-col gap-4">
+      <div className="flex flex-col gap-4">
         <Step n={1} title="누가 왔나요?" note="방문 시 신원 확인 서류">
           <IdentityJudge data={data} onBirth={setBirthHint} />
         </Step>
@@ -451,6 +454,7 @@ export function JudgePage({ data }: { data: AppData }) {
         </Step>
       </div>
       <p className="mt-10 text-xs text-muted">{data.bundle.version} 기준 · 관계 법령이 바뀐 경우 법령이 우선합니다.</p>
+      </div>
     </div>
   );
 }
