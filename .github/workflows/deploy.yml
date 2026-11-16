@@ -21,13 +21,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: 판별기·검색 테스트
+      - name: 판별기·검색 테스트 (pretest 에서 데이터 묶음 생성)
         run: npm test
       - name: 데이터 검증 + 빌드 (prebuild 에서 validate·build-data 실행)
         run: npm run build
