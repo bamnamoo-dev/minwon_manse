@@ -39,6 +39,13 @@
 - `npm run render-pages` — PDF → public/pages
 - `npm run validate` — 데이터 검증 (빌드 전 필수)
 - `npm run dev` / `npm run build`
+- `npm test` — `scripts/test.mjs`로 실행(드라이브 문자 소문자 `c:`·`h:`일 때 Vitest "failed to find the runner" 오류 회피). `npx vitest run` 직접 실행 금지
+- `npm run backup` — git 기록 전체를 `minwon_manse.bundle` 하나로 묶어 구글 드라이브(기본 `E:\내 드라이브\antigravity\minwon_manse`)에 저장. 다른 폴더: `npm run backup -- "경로"`
+
+## 작업 위치
+- 원본 작업 폴더: 외장하드 `H:\dev\minwon_manse`(exFAT, 사무실·집 PC에서 같이 사용). 다른 PC에서는 드라이브 문자가 바뀔 수 있음
+- exFAT이라 PC마다 처음 한 번 `git config --global --add safe.directory <드라이브>:/dev/minwon_manse` 필요
+- `C:\dev\minwon_manse`는 옮기기 전 사본(2026-11-16) — 수정하지 않는다
 
 ## 작업 방식
 - Phase 단위로, 그 안에서도 파일 단위로 작게 작업하고 끝날 때마다 `npm run validate` + 동작 확인.
