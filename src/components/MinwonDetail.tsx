@@ -12,8 +12,9 @@ import { DashList, Fold, Step } from "./ui";
 
 /*
  * 민원 상세 — 창구형 배치 (docs/디자인_개편계획.md 3장)
- * - 즉시 발급형(증명서 등): 머리(처리기간·수수료·준비물) → ① 누가 왔나요 ② 주의할 점 | ③ 어디서 발급하나요
- * - 기간형(인허가·신고 등): 머리(처리기간·수수료·신청방법) → ① 구비서류 ② 주의할 점 | ③ 처리 과정 ④ 서식
+ * - 단계는 한 줄로 위에서 아래로 쭉 내려간다(두 단 배치 안 함)
+ * - 즉시 발급형(증명서 등): 머리(처리기간·수수료·준비물) → ① 누가 왔나요 ② 주의할 점 ③ 어디서 발급하나요
+ * - 기간형(인허가·신고 등): 머리(처리기간·수수료·신청방법) → ① 구비서류 ② 주의할 점 ③ 처리 과정 ④ 서식
  * - 덜 쓰는 정보(다른 신청 방법·서식·처리 정보·법령 등)는 아래에 접어 둔다.
  */
 
@@ -67,10 +68,11 @@ export function MinwonDetail({ data, m }: { data: AppData; m: Minwon }) {
         </dl>
       </header>
 
-      <div className="mt-9 grid gap-x-10 gap-y-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+      {/* 단계는 한 줄로 위에서 아래로 ①→②→③ (담당자 요청: 두 단보다 순서대로 내려가는 편이 낫다) */}
+      <div className="steps mt-10 flex flex-col">
         {instant ? (
           <>
-            <div className="min-w-0 space-y-10">
+            <div className="contents">
               <Step n={next()} title="누가 왔나요?" note="방문 시 신원 확인 서류">
                 <IdentityJudge data={data} />
                 {m.officerChecks.length > 0 && <OfficerChecks items={m.officerChecks} />}
@@ -82,7 +84,7 @@ export function MinwonDetail({ data, m }: { data: AppData; m: Minwon }) {
                 </Step>
               )}
             </div>
-            <div className="min-w-0">
+            <div className="contents">
               {issue ? (
                 <Step n={next()} title="어디서 발급하나요?" note={m.yearRuleIds.length ? "기준: 편람 발급 가능 연도표" : undefined}>
                   <WhereToIssue key={m.id} data={data} m={m} />
@@ -96,7 +98,7 @@ export function MinwonDetail({ data, m }: { data: AppData; m: Minwon }) {
           </>
         ) : (
           <>
-            <div className="min-w-0 space-y-10">
+            <div className="contents">
               <Step n={next()} title="구비서류" note={docNote(m)}>
                 {m.documents.length ? <DashList items={m.documents} /> : <p className="text-sm text-muted">편람에 기재 없음</p>}
                 {m.officerChecks.length > 0 && <OfficerChecks items={m.officerChecks} />}
@@ -108,7 +110,7 @@ export function MinwonDetail({ data, m }: { data: AppData; m: Minwon }) {
                 </Step>
               )}
             </div>
-            <div className="min-w-0 space-y-10">
+            <div className="contents">
               {m.process.length > 0 && (
                 <Step n={next()} title="처리 과정">
                   <Process m={m} />

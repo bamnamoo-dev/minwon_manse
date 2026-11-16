@@ -161,6 +161,14 @@ html {
   border-radius: 0.5rem;
 }
 
+/* 민원 상세 단계: 한 줄로 쌓고 단계 사이에 구분선 */
+.steps > * > section + section,
+.steps > * + * > section:first-child {
+  margin-top: 2.5rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--line);
+}
+
 /* 조용한 글자 링크 — 버튼 대신 쓰는 보조 동작(원문 보기·인쇄·복사 등) */
 .link-quiet {
   color: var(--ink-2);
