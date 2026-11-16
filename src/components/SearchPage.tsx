@@ -144,6 +144,25 @@ function Browse({ data, cat, recent }: { data: AppData; cat: string; recent: Min
 
   return (
     <div className="space-y-6">
+      {!cat && (
+        <a
+          href="#/judge"
+          className="flex items-center gap-3 rounded-xl border border-brand-100 bg-brand-50 p-4 hover:border-brand-600"
+        >
+          <span className="text-2xl" aria-hidden>
+            🧭
+          </span>
+          <span className="flex-1">
+            <span className="block font-bold text-brand-900">발급 경로 판별기</span>
+            <span className="block text-sm text-gray-600">
+              졸업·합격·퇴직 연도(또는 출생연도)로 NEIS·정부24·무인발급기·FAX 가능 여부와 대리 발급 서류를 확인
+            </span>
+          </span>
+          <span className="text-brand-600" aria-hidden>
+            →
+          </span>
+        </a>
+      )}
       {recent.length > 0 && (
         <div>
           <h2 className="mb-2 text-sm font-semibold text-gray-500">최근 본 민원</h2>

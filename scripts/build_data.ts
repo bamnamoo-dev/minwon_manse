@@ -43,6 +43,13 @@ const guides = readdirSync(join(ROOT, "data/guides"))
 
 const rulesFile = read("data/rules/issuance_years.json");
 const synonyms = read("data/synonyms.json").terms;
+const idFile = read("data/rules/identity.json");
+const identity = {
+  basis: idFile._meta.basis,
+  cases: idFile.cases,
+  unmatched: idFile.unmatched,
+  reviewed: !!idFile._meta.reviewed,
+};
 
 const bundle = {
   version: "2025 개정판 민원편람",
@@ -50,6 +57,7 @@ const bundle = {
   minwon,
   guides,
   rules: { channels: rulesFile.channels, rules: rulesFile.rules, reviewed: !!rulesFile._meta?.reviewed },
+  identity,
   synonyms,
 };
 

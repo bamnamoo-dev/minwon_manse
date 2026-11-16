@@ -1,4 +1,5 @@
 import { GuideDetail } from "./components/GuideDetail";
+import { JudgePage } from "./components/Judge";
 import { MinwonDetail } from "./components/MinwonDetail";
 import { SearchPage } from "./components/SearchPage";
 import { useAppData, type AppData } from "./lib/data";
@@ -16,8 +17,22 @@ export default function App() {
             <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="h-7 w-7" />
             <span className="text-lg">민원만세</span>
           </a>
-          <span className="hidden text-sm text-gray-500 sm:inline">담당자용 종합 민원 검색</span>
-          {data && <span className="ml-auto text-xs text-gray-400">{data.bundle.version} 기준</span>}
+          <span className="hidden text-sm text-gray-500 md:inline">담당자용 종합 민원 검색</span>
+          <nav className="ml-auto flex items-center gap-1 text-sm">
+            <a
+              href="#/"
+              className={`rounded-lg px-2.5 py-1 ${route.path[0] !== "judge" ? "bg-brand-50 font-semibold text-brand-700" : "text-gray-600 hover:bg-gray-100"}`}
+            >
+              검색
+            </a>
+            <a
+              href="#/judge"
+              className={`rounded-lg px-2.5 py-1 ${route.path[0] === "judge" ? "bg-brand-50 font-semibold text-brand-700" : "text-gray-600 hover:bg-gray-100"}`}
+            >
+              발급경로 판별
+            </a>
+          </nav>
+          {data && <span className="hidden text-xs text-gray-400 lg:inline">{data.bundle.version} 기준</span>}
         </div>
       </header>
 
@@ -32,6 +47,7 @@ export default function App() {
 
 function Page({ data, route }: { data: AppData; route: Route }) {
   const [kind, id] = route.path;
+  if (kind === "judge") return <JudgePage data={data} />;
   if (kind === "m") {
     const m = data.minwonById.get(id);
     return m ? <MinwonDetail data={data} m={m} /> : <NotFound />;

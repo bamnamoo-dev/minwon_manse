@@ -73,11 +73,27 @@ export interface Channel {
   group: string;
 }
 
+export interface IdentityCase {
+  id: string;
+  visitor: string;
+  subject: string;
+  match: { visitor: "self" | "guardian" | "proxy"; subjectAgeMin?: number; subjectAgeMax?: number };
+  documents: string[];
+}
+
+export interface IdentityRules {
+  basis: string[];
+  cases: IdentityCase[];
+  unmatched: { case: string; note: string }[];
+  reviewed: boolean;
+}
+
 export interface Bundle {
   version: string;
   builtAt: string;
   minwon: Minwon[];
   guides: Guide[];
   rules: { channels: Channel[]; rules: Record<string, Rule>; reviewed: boolean };
+  identity: IdentityRules;
   synonyms: Record<string, string[]>;
 }

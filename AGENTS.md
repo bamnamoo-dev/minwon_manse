@@ -52,3 +52,11 @@
 - `src/components/` SearchPage, MinwonDetail(발급경로 표 포함), GuideDetail(marked), PageViewer(원문 이미지·인쇄)
 - 주의: `useEffect(() => window.scrollTo(...))` 처럼 값을 반환하는 축약형 금지 (최신 브라우저는 Promise 반환 → React 오류)
 - 개발 서버: `npm run dev` (http://localhost:5173)
+
+## 판별기 (Phase 3~)
+- `src/lib/judge.ts` 규칙 해석: `judgeRule`(연도별 발급경로), `estimateGraduation`(출생연도→졸업 추정), `judgeIdentity`(신원 확인), `guideMessage`(안내 문구)
+  - 판정: ok(가능) / no(불가) / check(확인 필요: △·학교별·경계 연도에서 월 모름·추정 범위가 갈림) / need(연도 입력 필요)
+  - 월을 모르는데 기준 연도와 같은 해면 반드시 check — 추측해서 ok/no 내지 않는다
+- `src/lib/judge.test.ts` 경계값 테스트. 규칙 JSON을 고치면 `npm test`로 확인
+- 화면: `src/components/Judge.tsx` (IssuanceJudge, IdentityJudge, JudgePage `#/judge`), 민원 상세에 자동 삽입(yearRuleIds 있는 민원)
+- 입력값(연도·나이·생년월일)은 컴포넌트 상태에만 — 주소(해시)·localStorage·서버에 넣지 않는다

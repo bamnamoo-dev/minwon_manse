@@ -3,7 +3,8 @@ import type { AppData } from "../lib/data";
 import { printedPage } from "../lib/data";
 import { lastSearchHash } from "../lib/router";
 import { pushRecent } from "../lib/storage";
-import type { Minwon, Rule, RuleCell } from "../lib/types";
+import type { Minwon } from "../lib/types";
+import { IdentityJudge, IssuanceJudge } from "./Judge";
 import { PageViewer, printPages } from "./PageViewer";
 import { Badge, Button, List, Section } from "./ui";
 
@@ -16,7 +17,7 @@ export function MinwonDetail({ data, m }: { data: AppData; m: Minwon }) {
     window.scrollTo(0, 0);
   }, [m.id]);
 
-  const rules = m.yearRuleIds.map((id) => [id, data.bundle.rules.rules[id]] as const).filter(([, r]) => r);
+  const ruleIds = m.yearRuleIds.filter((id) => data.bundle.rules.rules[id]);
   const copy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -75,9 +76,17 @@ export function MinwonDetail({ data, m }: { data: AppData; m: Minwon }) {
               <List items={m.officerChecks} />
             </div>
           )}
-          <p className="mt-3 text-xs text-gray-500">
-            대리인 신청 시 위임장 등은 <a className="text-brand-600 underline" href="#/q-identity" onClick={(e) => { e.preventDefault(); goIdentity(data); }}>신청인 신원 확인 방법</a> 참고
-          </p>
+          {ruleIds.length > 0 ? (
+            <IdentityJudge data={data} compact />
+          ) : (
+            <p className="mt-3 text-xs text-gray-500">
+              대리인 신청 시 위임장 등은{" "}
+              <a className="text-brand-600 underline" href="#/judge">
+                신원 확인·대리 발급 서류 판별기
+              </a>{" "}
+              참고
+            </p>
+          )}
         </Section>
 
         {m.process.length > 0 && (
@@ -100,8 +109,8 @@ export function MinwonDetail({ data, m }: { data: AppData; m: Minwon }) {
           </Section>
         )}
 
-        {rules.map(([id, r]) => (
-          <RuleTable key={id} rule={r} data={data} />
+        {ruleIds.map((id) => (
+          <IssuanceJudge key={id} data={data} ruleId={id} />
         ))}
 
         {m.notes.length > 0 && (
@@ -177,12 +186,6 @@ export function MinwonDetail({ data, m }: { data: AppData; m: Minwon }) {
   );
 }
 
-/** 신원 확인(위임장) 안내 문서로 이동 */
-function goIdentity(data: AppData) {
-  const g = data.bundle.guides.find((x) => x.title.includes("신원 확인"));
-  window.location.hash = g ? `#/g/${g.id}` : "#/";
-}
-
 export function BackLink() {
   // 마지막 검색어·분류를 유지한 채 검색 화면으로
   return (
@@ -206,64 +209,3 @@ function Fact({ label, value, strong }: { label: string; value: string; strong?:
 
 const Dt = ({ children }: { children: React.ReactNode }) => <dt className="font-semibold text-gray-500">{children}</dt>;
 const Dd = ({ children }: { children: React.ReactNode }) => <dd className="text-gray-800">{children}</dd>;
-
-/* ---------- 연도별 발급 가능 경로 (정적 표, 판별기는 Phase 3) ---------- */
-
-function cellText(c: RuleCell | undefined): { text: string; tone: "ok" | "no" | "mid" } {
-  if (!c) return { text: "-", tone: "mid" };
-  const note = c.note ? ` (${c.note})` : "";
-  switch (c.s) {
-    case "yes":
-      return { text: "가능" + note, tone: "ok" };
-    case "no":
-      return { text: "불가", tone: "no" };
-    case "partial":
-      return { text: "일부/학교별" + note, tone: "mid" };
-    case "from":
-      return { text: `${c.status?.length ? c.status.join("·") + " 또는 " : ""}${fmt(c.from)} 이후${note}`, tone: "ok" };
-    case "range":
-      return { text: `${fmt(c.from)} ~ ${fmt(c.to)}${note}`, tone: "ok" };
-    case "status":
-      return { text: `${c.status?.join("·")}만${note}`, tone: "mid" };
-    case "text":
-      return { text: c.note ?? "", tone: "mid" };
-  }
-}
-
-const fmt = (ym?: string) => (!ym ? "" : ym.length === 4 ? `${ym}년` : `${ym.slice(0, 4)}년 ${Number(ym.slice(5))}월`);
-
-function RuleTable({ rule, data }: { rule: Rule; data: AppData }) {
-  const tones = { ok: "text-emerald-700", no: "text-gray-400", mid: "text-amber-700" };
-  return (
-    <Section
-      title={`발급 가능 경로 — ${rule.label}`}
-      right={!data.bundle.rules.reviewed ? <Badge tone="amber">검수 전</Badge> : undefined}
-    >
-      <p className="mb-2 text-sm text-gray-600">
-        기준: <b>{rule.basis}</b> {rule.basis.includes("연") && "(출생연도가 아님)"}
-      </p>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <tbody>
-            {data.bundle.rules.channels.map((ch) => {
-              const c = cellText(rule.cells[ch.id]);
-              return (
-                <tr key={ch.id} className="border-t border-gray-100">
-                  <th scope="row" className="w-2/5 py-1.5 pr-3 text-left align-top font-medium text-gray-600 break-keep">
-                    {ch.label}
-                  </th>
-                  <td className={`py-1.5 ${tones[c.tone]}`}>{c.text}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      {rule.notes.length > 0 && (
-        <div className="mt-3 text-sm text-gray-600">
-          <List items={rule.notes} />
-        </div>
-      )}
-    </Section>
-  );
-}
