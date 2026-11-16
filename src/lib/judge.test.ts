@@ -117,13 +117,21 @@ describe("신청인 신원 확인", () => {
     const r = judgeIdentity(b.identity, v, age);
     return r.matched ? r.case.id : "unmatched";
   };
-  it("본인", () => {
+  it("본인: 만 14세 이상만 가능 (미만은 신청 불가 — 실무 기준)", () => {
     expect(id("self", 14)).toBe("self");
-    expect(id("self", 13)).toBe("unmatched");
+    expect(id("self", 13)).toBe("self_under14");
+    const r = judgeIdentity(b.identity, "self", 10);
+    expect(r.matched && r.case.denied).toBe(true);
   });
-  it("법정대리인: 만 19세 미만까지", () => {
+  it("부모: 미성년 자녀는 법정대리인, 성인 자녀는 위임장+가족관계 증빙 (실무 기준)", () => {
     expect(id("guardian", 18)).toBe("legal_guardian");
-    expect(id("guardian", 19)).toBe("unmatched");
+    expect(id("guardian", 19)).toBe("guardian_adult");
+    const r = judgeIdentity(b.identity, "guardian", 30);
+    expect(r.matched && r.case.documents.join()).toMatch(/위임장.*가족관계.*부모.*자녀/);
+  });
+  it("모든 방문자 × 나이 조합이 규칙에 걸림 (빈칸 없음)", () => {
+    for (const v of ["self", "guardian", "proxy"] as const)
+      for (let age = 0; age <= 100; age++) expect(judgeIdentity(b.identity, v, age).matched).toBe(true);
   });
   it("대리인: 14세 기준", () => {
     expect(id("proxy", 13)).toBe("proxy_under14");

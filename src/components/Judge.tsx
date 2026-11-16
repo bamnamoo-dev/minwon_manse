@@ -285,7 +285,7 @@ export function IdentityJudge({ data, compact }: { data: AppData; compact?: bool
   const res = ageNum === undefined ? null : judgeIdentity(rules, visitor, ageNum);
   const visitors: [Visitor, string][] = [
     ["self", "본인"],
-    ["guardian", "법정대리인(부모 등)"],
+    ["guardian", "부모(법정대리인)"],
     ["proxy", "그 밖의 대리인"],
   ];
 
@@ -330,12 +330,23 @@ export function IdentityJudge({ data, compact }: { data: AppData; compact?: bool
 
       {res &&
         (res.matched ? (
-          <div className="rounded-lg bg-emerald-50 p-3 ring-1 ring-emerald-200">
-            <div className="mb-1.5 text-sm font-semibold text-emerald-900">
-              {res.case.visitor} · 대상자 {res.case.subject} → 필요 서류
+          res.case.denied ? (
+            <div className="rounded-lg bg-rose-50 p-3 text-sm text-rose-900 ring-1 ring-rose-200">
+              <div className="font-semibold">
+                × {res.case.visitor} · 대상자 {res.case.subject} → 신청 불가
+              </div>
+              <p className="mt-1">{res.case.message}</p>
+              {res.case.source && <p className="mt-1.5 text-xs opacity-75">근거: {res.case.source}</p>}
             </div>
-            <List items={res.case.documents} />
-          </div>
+          ) : (
+            <div className="rounded-lg bg-emerald-50 p-3 ring-1 ring-emerald-200">
+              <div className="mb-1.5 text-sm font-semibold text-emerald-900">
+                {res.case.visitor} · 대상자 {res.case.subject} → 필요 서류
+              </div>
+              <List items={res.case.documents} />
+              {res.case.source && <p className="mt-2 text-xs text-emerald-800/75">근거: {res.case.source}</p>}
+            </div>
+          )
         ) : (
           <div className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">△ {res.note}</div>
         ))}

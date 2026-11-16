@@ -79,6 +79,11 @@ export interface IdentityCase {
   subject: string;
   match: { visitor: "self" | "guardian" | "proxy"; subjectAgeMin?: number; subjectAgeMax?: number };
   documents: string[];
+  /** true면 이 조합으로는 신청 불가 → message 안내 */
+  denied?: boolean;
+  message?: string;
+  /** 편람 표가 아닌 실무 기준 등 출처 표시 */
+  source?: string;
 }
 
 export interface IdentityRules {
