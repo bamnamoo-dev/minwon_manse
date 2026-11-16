@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", system-ui, sans-serif;
+  --font-sans: "Pretendard Variable", "Pretendard","Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", system-ui, sans-serif;
   --color-brand-50: #eff4ff;
   --color-brand-100: #dbe6fe;
   --color-brand-200: #bfd3fe;
