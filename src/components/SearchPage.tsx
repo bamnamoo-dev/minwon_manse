@@ -3,14 +3,13 @@ import { categoryTint, tintAt, type Tint } from "../lib/colors";
 import type { AppData } from "../lib/data";
 import { href, rememberSearch, replaceHash } from "../lib/router";
 import type { Hit } from "../lib/search";
-import { getRecent } from "../lib/storage";
 import type { Guide, Minwon } from "../lib/types";
-import { ArrowRightIcon, BookIcon, ClockIcon, CloseIcon, CompassIcon, FileTextIcon, FolderIcon, SearchIcon, ShieldIcon } from "./Icons";
+import { ArrowRightIcon, BookIcon, CloseIcon, CompassIcon, FileTextIcon, FolderIcon, SearchIcon, ShieldIcon } from "./Icons";
 
 /*
  * 검색·홈 — 포털(aisen.kr) 컨셉 (docs/디자인_개편계획.md)
  * - 남색 머리 띠: 큰 제목 + 검색창 + 자주 찾는 칩, 그 아래로 흰 카드가 걸쳐 올라온다
- * - 자주 쓰는 민원 타일(매뉴얼이 연결된 민원 + 판별기·서식함), 최근 본 민원
+ * - (자주 쓰는 민원·최근 본 민원 카드는 담당자 요청으로 뺌 2026-11-16)
  * - 분류별 카드: 분류마다 색 점·배지(색은 분류 순서로 자동, src/lib/colors.ts)
  * - 검색은 전부 브라우저 안에서(src/lib/search.ts). 검색어·분류만 주소(#/?q=&c=)에 남는다
  */
@@ -116,7 +115,7 @@ export function SearchPage({ data, q, cat }: { data: AppData; q: string; cat: st
       <section className="bg-navy text-white">
         <div
           className={`mx-auto grid max-w-6xl items-center gap-8 px-4 sm:px-6 ${
-            q ? "pb-6 pt-6" : "pb-28 pt-10 lg:grid-cols-[1fr_560px]"
+            q ? "pb-6 pt-6" : "pb-12 pt-10 lg:grid-cols-[1fr_560px]"
           }`}
         >
           {!q && (
@@ -180,8 +179,7 @@ export function SearchPage({ data, q, cat }: { data: AppData; q: string; cat: st
           <Results data={data} hits={hits} q={q} />
         </div>
       ) : (
-        <div className="mx-auto -mt-16 max-w-6xl space-y-10 px-4 sm:px-6">
-          <QuickRow data={data} />
+        <div className="mx-auto mt-8 max-w-6xl space-y-10 px-4 sm:px-6">
           <AllMinwon data={data} cat={homeCat} />
           <BottomRow data={data} />
         </div>
@@ -212,87 +210,6 @@ function IconTile({ tint, children, size = 40 }: { tint: Tint; children: ReactNo
     <span className="inline-flex shrink-0 items-center justify-center rounded-xl" style={{ width: size, height: size, background: tint.bg, color: tint.fg }}>
       {children}
     </span>
-  );
-}
-
-/* ───────── 자주 쓰는 민원 + 최근 본 민원 ───────── */
-function QuickRow({ data }: { data: AppData }) {
-  const recent = useMemo(() => getRecent().map((id) => data.minwonById.get(id)).filter(Boolean) as Minwon[], [data]);
-  // 자주 쓰는 민원 = 발급 시스템 매뉴얼이 연결된 민원(data/manuals/links.json) — 창구 즉시 발급 학생 민원
-  const quick = Object.keys(data.bundle.manuals?.links ?? {})
-    .sort()
-    .map((id) => data.minwonById.get(id))
-    .filter(Boolean)
-    .slice(0, 4) as Minwon[];
-
-  return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
-      <section className="panel p-5 sm:p-6">
-        <div className="mb-4 flex items-baseline justify-between">
-          <h2 className="text-[17px] font-bold text-ink">자주 쓰는 민원</h2>
-          <span className="text-xs text-muted">창구 즉시 발급 · 나이스 처리 순서 포함</span>
-        </div>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {quick.map((m) => {
-            const t = categoryTint(data.categories, m.category);
-            return (
-              <a key={m.id} href={`#/m/${m.id}`} className="group rounded-xl border border-line bg-paper/60 p-4 transition hover:border-accent/40 hover:bg-accent-soft/50">
-                <IconTile tint={t}>
-                  <FileTextIcon size={19} />
-                </IconTile>
-                <div className="mt-3 text-[15px] font-semibold leading-snug text-ink">{m.title.replace(/ 신청$/, "")}</div>
-                <div className="mt-1.5 flex items-center gap-1.5">
-                  <PeriodBadge period={m.period} />
-                  <span className="text-[12px] text-muted">수수료 {m.fee || "-"}</span>
-                </div>
-              </a>
-            );
-          })}
-          <a href="#/judge" className="group rounded-xl border border-line bg-paper/60 p-4 transition hover:border-accent/40 hover:bg-accent-soft/50">
-            <IconTile tint={tintAt(4)}>
-              <CompassIcon size={19} />
-            </IconTile>
-            <div className="mt-3 text-[15px] font-semibold text-ink">발급 경로 판별기</div>
-            <div className="mt-1.5 text-[12px] text-muted">연도·나이로 어디서 발급?</div>
-          </a>
-          <a href="#/forms" className="group rounded-xl border border-line bg-paper/60 p-4 transition hover:border-accent/40 hover:bg-accent-soft/50">
-            <IconTile tint={tintAt(2)}>
-              <FolderIcon size={19} />
-            </IconTile>
-            <div className="mt-3 text-[15px] font-semibold text-ink">서식함</div>
-            <div className="mt-1.5 text-[12px] text-muted">HWP·PDF {data.bundle.formsLibrary?.items.length ?? 0}종</div>
-          </a>
-        </div>
-      </section>
-
-      <section className="panel p-5 sm:p-6">
-        <div className="mb-1 flex items-center gap-2">
-          <ClockIcon size={17} className="text-accent" />
-          <h2 className="text-[17px] font-bold text-ink">최근 본 민원</h2>
-        </div>
-        <p className="mb-3 text-xs text-muted">이 PC에만 저장</p>
-        {recent.length ? (
-          <ul className="space-y-2">
-            {recent.slice(0, 5).map((m) => {
-              const t = categoryTint(data.categories, m.category);
-              return (
-                <li key={m.id}>
-                  <a href={`#/m/${m.id}`} className="flex items-center gap-3 rounded-xl border border-line px-3 py-2.5 transition hover:border-accent/40 hover:bg-accent-soft/50">
-                    <IconTile tint={t} size={30}>
-                      <FileTextIcon size={15} />
-                    </IconTile>
-                    <span className="min-w-0 flex-1 truncate text-[14.5px] font-medium text-ink">{m.title.replace(/ 신청$/, "")}</span>
-                    <ArrowRightIcon size={15} className="text-muted" />
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-        ) : (
-          <p className="rounded-xl border border-dashed border-line-strong px-4 py-6 text-center text-[13.5px] text-muted">열어본 민원이 여기에 표시됩니다</p>
-        )}
-      </section>
-    </div>
   );
 }
 
