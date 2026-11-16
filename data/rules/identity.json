@@ -1,0 +1,50 @@
+{
+  "_meta": {
+    "source": "민원편람 2025 PDF 46쪽(인쇄 36쪽) '신청인 신원 확인 방법(방문 시)'",
+    "method": "PDF 페이지 이미지 대조 수작업 입력",
+    "reviewed": false,
+    "basis": [
+      "본인이 청구하는 경우: 주민등록증 등 신원을 확인할 수 있는 신분증명서",
+      "대리인이 청구하는 경우: 「민원 처리에 관한 법률 시행규칙」 제4조 별지 제3호 서식의 위임장 및 신분증명서"
+    ]
+  },
+  "cases": [
+    {
+      "id": "self",
+      "visitor": "본인",
+      "subject": "만 14세 이상",
+      "match": {"visitor": "self", "subjectAgeMin": 14},
+      "documents": ["신분증"]
+    },
+    {
+      "id": "legal_guardian",
+      "visitor": "법정대리인",
+      "subject": "미성년자(만 19세 미만)",
+      "match": {"visitor": "guardian", "subjectAgeMax": 18},
+      "documents": ["법정대리인 신분증", "가족관계를 입증할 수 있는 서류"]
+    },
+    {
+      "id": "proxy_under14",
+      "visitor": "대리인(법정대리인 외)",
+      "subject": "만 14세 미만",
+      "match": {"visitor": "proxy", "subjectAgeMax": 13},
+      "documents": [
+        "법정대리인의 위임장",
+        "법정대리인 신분증(사본 가능)",
+        "대리인 신분증",
+        "만 14세 미만의 아동과 법정대리인의 관계를 입증할 수 있는 서류"
+      ]
+    },
+    {
+      "id": "proxy_14plus",
+      "visitor": "대리인(법정대리인 외)",
+      "subject": "만 14세 이상",
+      "match": {"visitor": "proxy", "subjectAgeMin": 14},
+      "documents": ["위임장", "제증명 대상자 신분증(사본 가능)", "대리인 신분증"]
+    }
+  ],
+  "unmatched": [
+    {"case": "본인 방문 + 만 14세 미만", "note": "편람 표에 없음 → 법정대리인 방문 또는 기관 판단. 담당자 확인 필요"},
+    {"case": "법정대리인 방문 + 대상자 성년(만 19세 이상)", "note": "법정대리권 없음 → '대리인(만 14세 이상)' 기준(위임장) 적용 여부 담당자 확인"}
+  ]
+}

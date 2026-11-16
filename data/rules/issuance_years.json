@@ -1,0 +1,1203 @@
+{
+  "_meta": {
+    "source": "민원편람 2025 PDF 47~48쪽(인쇄 37~38쪽) '민원 창구별 종류 및 발급 가능 연도'",
+    "method": "PDF 페이지 이미지를 직접 보고 수작업 입력 (MD 변환본은 열 이름이 어긋나 있어 사용하지 않음)",
+    "reviewed": false,
+    "cellSchema": {
+      "yes": "가능(○)",
+      "no": "불가(×)",
+      "partial": "일부/해당 학교에서 발급(△) — note 참조",
+      "from": "from(YYYY 또는 YYYY-MM) 이후 가능. status가 있으면 'status에 해당하거나 from 이후'",
+      "range": "from~to 기간만 가능",
+      "status": "status 목록에 해당하는 사람만 가능(재학생, 재직자 등)",
+      "text": "표에 문장으로 적힌 경우 — note 그대로 안내"
+    }
+  },
+  "channels": [
+    {
+      "id": "neis",
+      "label": "NEIS (교육기관 방문)",
+      "group": "방문"
+    },
+    {
+      "id": "certSystem",
+      "label": "증명발급시스템 (교육기관 방문)",
+      "group": "방문"
+    },
+    {
+      "id": "faxEdu",
+      "label": "FAX민원 – 교육기관 방문",
+      "group": "방문(모사전송)"
+    },
+    {
+      "id": "faxGu",
+      "label": "FAX민원 – 구청·주민센터 방문",
+      "group": "방문(모사전송)"
+    },
+    {
+      "id": "mail",
+      "label": "우편민원 (우체국)",
+      "group": "우편"
+    },
+    {
+      "id": "gov24Online",
+      "label": "정부24 온라인 발급",
+      "group": "정부24"
+    },
+    {
+      "id": "gov24Mail",
+      "label": "정부24 우편 발급",
+      "group": "정부24"
+    },
+    {
+      "id": "kiosk",
+      "label": "무인민원발급기",
+      "group": "무인"
+    }
+  ],
+  "rules": {
+    "graduation_ko": {
+      "label": "졸업증명서(국문)",
+      "group": "학생",
+      "basis": "졸업연월",
+      "minwonIds": [
+        "M02"
+      ],
+      "cells": {
+        "neis": {
+          "s": "from",
+          "from": "1982-02"
+        },
+        "certSystem": {
+          "s": "range",
+          "from": "1951-02",
+          "to": "2002-02"
+        },
+        "faxEdu": {
+          "s": "yes"
+        },
+        "faxGu": {
+          "s": "yes"
+        },
+        "mail": {
+          "s": "yes"
+        },
+        "gov24Online": {
+          "s": "from",
+          "from": "1982-02"
+        },
+        "gov24Mail": {
+          "s": "from",
+          "from": "1982-02"
+        },
+        "kiosk": {
+          "s": "from",
+          "from": "1982-02"
+        }
+      },
+      "notes": [
+        "발급 연도는 졸업 연도를 의미함(출생 연도 X)"
+      ]
+    },
+    "record_ko": {
+      "label": "학교생활기록부",
+      "group": "학생",
+      "basis": "졸업연월",
+      "minwonIds": [
+        "M07"
+      ],
+      "cells": {
+        "neis": {
+          "s": "from",
+          "from": "2003-02"
+        },
+        "certSystem": {
+          "s": "range",
+          "from": "1951-02",
+          "to": "2002-02"
+        },
+        "faxEdu": {
+          "s": "yes"
+        },
+        "faxGu": {
+          "s": "yes"
+        },
+        "mail": {
+          "s": "yes"
+        },
+        "gov24Online": {
+          "s": "from",
+          "from": "2003-02"
+        },
+        "gov24Mail": {
+          "s": "from",
+          "from": "1982-02"
+        },
+        "kiosk": {
+          "s": "from",
+          "from": "2003-02"
+        }
+      },
+      "notes": [
+        "발급 연도는 졸업 연도를 의미함(출생 연도 X)"
+      ]
+    },
+    "record_admission_ko": {
+      "label": "학교생활기록부(대입전형용)",
+      "group": "학생",
+      "basis": "졸업연월",
+      "minwonIds": [
+        "M08"
+      ],
+      "cells": {
+        "neis": {
+          "s": "from",
+          "from": "2013-02"
+        },
+        "certSystem": {
+          "s": "no"
+        },
+        "faxEdu": {
+          "s": "yes"
+        },
+        "faxGu": {
+          "s": "yes"
+        },
+        "mail": {
+          "s": "yes"
+        },
+        "gov24Online": {
+          "s": "from",
+          "from": "2013-02"
+        },
+        "gov24Mail": {
+          "s": "from",
+          "from": "1982-02"
+        },
+        "kiosk": {
+          "s": "no"
+        }
+      },
+      "notes": [
+        "정부24 우편발급 '1982년 2월~'은 편람 표 그대로 옮김 — 실무 확인 필요"
+      ]
+    },
+    "transcript_ko": {
+      "label": "성적증명서(중·고)",
+      "group": "학생",
+      "basis": "졸업연월",
+      "minwonIds": [
+        "M04"
+      ],
+      "cells": {
+        "neis": {
+          "s": "from",
+          "from": "2003-02"
+        },
+        "certSystem": {
+          "s": "no"
+        },
+        "faxEdu": {
+          "s": "from",
+          "from": "2003-02"
+        },
+        "faxGu": {
+          "s": "from",
+          "from": "2003-02"
+        },
+        "mail": {
+          "s": "yes"
+        },
+        "gov24Online": {
+          "s": "from",
+          "from": "2003-02"
+        },
+        "gov24Mail": {
+          "s": "from",
+          "from": "2003-02"
+        },
+        "kiosk": {
+          "s": "from",
+          "from": "2003-02"
+        }
+      },
+      "notes": [
+        "성적증명서는 2003년 이후 졸업자부터 발급 가능",
+        "2002년 이전 졸업생은 학교생활기록부를 통해 성적 확인"
+      ]
+    },
+    "expulsion_ko": {
+      "label": "제적증명서(고)",
+      "group": "학생",
+      "basis": "제적연월",
+      "minwonIds": [
+        "M06"
+      ],
+      "cells": {
+        "neis": {
+          "s": "from",
+          "from": "2003-03"
+        },
+        "certSystem": {
+          "s": "range",
+          "from": "1951-02",
+          "to": "2002-02"
+        },
+        "faxEdu": {
+          "s": "yes"
+        },
+        "faxGu": {
+          "s": "yes"
+        },
+        "mail": {
+          "s": "yes"
+        },
+        "gov24Online": {
+          "s": "from",
+          "from": "2003-03"
+        },
+        "gov24Mail": {
+          "s": "from",
+          "from": "2003-03"
+        },
+        "kiosk": {
+          "s": "from",
+          "from": "2003-03"
+        }
+      },
+      "notes": []
+    },
+    "extra_mgmt_ko": {
+      "label": "정원외관리증명서(초·중)",
+      "group": "학생",
+      "basis": "해당연월",
+      "minwonIds": [
+        "M05"
+      ],
+      "cells": {
+        "neis": {
+          "s": "partial",
+          "note": "학교별 상이"
+        },
+        "certSystem": {
+          "s": "range",
+          "from": "1951-02",
+          "to": "2002-02"
+        },
+        "faxEdu": {
+          "s": "yes"
+        },
+        "faxGu": {
+          "s": "yes"
+        },
+        "mail": {
+          "s": "no"
+        },
+        "gov24Online": {
+          "s": "partial",
+          "note": "학교별 상이"
+        },
+        "gov24Mail": {
+          "s": "partial",
+          "note": "학교별 상이"
+        },
+        "kiosk": {
+          "s": "from",
+          "from": "2003-02"
+        }
+      },
+      "notes": []
+    },
+    "expected_graduation_ko": {
+      "label": "졸업예정증명서",
+      "group": "학생",
+      "basis": "재학상태",
+      "minwonIds": [
+        "M03"
+      ],
+      "cells": {
+        "neis": {
+          "s": "status",
+          "status": [
+            "재학생(졸업예정자)"
+          ]
+        },
+        "certSystem": {
+          "s": "no"
+        },
+        "faxEdu": {
+          "s": "status",
+          "status": [
+            "재학생(졸업예정자)"
+          ]
+        },
+        "faxGu": {
+          "s": "status",
+          "status": [
+            "재학생(졸업예정자)"
+          ]
+        },
+        "mail": {
+          "s": "status",
+          "status": [
+            "재학생(졸업예정자)"
+          ]
+        },
+        "gov24Online": {
+          "s": "status",
+          "status": [
+            "재학생(졸업예정자)"
+          ]
+        },
+        "gov24Mail": {
+          "s": "status",
+          "status": [
+            "재학생(졸업예정자)"
+          ]
+        },
+        "kiosk": {
+          "s": "status",
+          "status": [
+            "재학생(졸업예정자)"
+          ]
+        }
+      },
+      "notes": [
+        "졸업예정자는 해당 학교의 학사일정에 따라 결정되므로 발급 가능 시기가 학교마다 다를 수 있음"
+      ]
+    },
+    "enrollment_ko": {
+      "label": "재학증명서",
+      "group": "학생",
+      "basis": "재학상태",
+      "minwonIds": [
+        "M01"
+      ],
+      "cells": {
+        "neis": {
+          "s": "status",
+          "status": [
+            "재학생"
+          ]
+        },
+        "certSystem": {
+          "s": "no"
+        },
+        "faxEdu": {
+          "s": "yes"
+        },
+        "faxGu": {
+          "s": "yes"
+        },
+        "mail": {
+          "s": "yes"
+        },
+        "gov24Online": {
+          "s": "status",
+          "status": [
+            "재학생"
+          ]
+        },
+        "gov24Mail": {
+          "s": "status",
+          "status": [
+            "재학생"
+          ]
+        },
+        "kiosk": {
+          "s": "no"
+        }
+      },
+      "notes": []
+    },
+    "tuition_paid_ko": {
+      "label": "교육비납입증명서",
+      "group": "학생",
+      "basis": "납부연도",
+      "minwonIds": [
+        "M10"
+      ],
+      "cells": {
+        "neis": {
+          "s": "from",
+          "from": "2010"
+        },
+        "certSystem": {
+          "s": "no"
+        },
+        "faxEdu": {
+          "s": "yes"
+        },
+        "faxGu": {
+          "s": "yes"
+        },
+        "mail": {
+          "s": "yes"
+        },
+        "gov24Online": {
+          "s": "from",
+          "from": "2010"
+        },
+        "gov24Mail": {
+          "s": "from",
+          "from": "2010"
+        },
+        "kiosk": {
+          "s": "from",
+          "from": "2010"
+        }
+      },
+      "notes": [
+        "기준은 납부 연도"
+      ]
+    },
+    "edu_benefit_ko": {
+      "label": "교육급여 수급자증명서",
+      "group": "학생",
+      "basis": "없음",
+      "minwonIds": [
+        "M14"
+      ],
+      "cells": {
+        "neis": {
+          "s": "yes"
+        },
+        "certSystem": {
+          "s": "no"
+        },
+        "faxEdu": {
+          "s": "yes"
+        },
+        "faxGu": {
+          "s": "yes"
+        },
+        "mail": {
+          "s": "yes"
+        },
+        "gov24Online": {
+          "s": "yes"
+        },
+        "gov24Mail": {
+          "s": "yes"
+        },
+        "kiosk": {
+          "s": "no"
+        }
+      },
+      "notes": []
+    },
+    "graduation_en": {
+      "label": "졸업증명서(영문)",
+      "group": "학생",
+      "basis": "졸업연월",
+      "minwonIds": [
+        "M96"
+      ],
+      "cells": {
+        "neis": {
+          "s": "from",
+          "from": "1982-02"
+        },
+        "certSystem": {
+          "s": "range",
+          "from": "1951-02",
+          "to": "2002-02"
+        },
+        "faxEdu": {
+          "s": "partial",
+          "note": "해당 학교에서 발급"
+        },
+        "faxGu": {
+          "s": "partial",
+          "note": "해당 학교에서 발급"
+        },
+        "mail": {
+          "s": "partial",
+          "note": "해당 학교에서 발급"
+        },
+        "gov24Online": {
+          "s": "from",
+          "from": "1982-02",
+          "note": "기관장 서명 생략"
+        },
+        "gov24Mail": {
+          "s": "from",
+          "from": "1982-02",
+          "note": "기관장 서명 생략"
+        },
+        "kiosk": {
+          "s": "from",
+          "from": "1982-02",
+          "note": "기관장 서명 생략"
+        }
+      },
+      "notes": [
+        "해당 학교에서 발급"
+      ]
+    },
+    "enrollment_en": {
+      "label": "재학증명서(영문)",
+      "group": "학생",
+      "basis": "재학상태",
+      "minwonIds": [
+        "M96"
+      ],
+      "cells": {
+        "neis": {
+          "s": "status",
+          "status": [
+            "재학생"
+          ]
+        },
+        "certSystem": {
+          "s": "no"
+        },
+        "faxEdu": {
+          "s": "partial",
+          "note": "해당 학교에서 발급"
+        },
+        "faxGu": {
+          "s": "partial",
+          "note": "해당 학교에서 발급"
+        },
+        "mail": {
+          "s": "partial",
+          "note": "해당 학교에서 발급"
+        },
+        "gov24Online": {
+          "s": "status",
+          "status": [
+            "재학생"
+          ]
+        },
+        "gov24Mail": {
+          "s": "status",
+          "status": [
+            "재학생"
+          ]
+        },
+        "kiosk": {
+          "s": "no"
+        }
+      },
+      "notes": [
+        "해당 학교에서 발급"
+      ]
+    },
+    "transcript_en": {
+      "label": "성적증명서(영문, 중·고)",
+      "group": "학생",
+      "basis": "입학연월",
+      "minwonIds": [
+        "M96"
+      ],
+      "cells": {
+        "neis": {
+          "s": "from",
+          "from": "2014-03"
+        },
+        "certSystem": {
+          "s": "no"
+        },
+        "faxEdu": {
+          "s": "partial",
+          "note": "해당 학교에서 발급"
+        },
+        "faxGu": {
+          "s": "partial",
+          "note": "해당 학교에서 발급"
+        },
+        "mail": {
+          "s": "partial",
+          "note": "해당 학교에서 발급"
+        },
+        "gov24Online": {
+          "s": "from",
+          "from": "2014-03"
+        },
+        "gov24Mail": {
+          "s": "from",
+          "from": "2014-03"
+        },
+        "kiosk": {
+          "s": "no"
+        }
+      },
+      "notes": [
+        "기준은 입학 연월(2014년 3월 입학생부터)"
+      ]
+    },
+    "ged_pass_ko": {
+      "label": "검정고시 합격증명서(초·중·고졸, 국문)",
+      "group": "검정고시",
+      "basis": "합격연도",
+      "minwonIds": [
+        "M29",
+        "M30",
+        "M31"
+      ],
+      "cells": {
+        "neis": {
+          "s": "from",
+          "from": "1978"
+        },
+        "certSystem": {
+          "s": "no"
+        },
+        "faxEdu": {
+          "s": "yes"
+        },
+        "faxGu": {
+          "s": "yes"
+        },
+        "mail": {
+          "s": "yes"
+        },
+        "gov24Online": {
+          "s": "from",
+          "from": "1978"
+        },
+        "gov24Mail": {
+          "s": "yes"
+        },
+        "kiosk": {
+          "s": "from",
+          "from": "1978",
+          "note": "⚠ 편람 내 불일치: 48쪽 표는 1978년, 57쪽 '무인민원발급 서비스' 안내는 '1983년 합격자부터'로 기재 → 담당자 확인 필요"
+        }
+      },
+      "notes": [
+        "발급 연도는 합격 연도를 의미함"
+      ]
+    },
+    "ged_score_ko": {
+      "label": "검정고시 성적증명서(초·중·고졸, 국문)",
+      "group": "검정고시",
+      "basis": "합격연도",
+      "minwonIds": [
+        "M32",
+        "M33",
+        "M34"
+      ],
+      "cells": {
+        "neis": {
+          "s": "from",
+          "from": "1978"
+        },
+        "certSystem": {
+          "s": "no"
+        },
+        "faxEdu": {
+          "s": "yes"
+        },
+        "faxGu": {
+          "s": "yes"
+        },
+        "mail": {
+          "s": "yes"
+        },
+        "gov24Online": {
+          "s": "from",
+          "from": "1978"
+        },
+        "gov24Mail": {
+          "s": "yes"
+        },
+        "kiosk": {
+          "s": "from",
+          "from": "1978",
+          "note": "⚠ 편람 내 불일치: 48쪽 표는 1978년, 57쪽 '무인민원발급 서비스' 안내는 '1983년 합격자부터'로 기재 → 담당자 확인 필요"
+        }
+      },
+      "notes": [
+        "발급 연도는 합격 연도를 의미함"
+      ]
+    },
+    "ged_subject_ko": {
+      "label": "검정고시 과목합격증명서(초·중·고졸)",
+      "group": "검정고시",
+      "basis": "합격연도",
+      "minwonIds": [
+        "M35",
+        "M36",
+        "M37"
+      ],
+      "cells": {
+        "neis": {
+          "s": "from",
+          "from": "1978"
+        },
+        "certSystem": {
+          "s": "no"
+        },
+        "faxEdu": {
+          "s": "yes"
+        },
+        "faxGu": {
+          "s": "yes"
+        },
+        "mail": {
+          "s": "yes"
+        },
+        "gov24Online": {
+          "s": "from",
+          "from": "1978"
+        },
+        "gov24Mail": {
+          "s": "yes"
+        },
+        "kiosk": {
+          "s": "from",
+          "from": "1978",
+          "note": "⚠ 편람 내 불일치: 48쪽 표는 1978년, 57쪽 '무인민원발급 서비스' 안내는 '1983년 합격자부터'로 기재 → 담당자 확인 필요"
+        }
+      },
+      "notes": [
+        "발급 연도는 합격 연도를 의미함"
+      ]
+    },
+    "ged_pass_en": {
+      "label": "검정고시 합격증명서(영문)",
+      "group": "검정고시",
+      "basis": "합격연도",
+      "minwonIds": [
+        "M96"
+      ],
+      "cells": {
+        "neis": {
+          "s": "from",
+          "from": "1978"
+        },
+        "certSystem": {
+          "s": "no"
+        },
+        "faxEdu": {
+          "s": "partial"
+        },
+        "faxGu": {
+          "s": "partial"
+        },
+        "mail": {
+          "s": "yes"
+        },
+        "gov24Online": {
+          "s": "from",
+          "from": "1978",
+          "note": "기관장 서명 생략"
+        },
+        "gov24Mail": {
+          "s": "yes"
+        },
+        "kiosk": {
+          "s": "from",
+          "from": "1978",
+          "note": "기관장 서명 생략 ⚠ 편람 내 불일치: 48쪽 표는 1978년, 57쪽 '무인민원발급 서비스' 안내는 '1983년 합격자부터'로 기재 → 담당자 확인 필요"
+        }
+      },
+      "notes": [
+        "원본은 합격한 시·도 교육청에서만 발급"
+      ]
+    },
+    "ged_score_en": {
+      "label": "검정고시 성적증명서(영문)",
+      "group": "검정고시",
+      "basis": "합격연도",
+      "minwonIds": [
+        "M96"
+      ],
+      "cells": {
+        "neis": {
+          "s": "from",
+          "from": "1978"
+        },
+        "certSystem": {
+          "s": "no"
+        },
+        "faxEdu": {
+          "s": "partial"
+        },
+        "faxGu": {
+          "s": "partial"
+        },
+        "mail": {
+          "s": "yes"
+        },
+        "gov24Online": {
+          "s": "from",
+          "from": "1978",
+          "note": "기관장 서명 생략"
+        },
+        "gov24Mail": {
+          "s": "yes"
+        },
+        "kiosk": {
+          "s": "from",
+          "from": "1978",
+          "note": "기관장 서명 생략 ⚠ 편람 내 불일치: 48쪽 표는 1978년, 57쪽 '무인민원발급 서비스' 안내는 '1983년 합격자부터'로 기재 → 담당자 확인 필요"
+        }
+      },
+      "notes": [
+        "원본은 합격한 시·도 교육청에서만 발급"
+      ]
+    },
+    "ged_correction": {
+      "label": "검정고시 기재사항 정정신청",
+      "group": "검정고시",
+      "basis": "없음",
+      "minwonIds": [
+        "M39"
+      ],
+      "cells": {
+        "neis": {
+          "s": "text",
+          "note": "온라인으로 정부24에서 신청 또는 오프라인으로 교육기관 방문/팩스 신청"
+        },
+        "certSystem": {
+          "s": "text",
+          "note": "위와 같음"
+        },
+        "faxEdu": {
+          "s": "text",
+          "note": "위와 같음"
+        },
+        "faxGu": {
+          "s": "text",
+          "note": "위와 같음"
+        },
+        "mail": {
+          "s": "yes"
+        },
+        "gov24Online": {
+          "s": "yes"
+        },
+        "gov24Mail": {
+          "s": "no"
+        },
+        "kiosk": {
+          "s": "no"
+        }
+      },
+      "notes": []
+    },
+    "ged_reissue": {
+      "label": "검정고시 합격증서 재교부",
+      "group": "검정고시",
+      "basis": "없음",
+      "minwonIds": [
+        "M38"
+      ],
+      "cells": {
+        "neis": {
+          "s": "text",
+          "note": "합격한 시·도로 방문하여 발급"
+        },
+        "certSystem": {
+          "s": "text",
+          "note": "합격한 시·도로 방문하여 발급"
+        },
+        "faxEdu": {
+          "s": "text",
+          "note": "합격한 시·도로 방문하여 발급"
+        },
+        "faxGu": {
+          "s": "text",
+          "note": "합격한 시·도로 방문하여 발급"
+        },
+        "mail": {
+          "s": "text",
+          "note": "합격한 시·도로 방문하여 발급"
+        },
+        "gov24Online": {
+          "s": "no"
+        },
+        "gov24Mail": {
+          "s": "no"
+        },
+        "kiosk": {
+          "s": "no"
+        }
+      },
+      "notes": [
+        "47쪽 표에만 있음(48쪽 정부24 표에는 항목 없음 → 불가로 처리, 확인 필요)"
+      ]
+    },
+    "employment": {
+      "label": "재직증명서",
+      "group": "인사",
+      "basis": "재직상태",
+      "minwonIds": [
+        "M15"
+      ],
+      "cells": {
+        "neis": {
+          "s": "status",
+          "status": [
+            "재직자"
+          ]
+        },
+        "certSystem": {
+          "s": "no"
+        },
+        "faxEdu": {
+          "s": "yes"
+        },
+        "faxGu": {
+          "s": "yes"
+        },
+        "mail": {
+          "s": "yes"
+        },
+        "gov24Online": {
+          "s": "status",
+          "status": [
+            "재직자"
+          ]
+        },
+        "gov24Mail": {
+          "s": "status",
+          "status": [
+            "재직자"
+          ]
+        },
+        "kiosk": {
+          "s": "no"
+        }
+      },
+      "notes": [
+        "정부24는 교육행정기관(교육청 등) 및 국·공립 초·중등학교 근무 교직원에 한함"
+      ]
+    },
+    "career": {
+      "label": "경력증명서",
+      "group": "인사",
+      "basis": "퇴직연도",
+      "minwonIds": [
+        "M16"
+      ],
+      "cells": {
+        "neis": {
+          "s": "from",
+          "from": "2003",
+          "status": [
+            "재직자"
+          ]
+        },
+        "certSystem": {
+          "s": "no"
+        },
+        "faxEdu": {
+          "s": "yes"
+        },
+        "faxGu": {
+          "s": "yes"
+        },
+        "mail": {
+          "s": "yes"
+        },
+        "gov24Online": {
+          "s": "from",
+          "from": "2003",
+          "status": [
+            "재직자"
+          ]
+        },
+        "gov24Mail": {
+          "s": "from",
+          "from": "2003",
+          "status": [
+            "재직자"
+          ]
+        },
+        "kiosk": {
+          "s": "no"
+        }
+      },
+      "notes": [
+        "재직자 또는 2003년 이후 퇴직자부터",
+        "정부24는 교육행정기관 및 국·공립 초·중등학교 교직원에 한함"
+      ]
+    },
+    "retirement": {
+      "label": "퇴직증명원",
+      "group": "인사",
+      "basis": "퇴직연도",
+      "minwonIds": [
+        "M17"
+      ],
+      "cells": {
+        "neis": {
+          "s": "from",
+          "from": "2003"
+        },
+        "certSystem": {
+          "s": "no"
+        },
+        "faxEdu": {
+          "s": "yes"
+        },
+        "faxGu": {
+          "s": "yes"
+        },
+        "mail": {
+          "s": "yes"
+        },
+        "gov24Online": {
+          "s": "from",
+          "from": "2003"
+        },
+        "gov24Mail": {
+          "s": "from",
+          "from": "2003"
+        },
+        "kiosk": {
+          "s": "no"
+        }
+      },
+      "notes": [
+        "2003년 이후 퇴직자부터"
+      ]
+    },
+    "retirement_expected": {
+      "label": "퇴직예정증명원",
+      "group": "인사",
+      "basis": "재직상태",
+      "minwonIds": [
+        "M18"
+      ],
+      "cells": {
+        "neis": {
+          "s": "status",
+          "status": [
+            "퇴직예정자"
+          ]
+        },
+        "certSystem": {
+          "s": "no"
+        },
+        "faxEdu": {
+          "s": "yes"
+        },
+        "faxGu": {
+          "s": "no"
+        },
+        "mail": {
+          "s": "yes"
+        },
+        "gov24Online": {
+          "s": "status",
+          "status": [
+            "퇴직예정자"
+          ]
+        },
+        "gov24Mail": {
+          "s": "status",
+          "status": [
+            "퇴직예정자"
+          ]
+        },
+        "kiosk": {
+          "s": "no"
+        }
+      },
+      "notes": []
+    },
+    "award": {
+      "label": "수상확인원",
+      "group": "인사",
+      "basis": "퇴직연도",
+      "minwonIds": [
+        "M20"
+      ],
+      "cells": {
+        "neis": {
+          "s": "from",
+          "from": "2003",
+          "status": [
+            "재직자"
+          ]
+        },
+        "certSystem": {
+          "s": "no"
+        },
+        "faxEdu": {
+          "s": "yes"
+        },
+        "faxGu": {
+          "s": "no"
+        },
+        "mail": {
+          "s": "no"
+        },
+        "gov24Online": {
+          "s": "from",
+          "from": "2003",
+          "status": [
+            "재직자"
+          ]
+        },
+        "gov24Mail": {
+          "s": "from",
+          "from": "2003",
+          "status": [
+            "재직자"
+          ]
+        },
+        "kiosk": {
+          "s": "no"
+        }
+      },
+      "notes": [
+        "재직자 또는 2003년 이후 퇴직자부터"
+      ]
+    },
+    "training": {
+      "label": "연수이수확인원",
+      "group": "인사",
+      "basis": "퇴직연도",
+      "minwonIds": [
+        "M19"
+      ],
+      "cells": {
+        "neis": {
+          "s": "from",
+          "from": "2003",
+          "status": [
+            "재직자"
+          ]
+        },
+        "certSystem": {
+          "s": "no"
+        },
+        "faxEdu": {
+          "s": "yes"
+        },
+        "faxGu": {
+          "s": "no"
+        },
+        "mail": {
+          "s": "no"
+        },
+        "gov24Online": {
+          "s": "from",
+          "from": "2003",
+          "status": [
+            "재직자"
+          ]
+        },
+        "gov24Mail": {
+          "s": "from",
+          "from": "2003",
+          "status": [
+            "재직자"
+          ]
+        },
+        "kiosk": {
+          "s": "no"
+        }
+      },
+      "notes": [
+        "재직자 또는 2003년 이후 퇴직자부터"
+      ]
+    }
+  }
+}
