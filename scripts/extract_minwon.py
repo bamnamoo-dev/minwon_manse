@@ -45,7 +45,7 @@ LABELS = {
     "관련근거": "laws", "처리과정": "process", "참고사항": "notes",
 }
 GROUP_LABELS = {"민원인", "행정기관"}
-BULLET_RE = re.compile(r"^(○|o\s|ㅇ\s|※|-|•|·|▪|■|□|\d{1,2}[.)]|[가-하][.)]|[①-⑳]|\(\d{1,2}\))")
+BULLET_RE = re.compile(r"^([○◯〇]|o\s|ㅇ\s|※|-|•|·|▪|■|□|\d{1,2}[.)]|[가-하][.)]|[①-⑳]|\(\d{1,2}\))")
 
 
 # ---------------- 공통 유틸 ----------------
@@ -196,7 +196,7 @@ def parse_documents(text: str) -> list[str]:
 
 
 def parse_process(text: str) -> list[dict]:
-    chunks = [c.strip() for c in re.split(r"○", text) if c.strip()]
+    chunks = [c.strip() for c in re.split(r"[○◯〇]", text) if c.strip()]
     res = []
     for c in chunks:
         c = c.replace("\n", " ")
@@ -251,7 +251,7 @@ def parse_notes(text: str) -> tuple[list[str], list[str]]:
                 if f:
                     attach.append(f)
             continue
-        s = re.sub(r"^(○|o\s|ㅇ\s)\s*", "", s)
+        s = re.sub(r"^([○◯〇]|o\s|ㅇ\s)\s*", "", s)
         notes.append(s.lstrip("※ ").strip() if s.startswith("※") else s)
     return notes, attach
 

@@ -69,9 +69,16 @@ describe("다른 증명서 경계값", () => {
     expect(run("tuition_paid_ko", at(2010)).neis).toBe("ok");
     expect(run("tuition_paid_ko", at(2009)).neis).toBe("no");
   });
-  it("검정고시 1978 합격자부터", () => {
+  it("검정고시 1978 합격자부터 (무인발급도 1978 — 담당자 결정)", () => {
     expect(run("ged_pass_ko", at(1978)).neis).toBe("ok");
     expect(run("ged_pass_ko", at(1977)).neis).toBe("no");
+    expect(run("ged_pass_ko", at(1980)).kiosk).toBe("ok");
+  });
+  it("검정고시 합격증서 재교부: 방문·우편·정부24 가능, FAX·무인 불가 (민원 38번 요약표)", () => {
+    const r = run("ged_reissue", {});
+    expect([r.mail, r.gov24Online, r.gov24Mail]).toEqual(["ok", "ok", "ok"]);
+    expect([r.faxEdu, r.faxGu, r.kiosk]).toEqual(["no", "no", "no"]);
+    expect(r.neis).toBe("check"); // 합격한 시·도교육청 방문 안내
   });
 });
 
