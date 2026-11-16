@@ -93,6 +93,51 @@ export interface IdentityRules {
   reviewed: boolean;
 }
 
+/* ───────── 발급 시스템 매뉴얼 (data/manuals) ───────── */
+
+export type SystemId = "neis" | "certSystem";
+
+export interface ManualLink {
+  /** 나이스 매뉴얼 쪽(PDF 물리 쪽수) — 나이스에서 거치는 화면 순서 */
+  neis?: number[];
+  /** 전용 화면이 없어 같은 방식의 다른 증명서 화면을 참고로 보여주는 쪽 */
+  neisRefs?: number[];
+  neisRefNote?: string;
+  /** 학교증명발급시스템 절차 이름 (certsys.sections 의 키) */
+  certSystem?: string;
+  /** 담당자 확인 내용 */
+  checked?: string;
+}
+
+export interface NeisPage {
+  page: number;
+  title: string;
+  overview: string;
+  menuPath: string[];
+  image: string;
+  width: number;
+  height: number;
+  markers: { n: number; x: number; y: number }[];
+  items: { n: number; text: string; subs: string[] }[];
+}
+
+export interface CertStep {
+  title: string;
+  lines: string[];
+  shots: { image: string; width: number; height: number }[];
+  pages: number[];
+  printed: (number | null)[];
+}
+
+export interface Manuals {
+  /** 둘 다 가능할 때 먼저 보여줄 순서 */
+  order: SystemId[];
+  reviewed: boolean;
+  links: Record<string, ManualLink>;
+  neis: { source: string; pages: NeisPage[] };
+  certsys: { source: string; sections: Record<string, { title: string; steps: CertStep[] }> };
+}
+
 export interface Bundle {
   version: string;
   builtAt: string;
@@ -101,4 +146,5 @@ export interface Bundle {
   rules: { channels: Channel[]; rules: Record<string, Rule>; reviewed: boolean };
   identity: IdentityRules;
   synonyms: Record<string, string[]>;
+  manuals: Manuals;
 }

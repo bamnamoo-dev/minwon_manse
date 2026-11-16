@@ -1,16 +1,14 @@
 """나이스 민원 사용자매뉴얼 PDF → 화면 캡처(크롭) + 번호 표식 위치 + 번호별 설명 추출.
 
-사용법: py scripts/render_neis.py [민원ID:쪽,쪽,... ...]
-       (기본: M07:7,10,24 M01:7,10,20 M02:7,10,20* M08:7,10,25 — 디자인 시안용 예시. 쪽 순서 = 나이스에서 거치는 화면 순서)
-       쪽 뒤의 * = 매뉴얼에 그 증명서 전용 화면이 없어 '같은 방식의 다른 증명서 화면'을 참고로 보여줌(refs)
-       — 졸업증명서는 생활기록부·재학증명서와 같은 방법으로 발급(담당자 확인 2026-11-16)
-출력: public/neis/n{쪽}.webp, public/neis/sample.json   (git 제외, 다시 만들 수 있음)
+사용법: py scripts/render_neis.py          (npm run render-manuals 에 포함)
+읽기: data/manuals/links.json 의 민원별 "neis" 쪽 목록 → 그 쪽들만 추출
+출력: data/manuals/neis.json (자동 생성 — 직접 고치지 않는다)
+      public/neis/n{쪽}.webp (git 제외, 다시 만들 수 있음)
 
 - 쪽 번호 = 매뉴얼 PDF 물리 쪽수
 - 캡처 영역 = 쪽 안의 큰 이미지(가로 1000px 이상)들을 합친 사각형
 - 번호 표식 = 캡처 영역 안의 MalgunGothicBold 숫자 글자 위치(캡처 기준 % 좌표)
 - 설명 = 본문의 ❶❷… 항목. 다음 쪽으로 이어지면 이어서 읽는다
-※ 지금은 디자인 시안용. 실제 기능에서는 data/neis/ 스키마를 정하고 검수 절차를 거친다.
 """
 import json
 import pathlib
@@ -23,6 +21,8 @@ from PIL import Image
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PDF = ROOT / "source" / "2025 나이스 민원 사용자매뉴얼(일반행정-민원).pdf"
 OUT = ROOT / "public" / "neis"
+LINKS = ROOT / "data" / "manuals" / "links.json"
+DATA = ROOT / "data" / "manuals" / "neis.json"
 CIRCLED = "❶❷❸❹❺❻❼❽❾❿"
 TARGET_WIDTH = 1600
 
@@ -94,11 +94,8 @@ def body_after_shot(page: fitz.Page, rect: fitz.Rect) -> str:
 
 def main() -> None:
     sys.stdout.reconfigure(encoding="utf-8")
-    args = sys.argv[1:] or ["M07:7,10,24", "M01:7,10,20", "M02:7,10,20*", "M08:7,10,25"]
-    links = {a.split(":")[0]: [int(x.rstrip("*")) for x in a.split(":")[1].split(",")] for a in args}
-    refs = {a.split(":")[0]: [int(x.rstrip("*")) for x in a.split(":")[1].split(",") if x.endswith("*")] for a in args}
-    refs = {k: v for k, v in refs.items() if v}
-    pages = sorted({n for ns in links.values() for n in ns})
+    links = json.loads(LINKS.read_text(encoding="utf-8"))["minwon"]
+    pages = sorted({n for v in links.values() for n in v.get("neis", [])})
     OUT.mkdir(parents=True, exist_ok=True)
     doc = fitz.open(PDF)
     result = []
@@ -128,7 +125,8 @@ def main() -> None:
             "items": its,
         })
         print(f"p{n}: 표식 {len(mk)}개, 설명 {len(its)}개, {pix.width}x{pix.height}")
-    (OUT / "sample.json").write_text(json.dumps({"source": PDF.name, "links": links, "refs": refs, "pages": result}, ensure_ascii=False, indent=1), encoding="utf-8")
+    DATA.write_text(json.dumps({"source": PDF.name, "pages": result}, ensure_ascii=False, indent=1) + chr(10), encoding="utf-8")
+    print(f"-> {DATA.relative_to(ROOT)} ({len(result)}쪽)")
 
 
 if __name__ == "__main__":

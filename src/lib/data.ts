@@ -43,3 +43,7 @@ export function useAppData(): { data?: AppData; error?: string } {
 export const pageImg = (p: number) => `${import.meta.env.BASE_URL}pages/p${p}.webp`;
 /** PDF 쪽 → 편람 인쇄 쪽수 */
 export const printedPage = (p: number) => p - 10;
+
+/** 이 민원에 '어디서 발급하나요?' 단계가 있는지 (연도별 발급 규칙 또는 발급 시스템 매뉴얼 연결) */
+export const hasIssueStep = (data: AppData, m: Minwon) =>
+  m.yearRuleIds.some((r) => data.bundle.rules.rules[r]) || !!data.bundle.manuals?.links[m.id];

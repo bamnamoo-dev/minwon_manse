@@ -1,13 +1,14 @@
 """학교증명발급시스템 사용자 매뉴얼 PDF → 단계별 설명 + 화면 캡처 추출.
 
-사용법: py scripts/render_certsys.py [민원ID ...]   (기본: M02 M07 — 이 절차를 보여줄 민원. 시안용)
-출력: public/certsys/c{쪽}_{순번}.webp, public/certsys/flow.json   (git 제외, 다시 만들 수 있음)
+사용법: py scripts/render_certsys.py       (npm run render-manuals 에 포함)
+출력: data/manuals/certsys.json (자동 생성 — 직접 고치지 않는다)
+      public/certsys/c{쪽}_{순번}.webp (git 제외, 다시 만들 수 있음)
 
-- 범위: 「1. 증명서 발급방법(졸업증명서, 생활기록부)」 ~ 다음 큰 제목(「2. …」) 직전
+- 절차(sections): 지금은 graduation_record = 「1. 증명서 발급방법(졸업증명서, 생활기록부)」 ~ 다음 큰 제목 직전
+  어느 민원에 보여줄지는 data/manuals/links.json 의 "certSystem" 값(절차 이름)으로 정한다
 - 단계 = '가.' '나.' … 소제목. 그 아래 글 줄과 캡처를 읽는 순서대로 붙인다
 - 캡처 = 가로 300px·세로 150px 이상 이미지. 맞닿거나 겹치는 이미지는 한 장으로 합친다
-- 쪽 = PDF 물리 쪽수(page), 매뉴얼 인쇄 쪽수(printed, 쪽 아래 '- n -')
-※ 지금은 디자인 시안용. 실제 기능에서는 스키마를 정하고 검수 절차를 거친다.
+- 쪽 = PDF 물리 쪽수(pages), 매뉴얼 인쇄 쪽수(printed, 쪽 아래 '- n -')
 """
 import json
 import pathlib
@@ -20,6 +21,7 @@ from PIL import Image
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PDF = ROOT / "source" / "학교증명발급시스템+사용자+매뉴얼(최종).pdf"
 OUT = ROOT / "public" / "certsys"
+DATA = ROOT / "data" / "manuals" / "certsys.json"
 START = re.compile(r"^1\.\s*증명서 발급방법")
 STOP = re.compile(r"^\d+\.\s*증명서 발급방법")
 STEP = re.compile(r"^([가-하])\.\s*(.+)$")
@@ -97,8 +99,9 @@ def main() -> None:
             break
         before_start = [] if not started else before_start
 
-    data = {"source": PDF.name, "title": title, "links": sys.argv[1:] or ["M02", "M07"], "steps": steps}
-    (OUT / "flow.json").write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
+    data = {"source": PDF.name, "sections": {"graduation_record": {"title": title, "steps": steps}}}
+    DATA.write_text(json.dumps(data, ensure_ascii=False, indent=1) + chr(10), encoding="utf-8")
+    print(f"-> {DATA.relative_to(ROOT)}")
     for i, s in enumerate(steps, 1):
         print(f"{i}. {s['title']} — 줄 {len(s['lines'])}, 캡처 {len(s['shots'])}, PDF {s['pages']} (인쇄 {s['printed']})")
 

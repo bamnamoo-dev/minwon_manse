@@ -299,7 +299,8 @@ function ResultList({ results }: { results: CellResult[] }) {
 }
 
 /** 신청인 신원 확인(방문 시) — 누가 왔는지 + 대상자 나이 → 구비서류 */
-export function IdentityJudge({ data, compact }: { data: AppData; compact?: boolean }) {
+/** compact: 회색 상자 + 자체 제목 / bare: 상자·제목 없이 내용만(민원 상세의 단계 안에 넣을 때) */
+export function IdentityJudge({ data, compact, bare }: { data: AppData; compact?: boolean; bare?: boolean }) {
   const rules = data.bundle.identity;
   const [visitor, setVisitor] = useState<Visitor>("self");
   const [ageMode, setAgeMode] = useState<"age" | "birth">("age");
@@ -393,6 +394,7 @@ export function IdentityJudge({ data, compact }: { data: AppData; compact?: bool
     </div>
   );
 
+  if (bare) return body;
   if (compact) {
     return (
       <div className="mt-4 rounded-xl border border-gray-200/90 bg-gray-50/50 p-3.5">

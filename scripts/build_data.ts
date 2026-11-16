@@ -51,6 +51,15 @@ const identity = {
   reviewed: !!idFile._meta.reviewed,
 };
 
+const manualLinks = read("data/manuals/links.json");
+const manuals = {
+  order: manualLinks._meta.systemOrder,
+  reviewed: !!manualLinks._meta.reviewed,
+  links: manualLinks.minwon,
+  neis: read("data/manuals/neis.json"),
+  certsys: read("data/manuals/certsys.json"),
+};
+
 const bundle = {
   version: "2025 개정판 민원편람",
   builtAt: new Date().toISOString().slice(0, 10),
@@ -59,6 +68,7 @@ const bundle = {
   rules: { channels: rulesFile.channels, rules: rulesFile.rules, reviewed: !!rulesFile._meta?.reviewed },
   identity,
   synonyms,
+  manuals,
 };
 
 mkdirSync(join(ROOT, "public/data"), { recursive: true });

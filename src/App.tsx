@@ -1,7 +1,6 @@
 import { GuideDetail } from "./components/GuideDetail";
 import { CompassIcon, SearchIcon } from "./components/Icons";
 import { JudgePage } from "./components/Judge";
-import { LabPage } from "./components/Lab";
 import { MinwonDetail } from "./components/MinwonDetail";
 import { SearchPage } from "./components/SearchPage";
 import { useAppData, type AppData } from "./lib/data";
@@ -69,7 +68,6 @@ export default function App() {
 function Page({ data, route }: { data: AppData; route: Route }) {
   const [kind, id] = route.path;
   if (kind === "judge") return <JudgePage data={data} />;
-  if (kind === "lab") return <LabPage data={data} id={id} />;
   if (kind === "m") {
     const m = data.minwonById.get(id);
     return m ? <MinwonDetail data={data} m={m} /> : <NotFound />;

@@ -60,6 +60,41 @@ const Rules = z.object({
   })),
 });
 
+/* 발급 시스템 매뉴얼 (data/manuals) — links.json 은 사람이 관리, neis.json·certsys.json 은 npm run render-manuals 자동 생성 */
+const Links = z.object({
+  _meta: z.object({ systemOrder: z.array(z.enum(["neis", "certSystem"])), reviewed: z.boolean() }).passthrough(),
+  minwon: z.record(
+    z.string().regex(/^M\d{2}$/),
+    z.object({
+      neis: z.array(z.number().int().min(1)).optional(),
+      neisRefs: z.array(z.number().int().min(1)).optional(),
+      neisRefNote: z.string().optional(),
+      certSystem: z.string().optional(),
+      checked: z.string().optional(),
+    }).strict(),
+  ),
+});
+const NeisManual = z.object({
+  source: z.string(),
+  pages: z.array(z.object({
+    page: z.number().int(), title: z.string().min(1), overview: z.string(), menuPath: z.array(z.string()),
+    image: z.string(), width: z.number(), height: z.number(),
+    markers: z.array(z.object({ n: z.number().int(), x: z.number().min(0).max(100), y: z.number().min(0).max(100) })),
+    items: z.array(z.object({ n: z.number().int(), text: z.string(), subs: z.array(z.string()) })),
+  })),
+});
+const CertManual = z.object({
+  source: z.string(),
+  sections: z.record(z.string(), z.object({
+    title: z.string(),
+    steps: z.array(z.object({
+      title: z.string().min(1), lines: z.array(z.string()),
+      shots: z.array(z.object({ image: z.string(), width: z.number(), height: z.number() })),
+      pages: z.array(z.number().int()), printed: z.array(z.number().int().nullable()),
+    })).min(1),
+  })),
+});
+
 const errors: string[] = [];
 const warn: string[] = [];
 
@@ -93,6 +128,28 @@ else {
       if ((c.s === "from" || c.s === "range") && !c.from) errors.push(`규칙 ${rid}.${ch}: from 필요`);
       if (c.s === "range" && !c.to) errors.push(`규칙 ${rid}.${ch}: to 필요`);
       if (c.s === "status" && !c.status?.length) errors.push(`규칙 ${rid}.${ch}: status 필요`);
+    }
+  }
+}
+
+{
+  const links = Links.safeParse(read("data/manuals/links.json"));
+  const neis = NeisManual.safeParse(read("data/manuals/neis.json"));
+  const cert = CertManual.safeParse(read("data/manuals/certsys.json"));
+  if (!links.success) errors.push(`manuals/links.json: ${links.error.message}`);
+  if (!neis.success) errors.push(`manuals/neis.json: ${neis.error.message}`);
+  if (!cert.success) errors.push(`manuals/certsys.json: ${cert.error.message}`);
+  if (links.success && neis.success && cert.success) {
+    const neisPages = new Set(neis.data.pages.map((p) => p.page));
+    for (const p of neis.data.pages) {
+      if (p.markers.length !== p.items.length) warn.push(`나이스 매뉴얼 ${p.page}쪽: 화면 표식 ${p.markers.length}개 ≠ 설명 ${p.items.length}개`);
+    }
+    for (const [mid, l] of Object.entries(links.data.minwon)) {
+      if (!ids.has(mid)) errors.push(`manuals/links.json: 없는 민원 ${mid}`);
+      for (const p of l.neis ?? []) if (!neisPages.has(p)) errors.push(`manuals/links.json ${mid}: 나이스 ${p}쪽이 neis.json에 없음 → npm run render-manuals`);
+      for (const p of l.neisRefs ?? []) if (!l.neis?.includes(p)) errors.push(`manuals/links.json ${mid}: neisRefs ${p}쪽이 neis 목록에 없음`);
+      if (l.neisRefs?.length && !l.neisRefNote) errors.push(`manuals/links.json ${mid}: neisRefs 가 있으면 neisRefNote(참고 화면 안내) 필요`);
+      if (l.certSystem && !cert.data.sections[l.certSystem]) errors.push(`manuals/links.json ${mid}: certsys.json 에 절차 '${l.certSystem}' 없음`);
     }
   }
 }

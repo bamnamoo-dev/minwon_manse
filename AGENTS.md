@@ -33,10 +33,15 @@
 - `data/rules/identity.json` 방문자 유형 × 대상자 나이 → 구비서류
 - `data/guides/G01~G37.json` II·III·IV·VI장 업무안내(markdown 원문)
 - `data/synonyms.json` 검색 동의어
+- `data/manuals/` 발급 시스템 매뉴얼(민원 상세 「어디서 발급하나요?」)
+  - `links.json` 민원 ↔ 매뉴얼 연결(사람이 관리): `neis` 나이스 매뉴얼 쪽 순서, `neisRefs`+`neisRefNote` 전용 화면이 없어 참고로 보여주는 쪽, `certSystem` 학교증명발급시스템 절차 이름, `checked` 담당자 확인, `_meta.systemOrder` 둘 다 가능할 때 먼저 보여줄 시스템
+  - `neis.json`·`certsys.json` 매뉴얼 PDF에서 자동 추출(직접 고치지 않음) → `npm run render-manuals` (이미지는 `public/neis/`·`public/certsys/`, git 제외)
+  - 매뉴얼 원본 PDF 2개는 `source/`에만 두고 git에 넣지 않음(.gitignore)
 
 ## 명령
 - `npm run extract` — MD → data/minwon, data/guides 재생성 (reviewed=true 보호)
 - `npm run render-pages` — PDF → public/pages
+- `npm run render-manuals` — 나이스·학교증명발급시스템 매뉴얼 → data/manuals/*.json + public/neis·certsys 이미지
 - `npm run validate` — 데이터 검증 (빌드 전 필수)
 - `npm run dev` / `npm run build`
 - `npm test` — `scripts/test.mjs`로 실행(드라이브 문자 소문자 `c:`·`h:`일 때 Vitest "failed to find the runner" 오류 회피). `npx vitest run` 직접 실행 금지
@@ -56,7 +61,8 @@
 - `src/lib/search.ts` 검색 엔진(초성·동의어·두 글자 조각 부분일치, 전부 브라우저 안에서 실행) · 테스트 `src/lib/search.test.ts` (`npm test`)
   - 검색 품질을 바꾸면 반드시 `npm test` 통과 확인. 새 실무 표현은 테스트에 추가
 - `src/lib/router.ts` 해시 라우팅: `#/?q=&c=` 검색, `#/m/M02` 민원, `#/g/G05` 업무안내
-- `src/components/` SearchPage, MinwonDetail(발급경로 표 포함), GuideDetail(marked), PageViewer(원문 이미지·인쇄)
+- `src/components/` SearchPage, MinwonDetail(창구형 상세), Issue(어디서 발급하나요 — 나이스/학교증명발급시스템 판정·처리 순서), GuideDetail(marked), PageViewer(원문 이미지·인쇄), ui(Mark·Step·Fold 등 공통 부품)
+- 디자인 기준: `src/index.css` 상단 — 의미 색 `paper/sunk/surface/ink/ink-2/muted/line/line-strong/accent/mark`(bg-paper, text-ink …). 새 화면은 gray·slate 대신 의미 색을 쓴다. 빨강·초록·노랑은 판별 결과 전용
 - 주의: `useEffect(() => window.scrollTo(...))` 처럼 값을 반환하는 축약형 금지 (최신 브라우저는 Promise 반환 → React 오류)
 - 개발 서버: `npm run dev` (http://localhost:5173)
 

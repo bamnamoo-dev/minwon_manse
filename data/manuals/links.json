@@ -1,0 +1,31 @@
+{
+  "_meta": {
+    "description": "민원 ↔ 발급 시스템 매뉴얼 연결. 사람이 관리하는 파일(스크립트가 덮어쓰지 않음). neis.json·certsys.json 은 npm run render-manuals 로 매뉴얼 PDF에서 자동 추출",
+    "neisSource": "2025 나이스 민원 사용자매뉴얼(일반행정-민원).pdf — 쪽 = PDF 물리 쪽수",
+    "certsysSource": "학교증명발급시스템+사용자+매뉴얼(최종).pdf (2017.12, 서울특별시교육청 총무과)",
+    "systemOrder": ["neis", "certSystem"],
+    "systemOrderNote": "나이스·학교증명발급시스템 둘 다 가능한 연도(예: 졸업증명서 1982~2002년 졸업)는 주로 나이스로 처리 — 담당자 확인 2026-11-16",
+    "reviewed": false
+  },
+  "minwon": {
+    "M07": {
+      "neis": [7, 10, 24],
+      "certSystem": "graduation_record",
+      "checked": "나이스 화면 순서 담당자 확인 2026-11-16"
+    },
+    "M01": {
+      "neis": [7, 10, 20],
+      "checked": "나이스 화면 순서 담당자 확인 2026-11-16"
+    },
+    "M02": {
+      "neis": [7, 10, 20],
+      "neisRefs": [20],
+      "neisRefNote": "매뉴얼에 졸업증명서 발급정보 화면은 따로 없습니다. 생활기록부·재학증명서와 같은 방법으로 발급하므로 재학증명서 발급정보 화면을 참고로 보여줍니다.",
+      "certSystem": "graduation_record",
+      "checked": "생활기록부·재학증명서와 같은 방법으로 발급 — 담당자 확인 2026-11-16"
+    },
+    "M08": {
+      "neis": [7, 10, 25]
+    }
+  }
+}
