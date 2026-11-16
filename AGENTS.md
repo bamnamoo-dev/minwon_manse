@@ -8,6 +8,7 @@
 2. 민원 내용은 **`data/` JSON에서만 읽는다.** 코드에 민원 내용·연도·서류를 하드코딩하지 않는다.
 3. **편람에 없는 내용을 지어내지 않는다.** 모르면 `TODO(검수필요)`로 표시하고 사람에게 묻는다.
 4. `"reviewed": true` 인 데이터는 사람이 검수한 것 → 에이전트가 임의로 바꾸지 않는다.
+   `npm run extract`는 reviewed 파일과 사람이 고친 파일(`_genHash` 불일치)을 자동으로 건너뛴다. `--force`는 사용자 허락 없이 쓰지 않는다.
 5. 사용자가 입력한 출생연도·졸업연도 등은 **브라우저 밖으로 보내지 않는다**(서버 전송·로그·URL 쿼리 금지).
 6. 데이터 스키마를 바꾸면 `scripts/validate.ts`, `scripts/extract_minwon.py`, 계획서 3장을 함께 고친다.
 
@@ -22,6 +23,10 @@
 
 ## 주요 데이터
 - `data/minwon/M01~M96.json` 민원 96건 (스키마: `scripts/validate.ts`의 `Minwon`)
+  - `forms[]` 서식별 PDF 쪽 · `infoPages` 서식 앞의 참고 안내 쪽 · `officerChecks` 담당공무원 확인사항
+  - `documentsSource` 구비서류 출처(요약표 / 신청서에서 자동 추출 / 편람에 목록 없음)
+  - `pdfTextPages` MD 변환에서 빠져 PDF 텍스트로 보충한 쪽 (화면에서는 원문 이미지 우선 표시)
+- 실행 환경: 이 PC는 `python` 명령이 동작하지 않음 → `py` 또는 `npm run extract` 사용
 - `data/rules/issuance_years.json` 연도별 발급경로 규칙. 셀 `s`: yes/no/partial/from/range/status/text
   - `from`+`status` 동시 존재 = "status에 해당하거나 from 이후" (예: 재직자 또는 2003년 이후 퇴직자)
   - 연월 비교는 'YYYY' 또는 'YYYY-MM' 문자열. 'YYYY'만 있으면 그해 1월로 간주

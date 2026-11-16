@@ -20,6 +20,8 @@ const Minwon = z.object({
   fee: z.string(),
   methods: z.array(z.string()),
   documents: z.array(z.string()),
+  documentsSource: z.string(),
+  officerChecks: z.array(z.string()),
   dept: z.string(),
   ledger: z.string(),
   approval: z.string(),
@@ -30,11 +32,14 @@ const Minwon = z.object({
   guideScript: z.string(),
   yearRuleIds: z.array(z.string()),
   forms: z.array(z.object({ name: z.string(), pdfPages: z.array(z.number().int()), hwp: z.string().nullable() })),
+  infoPages: z.array(z.number().int()),
   sourcePages: z.array(z.number().int().min(1).max(467)).min(1),
+  pdfTextPages: z.array(z.number().int()),
   rawMarkdown: z.string().min(10),
   reviewed: z.boolean(),
   updatedAt: z.string(),
   _todo: z.string().optional(),
+  _genHash: z.string().optional(),
 });
 
 const Ym = z.string().regex(/^\d{4}(-\d{2})?$/);
@@ -70,6 +75,9 @@ for (const f of files) {
   ids.add(e.id);
   for (const k of ["summary", "fee", "period"] as const) if (!e[k]) warn.push(`${e.id} ${e.title}: ${k} 비어 있음`);
   if (e.documents.length === 0) warn.push(`${e.id} ${e.title}: documents 비어 있음`);
+  for (const f of e.forms) if (f.pdfPages.length === 0) warn.push(`${e.id} ${e.title}: 서식 '${f.name}' 쪽 번호 없음`);
+  const pages = new Set(e.sourcePages);
+  for (const f of e.forms) for (const p of f.pdfPages) if (!pages.has(p)) errors.push(`${e.id}: 서식 쪽 ${p}가 sourcePages 밖`);
   if (e._todo) warn.push(`${e.id} ${e.title}: ${e._todo}`);
 }
 if (files.length !== 96) errors.push(`민원 파일 수 ${files.length} (96이어야 함)`);
