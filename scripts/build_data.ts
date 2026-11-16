@@ -3,7 +3,7 @@
  * - rawMarkdown 은 검색용 평문(body)으로 바꿔 넣고 원문은 뺀다(용량 절감, 원문은 PDF 이미지로 확인)
  * - npm run dev / build 전에 자동 실행(predev, prebuild)
  */
-import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const ROOT = join(import.meta.dirname, "..");
@@ -47,6 +47,53 @@ const formsCommon = Object.fromEntries(
   Object.entries(formFiles.common as Record<string, FormFile>).map(([k, f]) => [k, { name: f.label ?? k, hwp: `${f.file}.hwpx`, pdf: `${f.file}.pdf` }]),
 );
 
+/* 서식함 — public/forms 폴더를 그대로 읽는다(파일을 넣기만 하면 나타남).
+   분류·키워드는 폴더 안 forms_catalog.json·forms_index.json 이 있으면 쓰고, 없으면 폴더 이름으로 묶는다 */
+function formsLibrary() {
+  const base = join(ROOT, "public/forms");
+  if (!existsSync(base)) return { groups: [], items: [] };
+  const tryRead = (f: string) => (existsSync(join(base, f)) ? JSON.parse(readFileSync(join(base, f), "utf-8")) : null);
+  const catalog = tryRead("forms_catalog.json");
+  const index = tryRead("forms_index.json");
+  const catName = new Map<string, string>();
+  for (const c of catalog?.categories ?? []) if (c.id !== "all") catName.set(c.id, String(c.name).replace(/^[^\p{L}]+/u, "").trim());
+  const groupOf = new Map<string, string>();
+  for (const it of catalog?.items ?? []) if (catName.has(it.category_id)) groupOf.set(it.hwp_file, catName.get(it.category_id)!);
+  const keywordsOf = new Map<string, string[]>();
+  for (const it of index?.forms ?? []) keywordsOf.set(it.hwp_file, it.keywords ?? []);
+
+  // 민원 연결(data/forms_files.json) — 파일 → 민원 ID
+  const linked = new Map<string, string[]>();
+  for (const [mid, list] of Object.entries(formFiles.minwon as Record<string, FormFile[]>))
+    for (const f of list) linked.set(f.file, [...new Set([...(linked.get(f.file) ?? []), mid])]);
+  const common = new Set(Object.values(formFiles.common as Record<string, FormFile>).map((f) => f.file));
+
+  const items = [];
+  for (const folder of readdirSync(base, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name).sort()) {
+    for (const file of readdirSync(join(base, folder)).filter((f) => f.endsWith(".hwpx") || f.endsWith(".hwp")).sort((a, b) => a.localeCompare(b, "ko", { numeric: true }))) {
+      const stem = file.replace(/\.hwpx?$/, "");
+      const rel = `${folder}/${stem}`;
+      const pdf = existsSync(join(base, folder, `${stem}.pdf`)) ? `${rel}.pdf` : null;
+      items.push({
+        name: stem.replace(/^\[서식 [\d-]+\]\s*/, ""),
+        no: (/^\[(서식 [\d-]+)\]/.exec(stem) ?? [])[1] ?? null,
+        folder,
+        group: groupOf.get(file) ?? folder,
+        hwp: `${folder}/${file}`,
+        pdf,
+        keywords: keywordsOf.get(file) ?? [],
+        minwon: linked.get(rel) ?? [],
+        common: common.has(rel),
+      });
+    }
+  }
+  // 분류 순서: 민원 폴더 서식 분류 먼저(창구에서 많이 씀), 그 밖(공무원 인사 등) 뒤로. 같은 폴더 안에서는 분류표 순서
+  const groups = [...new Set([...catName.values(), ...items.map((i) => i.group)])].filter((g) => items.some((i) => i.group === g));
+  const folderOf = (g: string) => items.find((i) => i.group === g)!.folder;
+  const order = [...groups.filter((g) => folderOf(g) === "민원"), ...groups.filter((g) => folderOf(g) !== "민원")];
+  return { groups: order, items };
+}
+
 const guides = readdirSync(join(ROOT, "data/guides"))
   .filter((f) => f.endsWith(".json"))
   .sort()
@@ -85,6 +132,7 @@ const bundle = {
   synonyms,
   manuals,
   formsCommon,
+  formsLibrary: formsLibrary(),
 };
 
 mkdirSync(join(ROOT, "public/data"), { recursive: true });

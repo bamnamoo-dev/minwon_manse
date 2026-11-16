@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
  *   #/                 검색 화면       (#/?q=검색어&c=분류)
  *   #/m/M02            민원 상세
  *   #/g/G05            업무안내 상세
+ *   #/judge            발급 경로 판별기
+ *   #/forms            서식함
  * ※ 해시(#) 뒤 내용은 서버로 전송되지 않는다 → 검색어가 서버 로그에 남지 않음
  */
 export interface Route {

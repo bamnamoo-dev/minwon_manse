@@ -61,8 +61,8 @@
 - `scripts/build_data.ts` → `public/data/bundle.json` (git 제외, `npm run dev`/`build` 전에 자동 생성)
 - `src/lib/search.ts` 검색 엔진(초성·동의어·두 글자 조각 부분일치, 전부 브라우저 안에서 실행) · 테스트 `src/lib/search.test.ts` (`npm test`)
   - 검색 품질을 바꾸면 반드시 `npm test` 통과 확인. 새 실무 표현은 테스트에 추가
-- `src/lib/router.ts` 해시 라우팅: `#/?q=&c=` 검색, `#/m/M02` 민원, `#/g/G05` 업무안내
-- `src/components/` SearchPage, MinwonDetail(창구형 상세), Issue(어디서 발급하나요 — 나이스/학교증명발급시스템 판정·처리 순서), GuideDetail(marked), PageViewer(원문 이미지·인쇄), ui(Mark·Step·Fold 등 공통 부품)
+- `src/lib/router.ts` 해시 라우팅: `#/?q=&c=` 검색(c 없으면 홈은 첫 분류, `c=all` 전체), `#/m/M02` 민원, `#/g/G05` 업무안내, `#/judge` 판별기, `#/forms` 서식함
+- `src/components/` SearchPage, MinwonDetail(창구형 상세), Issue(어디서 발급하나요 — 나이스/학교증명발급시스템 판정·처리 순서), GuideDetail(marked), FormsPage(서식함 — build_data 가 public/forms 폴더를 읽어 목록 생성, 분류·키워드는 폴더 안 forms_catalog.json·forms_index.json), PageViewer(원문 이미지·인쇄), ui(Mark·Step·Fold 등 공통 부품)
 - 디자인 기준: `src/index.css` 상단 — 의미 색 `paper/sunk/surface/ink/ink-2/muted/line/line-strong/accent/mark`(bg-paper, text-ink …). 새 화면은 gray·slate 대신 의미 색을 쓴다. 빨강·초록·노랑은 판별 결과 전용
 - 주의: `useEffect(() => window.scrollTo(...))` 처럼 값을 반환하는 축약형 금지 (최신 브라우저는 Promise 반환 → React 오류)
 - 개발 서버: `npm run dev` (http://localhost:5173)

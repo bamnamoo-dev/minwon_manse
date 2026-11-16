@@ -160,4 +160,21 @@ export interface Bundle {
   manuals: Manuals;
   /** 여러 민원에 공통으로 쓰는 서식(예: 위임장) */
   formsCommon?: Record<string, FormFile>;
+  /** 서식함 — public/forms 폴더 전체 */
+  formsLibrary?: { groups: string[]; items: LibraryForm[] };
+}
+
+export interface LibraryForm {
+  name: string;
+  /** 공무원 서식 번호 (예: "서식 11-2") */
+  no: string | null;
+  folder: string;
+  group: string;
+  hwp: string;
+  pdf: string | null;
+  keywords: string[];
+  /** 이 서식을 쓰는 민원 ID (data/forms_files.json) */
+  minwon: string[];
+  /** 여러 민원 공통(예: 위임장) */
+  common: boolean;
 }

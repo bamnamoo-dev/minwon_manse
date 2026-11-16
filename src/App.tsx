@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { GuideDetail } from "./components/GuideDetail";
-import { CompassIcon, SearchIcon } from "./components/Icons";
+import { FormsPage } from "./components/FormsPage";
+import { CompassIcon, FileTextIcon, SearchIcon } from "./components/Icons";
 import { JudgePage } from "./components/Judge";
 import { MinwonDetail } from "./components/MinwonDetail";
 import { SearchPage } from "./components/SearchPage";
@@ -10,7 +11,9 @@ import { useRoute, type Route } from "./lib/router";
 export default function App() {
   const { data, error } = useAppData();
   const route = useRoute();
-  const isJudge = route.path[0] === "judge";
+  const section = route.path[0] ?? "";
+  const isJudge = section === "judge";
+  const isForms = section === "forms";
 
   return (
     <div className="min-h-screen bg-paper">
@@ -22,11 +25,14 @@ export default function App() {
           </a>
           <span className="hidden text-[13px] text-muted md:inline">서울시교육청 민원편람 실무 검색</span>
           <nav className="ml-auto flex h-full items-stretch gap-5 text-sm" aria-label="주 메뉴">
-            <NavLink href="#/" active={!isJudge} icon={<SearchIcon size={14} />}>
+            <NavLink href="#/" active={!isJudge && !isForms} icon={<SearchIcon size={14} />}>
               민원 검색
             </NavLink>
             <NavLink href="#/judge" active={isJudge} icon={<CompassIcon size={14} />}>
               발급경로 판별
+            </NavLink>
+            <NavLink href="#/forms" active={isForms} icon={<FileTextIcon size={14} />}>
+              서식함
             </NavLink>
           </nav>
           {data && <span className="hidden text-xs text-muted lg:inline">{data.bundle.version}</span>}
@@ -51,6 +57,7 @@ export default function App() {
 function Page({ data, route }: { data: AppData; route: Route }) {
   const [kind, id] = route.path;
   if (kind === "judge") return <JudgePage data={data} />;
+  if (kind === "forms") return <FormsPage data={data} />;
   if (kind === "m") {
     const m = data.minwonById.get(id);
     return m ? <MinwonDetail data={data} m={m} /> : <NotFound />;
