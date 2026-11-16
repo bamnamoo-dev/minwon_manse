@@ -25,14 +25,18 @@ export default function App() {
           </a>
           <span className="hidden text-[13px] text-white/60 md:inline">서울시교육청 민원편람 실무 검색</span>
           <nav className="ml-auto flex items-center gap-1 text-sm" aria-label="주 메뉴">
+            {/* 좁은 화면(휴대폰)에서는 짧은 이름 — 머리글이 넘쳐 화면이 옆으로 밀리지 않게 */}
             <NavLink href="#/" active={!isJudge && !isForms} icon={<SearchIcon size={14} />}>
-              민원 검색
+              <span className="sm:hidden">검색</span>
+              <span className="hidden sm:inline">민원 검색</span>
             </NavLink>
             <NavLink href="#/judge" active={isJudge} icon={<CompassIcon size={14} />}>
-              발급경로 판별
+              <span className="sm:hidden">판별</span>
+              <span className="hidden sm:inline">발급경로 판별</span>
             </NavLink>
             <NavLink href="#/forms" active={isForms} icon={<FileTextIcon size={14} />}>
-              서식함
+              <span className="sm:hidden">서식</span>
+              <span className="hidden sm:inline">서식함</span>
             </NavLink>
           </nav>
           {data && <span className="ml-2 hidden text-xs text-white/50 lg:inline">{data.bundle.version}</span>}

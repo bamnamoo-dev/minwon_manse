@@ -1,54 +1,32 @@
-# React + TypeScript + Vite
+# 민원만세
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+서울특별시교육청 「민원편람」(2025 개정판)을 바탕으로 만든 **민원 창구 담당자용 검색·처리 도우미**입니다.
 
-Currently, two official plugins are available:
+**사이트: https://minwon.aisen.kr**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+> 비공식 실무 보조 도구입니다(교육청 공식 사이트 아님). 관계 법령이 바뀐 경우 법령이 우선합니다.
 
-## Expanding the ESLint configuration
+## 할 수 있는 것
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **민원 검색** — 민원 96건·업무안내 38건. 초성(ㅈㅇㅈㅁ), 줄임말(생기부), 부분 일치 검색
+- **민원 상세** — 처리기간·수수료·준비물, 신원 확인 서류(본인·법정대리인·대리인), 주의할 점
+- **어디서 발급하나요?** — 졸업연도(또는 출생연도로 추정)를 넣으면 나이스 / 학교증명발급시스템 / 정부24 / 무인발급기 / FAX 중 어디서 발급되는지 판정하고, 해당 시스템의 처리 화면을 순서대로 보여줌
+- **서식함** — 민원·인사 서식 71종 HWP·PDF 내려받기
+- **편람 원문** — 해당 쪽 이미지 보기·인쇄
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+입력한 생년월일·나이는 **브라우저 안에서만** 처리되며 서버로 보내거나 저장하지 않습니다.
+
+## 개발
+
+```bash
+npm install
+npm run dev        # http://localhost:5173
+npm test           # 검색·판별기 테스트
+npm run validate   # 데이터 검증
+npm run build      # 배포용 dist/
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+- 기술: Vite + React + TypeScript + Tailwind CSS, 데이터 추출 Python(PyMuPDF)
+- 데이터: `data/` JSON (민원·규칙·매뉴얼 연결·서식 연결), 원본은 `source/`(읽기 전용)
+- 배포: `master` 에 푸시하면 GitHub Actions 가 테스트·검증·빌드 후 GitHub Pages 로 배포
+- 작업 규칙: [AGENTS.md](AGENTS.md) · 전체 계획: [docs/민원만세_개발계획서.md](docs/민원만세_개발계획서.md) · 인수인계: [docs/인수인계_안티그라비티.md](docs/인수인계_안티그라비티.md)

@@ -232,4 +232,15 @@ html {
   .no-print {
     display: none !important;
   }
+  /* 인쇄: 브라우저가 배경색을 빼므로 남색 띠의 흰 글씨가 사라진다 → 흰 바탕·잉크색 글씨로 */
+  .bg-navy {
+    background: #fff !important;
+    color: var(--ink) !important;
+  }
+  .bg-navy [class*="text-white"] {
+    color: var(--ink) !important;
+  }
+  .panel {
+    box-shadow: none !important;
+  }
 }
