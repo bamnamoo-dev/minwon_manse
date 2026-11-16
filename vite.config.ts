@@ -4,5 +4,6 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  // 정적 호스팅(VPS nginx)용: 해시 라우팅이라 base 는 "/" 그대로
+  // 상대 경로 빌드: GitHub Pages(…/minwon_manse/)·nginx·하위 폴더 어디에 올려도 동작 (해시 라우팅이라 서버 설정 불필요)
+  base: "./",
 });

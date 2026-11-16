@@ -24,9 +24,7 @@ dist-ssr
 *.sw?
 
 # 생성물(스크립트로 재생성)
-public/pages/
-public/neis/
-public/certsys/
+# public/pages·neis·certsys 이미지는 GitHub Pages 자동 배포를 위해 저장소에 포함(공개 자료)
 docs/extract_report.md.bak
 __pycache__/
 public/data/

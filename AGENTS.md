@@ -14,7 +14,7 @@
 
 ## 폴더
 - `source/` 원본(읽기 전용) · `scripts/` 추출·검증 스크립트 · `data/` 민원·규칙·업무안내 JSON
-- `public/pages/p{n}.webp` PDF 페이지 이미지(git 제외, `npm run render-pages`로 생성) · `public/forms/` 서식 파일(hwpx+pdf 짝, `민원/`·`공무원/`) — 민원 연결은 `data/forms_files.json`
+- `public/pages/p{n}.webp` PDF 페이지 이미지(`npm run render-pages`로 생성, 배포를 위해 저장소에 포함) · `public/forms/` 서식 파일(hwpx+pdf 짝, `민원/`·`공무원/`) — 민원 연결은 `data/forms_files.json`
 - `src/` React 앱 (Vite + React + TypeScript)
 
 ## 쪽 번호
@@ -36,7 +36,7 @@
 - `data/forms_files.json` 민원 ↔ 서식 파일 연결(사람이 관리). `form`=편람 서식 이름과 같으면 그 줄에, 없으면 `label`로 추가 서식. `common.위임장`은 신원 확인(대리인)에 표시. data/minwon 은 고치지 않고 build_data 에서 합침
 - `data/manuals/` 발급 시스템 매뉴얼(민원 상세 「어디서 발급하나요?」)
   - `links.json` 민원 ↔ 매뉴얼 연결(사람이 관리): `neis` 나이스 매뉴얼 쪽 순서, `neisRefs`+`neisRefNote` 전용 화면이 없어 참고로 보여주는 쪽, `certSystem` 학교증명발급시스템 절차 이름, `checked` 담당자 확인, `_meta.systemOrder` 둘 다 가능할 때 먼저 보여줄 시스템
-  - `neis.json`·`certsys.json` 매뉴얼 PDF에서 자동 추출(직접 고치지 않음) → `npm run render-manuals` (이미지는 `public/neis/`·`public/certsys/`, git 제외)
+  - `neis.json`·`certsys.json` 매뉴얼 PDF에서 자동 추출(직접 고치지 않음) → `npm run render-manuals` (이미지는 `public/neis/`·`public/certsys/`, 배포를 위해 저장소에 포함)
   - 매뉴얼 원본 PDF 2개는 `source/`에만 두고 git에 넣지 않음(.gitignore)
 
 ## 명령
@@ -47,6 +47,11 @@
 - `npm run dev` / `npm run build`
 - `npm test` — `scripts/test.mjs`로 실행(드라이브 문자 소문자 `c:`·`h:`일 때 Vitest "failed to find the runner" 오류 회피). `npx vitest run` 직접 실행 금지
 - `npm run backup` — git 기록 전체를 `minwon_manse.bundle` 하나로 묶어 구글 드라이브(기본 `E:\내 드라이브\antigravity\minwon_manse`)에 저장. 다른 폴더: `npm run backup -- "경로"`
+
+## 배포
+- GitHub Pages: master 에 푸시하면 `.github/workflows/deploy.yml` 이 테스트·검증·빌드 후 배포 → https://bamnamoo-dev.github.io/minwon_manse/
+- `vite.config.ts` 의 `base: "./"`(상대 경로) — 하위 폴더·다른 서버에 올려도 동작. 코드에서 파일 주소는 반드시 `import.meta.env.BASE_URL` 을 붙인다
+- 편람·매뉴얼 이미지, 서식 파일은 저장소에 포함되어 있어야 배포본에 들어간다(공개 자료)
 
 ## 작업 위치
 - 원본 작업 폴더: 외장하드 `H:\dev\minwon_manse`(exFAT, 사무실·집 PC에서 같이 사용). 다른 PC에서는 드라이브 문자가 바뀔 수 있음

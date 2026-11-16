@@ -1,0 +1,46 @@
+# GitHub Pages 자동 배포 — master 에 푸시하면 검증·테스트·빌드 후 배포
+# 주소: https://bamnamoo-dev.github.io/minwon_manse/
+# 처음 한 번: 저장소 Settings → Pages → Source 를 "GitHub Actions" 로
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: 판별기·검색 테스트
+        run: npm test
+      - name: 데이터 검증 + 빌드 (prebuild 에서 validate·build-data 실행)
+        run: npm run build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
