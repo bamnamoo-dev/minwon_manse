@@ -272,19 +272,20 @@ function ResultList({ results, hasInput }: { results: CellResult[]; hasInput: bo
 export function IdentityJudge({ data, onBirth }: { data: AppData; onBirth?: (b: BirthHint | null) => void }) {
   const rules = data.bundle.identity;
   const [visitor, setVisitor] = useState<Visitor>("self");
-  const [ageMode, setAgeMode] = useState<"age" | "birth">("age");
   const [age, setAge] = useState("");
   const [by, setBy] = useState("");
   const [bm, setBm] = useState("");
   const [bd, setBd] = useState("");
 
+  // 생년월일·만 나이 두 칸을 함께 둔다. 생년월일을 다 넣으면 그걸로 만 나이를 계산(만 나이 칸에 자동 표시),
+  // 만 나이를 직접 치면 생년월일 칸은 비운다(두 값이 어긋나지 않게)
   const okYear = (s: string) => /^\d{4}$/.test(s) && +s >= 1900 && +s <= 2100;
   const okMonth = (s: string) => /^\d{1,2}$/.test(s) && +s >= 1 && +s <= 12;
-  const ageNum = useMemo(() => {
-    if (ageMode === "age") return /^\d{1,3}$/.test(age) ? +age : undefined;
+  const birthAge = useMemo(() => {
     if (!okYear(by) || !okMonth(bm) || !/^\d{1,2}$/.test(bd) || +bd < 1 || +bd > 31) return undefined;
     return manAge({ year: +by, month: +bm, day: +bd });
-  }, [ageMode, age, by, bm, bd]);
+  }, [by, bm, bd]);
+  const ageNum = birthAge ?? (/^\d{1,3}$/.test(age) ? +age : undefined);
 
   const emit = (y: string, mo: string) => onBirth?.(okYear(y) ? { year: +y, month: okMonth(mo) ? +mo : undefined } : null);
 
@@ -315,77 +316,72 @@ export function IdentityJudge({ data, onBirth }: { data: AppData; onBirth?: (b: 
           </button>
         ))}
       </div>
-      <div className="flex flex-wrap items-center gap-1.5">
+      <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
         <span className="mr-1 text-sm text-muted">증명서 대상자</span>
-        <select
-          className={inputCls}
-          value={ageMode}
-          onChange={(e) => {
-            const v = e.target.value as "age" | "birth";
-            setAgeMode(v);
-            emit(v === "birth" ? by : "", bm);
-          }}
-          aria-label="나이 입력 방식"
-        >
-          <option value="age">만 나이</option>
-          <option value="birth">생년월일</option>
-        </select>
-        {ageMode === "age" ? (
-          <>
-            <input
-              className={inputCls + " w-16 tabular-nums"}
-              inputMode="numeric"
-              maxLength={3}
-              placeholder="예: 16"
-              value={age}
-              onChange={(e) => setAge(e.target.value.replace(/\D/g, ""))}
-              aria-label="만 나이"
-            />
-            세
-          </>
-        ) : (
-          <span className="flex items-center gap-1">
-            <input
-              className={inputCls + " w-[4.6rem] tabular-nums"}
-              inputMode="numeric"
-              maxLength={4}
-              placeholder="1980"
-              value={by}
-              onChange={(e) => {
-                const v = digitsAndAdvance(e, 4);
-                setBy(v);
-                emit(v, bm);
-              }}
-              aria-label="생년"
-            />
-            년
-            <input
-              className={inputCls + " w-12 tabular-nums"}
-              inputMode="numeric"
-              maxLength={2}
-              placeholder="3"
-              value={bm}
-              onChange={(e) => {
-                const v = digitsAndAdvance(e, +e.currentTarget.value.replace(/\D/g, "")[0] > 1 ? 1 : 2);
-                setBm(v);
-                emit(by, v);
-              }}
-              aria-label="생월"
-            />
-            월
-            <input
-              className={inputCls + " w-12 tabular-nums"}
-              inputMode="numeric"
-              maxLength={2}
-              placeholder="25"
-              value={bd}
-              onChange={(e) => setBd(e.target.value.replace(/\D/g, "").slice(0, 2))}
-              aria-label="생일"
-            />
-            일
-          </span>
-        )}
-        {ageMode === "birth" && ageNum !== undefined && <span className="ml-1 text-sm font-semibold">만 {ageNum}세</span>}
+        <span className="flex items-center gap-1">
+          <input
+            className={inputCls + " w-[4.6rem] tabular-nums"}
+            inputMode="numeric"
+            maxLength={4}
+            placeholder="1980"
+            value={by}
+            onChange={(e) => {
+              const v = digitsAndAdvance(e, 4);
+              setBy(v);
+              emit(v, bm);
+            }}
+            aria-label="생년"
+          />
+          년
+          <input
+            className={inputCls + " w-12 tabular-nums"}
+            inputMode="numeric"
+            maxLength={2}
+            placeholder="3"
+            value={bm}
+            onChange={(e) => {
+              const v = digitsAndAdvance(e, +e.currentTarget.value.replace(/\D/g, "")[0] > 1 ? 1 : 2);
+              setBm(v);
+              emit(by, v);
+            }}
+            aria-label="생월"
+          />
+          월
+          <input
+            className={inputCls + " w-12 tabular-nums"}
+            inputMode="numeric"
+            maxLength={2}
+            placeholder="25"
+            value={bd}
+            onChange={(e) => setBd(e.target.value.replace(/\D/g, "").slice(0, 2))}
+            aria-label="생일"
+          />
+          일
+        </span>
+        <span className="mx-2 text-sm text-muted">또는</span>
+        <span className="flex items-center gap-1">
+          만
+          <input
+            className={inputCls + ` w-16 tabular-nums ${birthAge !== undefined ? "bg-sunk font-semibold" : ""}`}
+            inputMode="numeric"
+            maxLength={3}
+            placeholder="16"
+            value={birthAge !== undefined ? String(birthAge) : age}
+            onChange={(e) => {
+              setAge(e.target.value.replace(/\D/g, "").slice(0, 3));
+              if (by || bm || bd) {
+                setBy("");
+                setBm("");
+                setBd("");
+                emit("", "");
+              }
+            }}
+            onFocus={(e) => e.currentTarget.select()}
+            title={birthAge !== undefined ? "생년월일로 계산한 만 나이 — 직접 고치면 생년월일 칸은 비워집니다" : undefined}
+            aria-label="만 나이"
+          />
+          세
+        </span>
       </div>
 
       {res &&

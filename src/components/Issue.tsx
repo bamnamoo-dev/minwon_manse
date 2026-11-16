@@ -177,10 +177,19 @@ export function WhereToIssue({ data, m, birthHint }: { data: AppData; m: Minwon;
         </div>
       )}
       {mode === "birth" && dates.length > 0 && (
-        <p className="mt-2 text-[13px] leading-relaxed text-ink-2">
-          추정 {rule!.basis}: <b>{dates.map((d) => `${d.year}년 ${d.month}월`).join(" 또는 ")}</b> — 정규 진학 기준 추정이라 유급·조기입학·검정고시
-          등은 반영되지 않습니다. 확실한 졸업연도를 확인하세요.
-        </p>
+        <div className="mt-3">
+          {/* 출생연도와 졸업연도를 헷갈리지 않게 — 판정 기준이 되는 졸업연월을 크게 */}
+          <p className="text-[15px] text-ink">
+            →{" "}
+            <b className="font-bold">
+              {dates.map((d) => `${d.year}년 ${d.month}월`).join(" 또는 ")} {rule!.basis.replace(/연월|연도/, "")}
+            </b>{" "}
+            기준으로 판정 <span className="text-[13px] text-muted">({birthYear}년생 추정)</span>
+          </p>
+          <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
+            정규 진학 기준 추정이라 유급·조기입학·검정고시 등은 반영되지 않습니다. 확실한 졸업연도를 확인하세요.
+          </p>
+        </div>
       )}
 
       {/* 시스템 판정 */}
