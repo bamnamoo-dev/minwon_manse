@@ -49,7 +49,9 @@
 - `npm run backup` — git 기록 전체를 `minwon_manse.bundle` 하나로 묶어 구글 드라이브(기본 `E:\내 드라이브\antigravity\minwon_manse`)에 저장. 다른 폴더: `npm run backup -- "경로"`
 
 ## 배포
-- GitHub Pages: master 에 푸시하면 `.github/workflows/deploy.yml` 이 테스트·검증·빌드 후 배포 → https://bamnamoo-dev.github.io/minwon_manse/
+- GitHub Pages: master 에 푸시하면 `.github/workflows/deploy.yml` 이 테스트·검증·빌드 후 배포 → **https://minwon.aisen.kr**
+  - 사용자 도메인: aisen.kr DNS 는 Vercel 에서 관리(네임서버 vercel-dns.com), `minwon` CNAME → bamnamoo-dev.github.io. 깃허브 Settings → Pages → Custom domain 에 등록됨
+  - 예전 주소 bamnamoo-dev.github.io/minwon_manse 는 새 주소로 자동 이동
 - `vite.config.ts` 의 `base: "./"`(상대 경로) — 하위 폴더·다른 서버에 올려도 동작. 코드에서 파일 주소는 반드시 `import.meta.env.BASE_URL` 을 붙인다
 - 편람·매뉴얼 이미지, 서식 파일은 저장소에 포함되어 있어야 배포본에 들어간다(공개 자료)
 
