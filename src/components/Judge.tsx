@@ -13,39 +13,19 @@ import {
   type Visitor,
   type Ym,
 } from "../lib/judge";
-import { AlertIcon, CheckIcon, CopyIcon } from "./Icons";
-import { Badge, Button, List, Section } from "./ui";
+import { CheckIcon, CopyIcon } from "./Icons";
+import { DashList, Seg, Step } from "./ui";
 
 /* 입력값(연도·나이)은 이 컴포넌트 상태에만 있고 주소·저장소·서버로 보내지 않는다. */
 
-const inputCls =
-  "rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-base outline-none transition focus:border-brand-600 focus:ring-2 focus:ring-brand-100";
+const inputCls = "rounded-md border border-line-strong bg-surface px-2.5 py-1.5 text-[15px] text-ink outline-none focus:border-ink";
 
-const VERDICT: Record<Verdict, { label: string; cls: string; dot: string; icon: string }> = {
-  ok: {
-    label: "가능",
-    cls: "bg-emerald-50/70 text-emerald-900 ring-emerald-200/80",
-    dot: "bg-emerald-600 text-white",
-    icon: "○",
-  },
-  check: {
-    label: "확인 필요",
-    cls: "bg-amber-50/70 text-amber-900 ring-amber-200/80",
-    dot: "bg-amber-500 text-white",
-    icon: "△",
-  },
-  need: {
-    label: "입력 필요",
-    cls: "bg-gray-50 text-gray-600 ring-gray-200",
-    dot: "bg-gray-300 text-gray-700",
-    icon: "?",
-  },
-  no: {
-    label: "불가",
-    cls: "bg-white text-gray-400 ring-gray-200/70",
-    dot: "bg-gray-100 text-gray-400",
-    icon: "×",
-  },
+/* 판별 결과 표시 — 색은 판별 결과에만 쓴다(○ 초록 · △ 노랑 · × 흐림) */
+const VERDICT: Record<Verdict, { label: string; sym: string; cls: string }> = {
+  ok: { label: "가능", sym: "○", cls: "text-emerald-700" },
+  check: { label: "확인 필요", sym: "△", cls: "text-amber-700" },
+  need: { label: "연도 입력", sym: "–", cls: "text-muted" },
+  no: { label: "불가", sym: "×", cls: "text-muted" },
 };
 
 const ESTIMATE_BASIS = ["졸업연월", "제적연월", "해당연월"];
@@ -106,191 +86,173 @@ export function IssuanceJudge({ data, ruleId: fixedId }: { data: AppData; ruleId
   }, [rules]);
 
   return (
-    <Section
-      title={fixedId ? `발급 경로 판별 — ${rule.label}` : "연도별 발급 경로 판별"}
-      subtitle="연도를 입력하면 NEIS·정부24·무인발급기·FAX 가능 여부를 즉시 확인합니다."
-      right={!reviewed ? <Badge tone="amber">규칙 검수 전</Badge> : undefined}
-    >
-      <div className="space-y-3.5">
-        {!fixedId && (
-          <label className="block">
-            <span className="mb-1.5 block text-xs font-semibold text-gray-500">증명서 선택</span>
-            <select
-              className={inputCls + " w-full"}
-              value={pickedId}
-              onChange={(e) => {
-                setPickedId(e.target.value);
-                setStatuses([]);
-              }}
-            >
-              {[...groups].map(([g, ids]) => (
-                <optgroup key={g} label={g}>
-                  {ids.map((id) => (
-                    <option key={id} value={id}>
-                      {rules[id].label}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
-          </label>
-        )}
+    <div className="space-y-5 text-ink">
+      {!fixedId && (
+        <label className="block">
+          <span className="mb-1.5 block text-[13px] text-muted">증명서</span>
+          <select
+            className={inputCls + " w-full"}
+            value={pickedId}
+            onChange={(e) => {
+              setPickedId(e.target.value);
+              setStatuses([]);
+            }}
+          >
+            {[...groups].map(([g, ids]) => (
+              <optgroup key={g} label={g}>
+                {ids.map((id) => (
+                  <option key={id} value={id}>
+                    {rules[id].label}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+        </label>
+      )}
 
-        {needs.needsDate && (
-          <div className="rounded-xl border border-gray-200/70 bg-gray-50/90 p-3.5">
-            <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
-              <div className="flex flex-wrap items-center gap-1.5">
-                <span className="text-xs font-bold text-gray-700 sm:text-sm">기준: {rule.basis}</span>
-                {rule.basis.includes("연") && <span className="text-xs text-gray-500">(출생연도 아님)</span>}
-              </div>
-              {canEstimate && (
-                <div className="inline-flex rounded-xl bg-gray-200/80 p-0.5">
-                  {(["direct", "birth"] as const).map((md) => (
-                    <button
-                      key={md}
-                      type="button"
-                      onClick={() => setMode(md)}
-                      className={`cursor-pointer rounded-lg px-2.5 py-1 text-xs font-medium transition ${
-                        mode === md ? "bg-white text-gray-900 shadow-2xs" : "text-gray-600 hover:text-gray-900"
-                      }`}
-                    >
-                      {md === "direct" ? "직접 입력" : "출생연도로 추정"}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {mode === "direct" || !canEstimate ? (
-              <div className="flex flex-wrap items-center gap-2">
-                <input
-                  className={inputCls + " w-24"}
-                  inputMode="numeric"
-                  maxLength={4}
-                  placeholder="예: 1995"
-                  value={year}
-                  onChange={(e) => setYear(e.target.value.replace(/\D/g, ""))}
-                  aria-label={`${rule.basis} — 연도`}
-                />
-                <span className="text-sm text-gray-700">년</span>
-                {rule.basis.includes("월") && (
-                  <>
-                    <select className={inputCls} value={month} onChange={(e) => setMonth(e.target.value)} aria-label="월">
-                      <option value="">월 모름</option>
-                      {Array.from({ length: 12 }, (_, i) => (
-                        <option key={i + 1} value={i + 1}>
-                          {i + 1}월
-                        </option>
-                      ))}
-                    </select>
-                    <span className="text-xs text-gray-500">졸업은 보통 2월</span>
-                  </>
-                )}
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  <input
-                    className={inputCls + " w-24"}
-                    inputMode="numeric"
-                    maxLength={4}
-                    placeholder="예: 1975"
-                    value={birthYear}
-                    onChange={(e) => setBirthYear(e.target.value.replace(/\D/g, ""))}
-                    aria-label="출생연도"
-                  />
-                  <span className="text-sm text-gray-700">년생</span>
-                  <select className={inputCls} value={birthMonth} onChange={(e) => setBirthMonth(e.target.value)} aria-label="출생월">
-                    <option value="">생월 모름</option>
+      {needs.needsDate && (
+        <div>
+          <div className="mb-2.5 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm">
+            <span className="text-muted">
+              기준 <b className="font-semibold text-ink">{rule.basis}</b>
+              {rule.basis.includes("연") && " (출생연도 아님)"}
+            </span>
+            {canEstimate && (
+              <Seg
+                value={mode}
+                onChange={setMode}
+                options={[
+                  ["direct", "직접 입력"],
+                  ["birth", "출생연도로 추정"],
+                ]}
+              />
+            )}
+          </div>
+          {mode === "direct" || !canEstimate ? (
+            <div className="flex flex-wrap items-center gap-1.5">
+              <input
+                className={inputCls + " w-[5.5rem] tabular-nums"}
+                inputMode="numeric"
+                maxLength={4}
+                placeholder="예: 1995"
+                value={year}
+                onChange={(e) => setYear(e.target.value.replace(/\D/g, ""))}
+                aria-label={`${rule.basis} — 연도`}
+              />
+              년
+              {rule.basis.includes("월") && (
+                <>
+                  <select className={inputCls} value={month} onChange={(e) => setMonth(e.target.value)} aria-label="월">
+                    <option value="">월 모름</option>
                     {Array.from({ length: 12 }, (_, i) => (
                       <option key={i + 1} value={i + 1}>
-                        {i + 1}월생
+                        {i + 1}월
                       </option>
                     ))}
                   </select>
-                  <select className={inputCls} value={level} onChange={(e) => setLevel(e.target.value as SchoolLevel)} aria-label="학교급">
-                    <option value="초">초등학교</option>
-                    <option value="중">중학교</option>
-                    <option value="고">고등학교</option>
-                  </select>
-                </div>
-                {dates.length > 0 && (
-                  <p className="text-sm text-gray-700">
-                    추정 {rule.basis}: <b className="text-brand-700">{dates.map((d) => `${d.year}년 ${d.month}월`).join(" 또는 ")}</b>
-                    {dates.length > 1 && <span className="text-xs text-gray-500"> (1~2월생은 한 해 일찍 입학했을 수 있음)</span>}
-                  </p>
-                )}
-                <p className="flex items-start gap-1.5 text-xs text-amber-700">
-                  <AlertIcon size={14} className="mt-0.5" />
-                  <span>정규 진학 기준 추정입니다. 유급·조기입학·검정고시·전학 등은 반영되지 않으니 졸업연도를 꼭 확인하세요.</span>
-                </p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {needs.statuses.length > 0 && (
-          <div className="flex flex-wrap items-center gap-3 rounded-xl bg-gray-50/70 px-3.5 py-2.5">
-            <span className="text-xs font-bold text-gray-600">해당 신분</span>
-            {needs.statuses.map((s) => (
-              <label key={s} className="inline-flex cursor-pointer items-center gap-1.5 text-sm text-gray-800">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 rounded accent-brand-600"
-                  checked={statuses.includes(s)}
-                  onChange={(e) => setStatuses((cur) => (e.target.checked ? [...cur, s] : cur.filter((x) => x !== s)))}
-                />
-                {s}
-              </label>
-            ))}
-          </div>
-        )}
-
-        <ResultList results={results} />
-
-        {hasInput && (
-          <div className="rounded-xl border border-brand-200/80 bg-brand-50/50 p-3.5">
-            <div className="mb-1.5 flex items-center justify-between gap-2">
-              <span className="text-xs font-bold text-brand-900">민원인 안내 문구</span>
-              <Button size="sm" onClick={copy}>
-                {copied ? <CheckIcon size={13} className="text-emerald-600" /> : <CopyIcon size={13} />}
-                {copied ? "복사됨" : "복사"}
-              </Button>
+                  <span className="ml-1 text-[13px] text-muted">졸업은 보통 2월</span>
+                </>
+              )}
             </div>
-            <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-gray-800">{message}</pre>
-          </div>
-        )}
+          ) : (
+            <div>
+              <div className="flex flex-wrap items-center gap-1.5">
+                <input
+                  className={inputCls + " w-[5.5rem] tabular-nums"}
+                  inputMode="numeric"
+                  maxLength={4}
+                  placeholder="예: 1975"
+                  value={birthYear}
+                  onChange={(e) => setBirthYear(e.target.value.replace(/\D/g, ""))}
+                  aria-label="출생연도"
+                />
+                년생
+                <select className={inputCls} value={birthMonth} onChange={(e) => setBirthMonth(e.target.value)} aria-label="출생월">
+                  <option value="">생월 모름</option>
+                  {Array.from({ length: 12 }, (_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      {i + 1}월생
+                    </option>
+                  ))}
+                </select>
+                <select className={inputCls} value={level} onChange={(e) => setLevel(e.target.value as SchoolLevel)} aria-label="학교급">
+                  <option value="초">초등학교</option>
+                  <option value="중">중학교</option>
+                  <option value="고">고등학교</option>
+                </select>
+              </div>
+              <p className="mt-2 text-[13px] leading-relaxed text-ink-2">
+                {dates.length > 0 && (
+                  <>
+                    추정 {rule.basis}: <b>{dates.map((d) => `${d.year}년 ${d.month}월`).join(" 또는 ")}</b>
+                    {dates.length > 1 && " (1~2월생은 한 해 일찍 입학했을 수 있음)"} —{" "}
+                  </>
+                )}
+                정규 진학 기준 추정이라 유급·조기입학·검정고시·전학 등은 반영되지 않습니다. 졸업연도를 꼭 확인하세요.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
-        {rule.notes.length > 0 && (
-          <div className="text-sm text-gray-600">
-            <List items={rule.notes} />
+      {needs.statuses.length > 0 && (
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[15px]">
+          <span className="text-sm text-muted">해당 신분</span>
+          {needs.statuses.map((s) => (
+            <label key={s} className="inline-flex cursor-pointer items-center gap-1.5">
+              <input
+                type="checkbox"
+                className="h-4 w-4 accent-ink"
+                checked={statuses.includes(s)}
+                onChange={(e) => setStatuses((cur) => (e.target.checked ? [...cur, s] : cur.filter((x) => x !== s)))}
+              />
+              {s}
+            </label>
+          ))}
+        </div>
+      )}
+
+      <ResultList results={results} hasInput={hasInput} />
+
+      {hasInput && (
+        <div className="border-l-2 border-accent pl-3.5">
+          <div className="mb-1 flex items-center justify-between gap-2">
+            <span className="text-[13px] font-semibold text-ink-2">민원인 안내 문구</span>
+            <button type="button" onClick={copy} className="link-quiet inline-flex items-center gap-1 text-xs">
+              {copied ? <CheckIcon size={13} className="text-emerald-700" /> : <CopyIcon size={13} />}
+              {copied ? "복사됨" : "복사"}
+            </button>
           </div>
-        )}
-        <p className="text-xs text-gray-400">
-          근거: 민원편람 47~48쪽(인쇄 37~38쪽) 「민원 창구별 종류 및 발급 가능 연도」 · 입력한 연도는 저장되지 않습니다.
-        </p>
-      </div>
-    </Section>
+          <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-ink">{message}</pre>
+        </div>
+      )}
+
+      {rule.notes.length > 0 && <DashList items={rule.notes} />}
+      <p className="text-xs text-muted">
+        근거: 민원편람 47~48쪽(인쇄 37~38쪽) 「민원 창구별 종류 및 발급 가능 연도」 · 입력한 연도는 저장되지 않습니다
+        {!reviewed && " · 규칙 검수 전"}
+      </p>
+    </div>
   );
 }
 
-function ResultList({ results }: { results: CellResult[] }) {
+function ResultList({ results, hasInput }: { results: CellResult[]; hasInput: boolean }) {
   const order: Verdict[] = ["ok", "check", "need", "no"];
-  const sorted = [...results].sort((a, b) => order.indexOf(a.verdict) - order.indexOf(b.verdict));
+  const sorted = hasInput ? [...results].sort((a, b) => order.indexOf(a.verdict) - order.indexOf(b.verdict)) : results;
   return (
-    <ul className="grid gap-2 sm:grid-cols-2">
+    <ul className="divide-y divide-line border-y border-line">
       {sorted.map((r) => {
         const v = VERDICT[r.verdict];
+        const dim = r.verdict === "no";
         return (
-          <li key={r.channel.id} className={`rounded-xl px-3.5 py-2.5 ring-1 ring-inset ${v.cls}`}>
-            <div className="flex items-center gap-2">
-              <span className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold ${v.dot}`}>
-                {v.icon}
-              </span>
-              <span className="font-semibold">{r.channel.label}</span>
-              <span className="ml-auto shrink-0 text-xs font-bold">{v.label}</span>
-            </div>
-            <div className="mt-1 pl-7 text-xs leading-relaxed opacity-90">{r.reason}</div>
+          <li key={r.channel.id} className="flex items-baseline gap-3 py-2.5">
+            <span className={`w-5 shrink-0 text-center text-base font-bold leading-none ${v.cls}`}>{v.sym}</span>
+            <span className="min-w-0 flex-1">
+              <span className={`text-[15px] font-semibold ${dim ? "text-muted" : "text-ink"}`}>{r.channel.label}</span>
+              <span className={`mt-0.5 block text-[13px] leading-relaxed ${dim ? "text-muted" : "text-ink-2"}`}>{r.reason}</span>
+            </span>
+            <span className={`shrink-0 text-[13px] font-semibold ${v.cls}`}>{v.label}</span>
           </li>
         );
       })}
@@ -298,9 +260,8 @@ function ResultList({ results }: { results: CellResult[] }) {
   );
 }
 
-/** 신청인 신원 확인(방문 시) — 누가 왔는지 + 대상자 나이 → 구비서류 */
-/** compact: 회색 상자 + 자체 제목 / bare: 상자·제목 없이 내용만(민원 상세의 단계 안에 넣을 때) */
-export function IdentityJudge({ data, compact, bare }: { data: AppData; compact?: boolean; bare?: boolean }) {
+/** 신청인 신원 확인(방문 시) — 누가 왔는지 + 대상자 나이 → 구비서류. 제목·상자 없이 내용만(단계 안에 넣어 쓴다) */
+export function IdentityJudge({ data }: { data: AppData }) {
   const rules = data.bundle.identity;
   const [visitor, setVisitor] = useState<Visitor>("self");
   const [ageMode, setAgeMode] = useState<"age" | "birth">("age");
@@ -322,24 +283,25 @@ export function IdentityJudge({ data, compact, bare }: { data: AppData; compact?
     ["proxy", "그 밖의 대리인"],
   ];
 
-  const body = (
-    <div className="space-y-3">
-      <div className="inline-flex flex-wrap gap-1 rounded-xl bg-gray-100 p-1">
+  return (
+    <div className="space-y-4 text-ink">
+      <div className="flex flex-wrap gap-x-5 gap-y-1 text-[15px]">
         {visitors.map(([v, label]) => (
           <button
             key={v}
             type="button"
             onClick={() => setVisitor(v)}
-            className={`cursor-pointer rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-              visitor === v ? "bg-white text-brand-700 shadow-2xs" : "text-gray-600 hover:text-gray-900"
+            aria-pressed={visitor === v}
+            className={`cursor-pointer border-b-2 pb-1 ${
+              visitor === v ? "border-ink font-semibold text-ink" : "border-transparent text-muted hover:text-ink"
             }`}
           >
             {label}
           </button>
         ))}
       </div>
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-bold text-gray-600 sm:text-sm">증명서 대상자</span>
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span className="mr-1 text-sm text-muted">증명서 대상자</span>
         <select className={inputCls} value={ageMode} onChange={(e) => setAgeMode(e.target.value as "age" | "birth")} aria-label="나이 입력 방식">
           <option value="age">만 나이</option>
           <option value="birth">생년월일</option>
@@ -347,7 +309,7 @@ export function IdentityJudge({ data, compact, bare }: { data: AppData; compact?
         {ageMode === "age" ? (
           <>
             <input
-              className={inputCls + " w-20"}
+              className={inputCls + " w-16 tabular-nums"}
               inputMode="numeric"
               maxLength={3}
               placeholder="예: 16"
@@ -355,71 +317,63 @@ export function IdentityJudge({ data, compact, bare }: { data: AppData; compact?
               onChange={(e) => setAge(e.target.value.replace(/\D/g, ""))}
               aria-label="만 나이"
             />
-            <span className="text-sm text-gray-700">세</span>
+            세
           </>
         ) : (
           <input type="date" className={inputCls} value={birth} onChange={(e) => setBirth(e.target.value)} aria-label="생년월일" />
         )}
-        {ageMode === "birth" && ageNum !== undefined && (
-          <span className="rounded-md bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-700">만 {ageNum}세</span>
-        )}
+        {ageMode === "birth" && ageNum !== undefined && <span className="ml-1 text-sm font-semibold">만 {ageNum}세</span>}
       </div>
 
       {res &&
         (res.matched ? (
           res.case.denied ? (
-            <div className="rounded-xl bg-rose-50 p-3.5 text-sm text-rose-900 ring-1 ring-inset ring-rose-200">
-              <div className="font-bold">
-                × {res.case.visitor} · 대상자 {res.case.subject} → 신청 불가
+            <div className="border-l-2 border-rose-600 pl-3.5 text-[15px]">
+              <div className="font-semibold text-rose-800">
+                × {res.case.visitor} · 대상자 {res.case.subject} — 신청 불가
               </div>
               <p className="mt-1 leading-relaxed">{res.case.message}</p>
-              {res.case.source && <p className="mt-1.5 text-xs opacity-75">근거: {res.case.source}</p>}
+              {res.case.source && <p className="mt-1.5 text-xs text-muted">근거: {res.case.source}</p>}
             </div>
           ) : (
-            <div className="rounded-xl bg-emerald-50/80 p-3.5 ring-1 ring-inset ring-emerald-200">
-              <div className="mb-1.5 text-sm font-bold text-emerald-900">
-                {res.case.visitor} · 대상자 {res.case.subject} → 필요 서류
+            <div className="border-l-2 border-emerald-600 pl-3.5">
+              <div className="mb-2 text-[15px] font-semibold text-emerald-800">
+                {res.case.visitor} · 대상자 {res.case.subject} — 필요 서류
               </div>
-              <List items={res.case.documents} />
-              {res.case.source && <p className="mt-2 text-xs text-emerald-800/75">근거: {res.case.source}</p>}
+              <DashList items={res.case.documents} />
+              {res.case.source && <p className="mt-2 text-xs text-muted">근거: {res.case.source}</p>}
             </div>
           )
         ) : (
-          <div className="rounded-xl bg-amber-50 p-3.5 text-sm text-amber-900 ring-1 ring-inset ring-amber-200">△ {res.note}</div>
+          <div className="border-l-2 border-amber-600 pl-3.5 text-[15px] text-ink">△ {res.note}</div>
         ))}
-      <p className="text-xs text-gray-400">
+      <p className="text-xs leading-relaxed text-muted">
         근거: 민원편람 46쪽(인쇄 36쪽) 「신청인 신원 확인 방법(방문 시)」 · 대리인 위임장은 「민원 처리에 관한 법률 시행규칙」 별지 제3호 서식
         {!rules.reviewed && " · 규칙 검수 전"}
       </p>
     </div>
   );
-
-  if (bare) return body;
-  if (compact) {
-    return (
-      <div className="mt-4 rounded-xl border border-gray-200/90 bg-gray-50/50 p-3.5">
-        <div className="mb-2.5 text-sm font-bold text-gray-800">누가 신청하나요? (방문 시 신원 확인 서류)</div>
-        {body}
-      </div>
-    );
-  }
-  return <Section title="대리 발급·신원 확인 서류 판별">{body}</Section>;
 }
 
 export function JudgePage({ data }: { data: AppData }) {
   return (
-    <div className="mx-auto max-w-6xl space-y-5 px-4 pb-16 pt-6 sm:px-6">
-      <div className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
-        <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">발급 경로 판별기</h1>
-        <p className="mt-1 text-sm leading-relaxed text-slate-600">
-          졸업(합격·퇴직)연도에 따라 NEIS·정부24·무인발급기·FAX 중 어디서 발급되는지, 누가 방문하면 어떤 신원 확인 서류가 필요한지 동시에 확인합니다.
+    <div className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
+      <header className="pt-8">
+        <h1 className="text-[28px] font-bold leading-tight tracking-[-0.02em] text-ink sm:text-[34px]">발급 경로 판별기</h1>
+        <p className="mt-2 max-w-3xl break-keep text-[14.5px] leading-relaxed text-ink-2">
+          졸업(합격·퇴직)연도로 나이스·학교증명발급시스템·정부24·무인발급기·FAX 중 어디서 발급되는지, 누가 방문하면 어떤 신원 확인 서류가
+          필요한지 확인합니다. 민원 상세 화면에도 같은 판별이 들어 있습니다.
         </p>
+      </header>
+      <div className="mt-9 grid gap-x-10 gap-y-10 border-t border-line pt-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-start">
+        <Step n={1} title="연도별 발급 경로">
+          <IssuanceJudge data={data} />
+        </Step>
+        <Step n={2} title="누가 왔나요?" note="방문 시 신원 확인 서류">
+          <IdentityJudge data={data} />
+        </Step>
       </div>
-      <div className="grid gap-5 lg:grid-cols-2 lg:items-start">
-        <IssuanceJudge data={data} />
-        <IdentityJudge data={data} />
-      </div>
-      <p className="pt-1 text-center text-xs text-slate-400">{data.bundle.version} 기준 · 관계 법령이 바뀐 경우 법령이 우선합니다.</p>
+      <p className="mt-10 text-xs text-muted">{data.bundle.version} 기준 · 관계 법령이 바뀐 경우 법령이 우선합니다.</p>
     </div>
   );
 }

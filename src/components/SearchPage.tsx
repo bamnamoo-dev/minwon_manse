@@ -15,6 +15,9 @@ import { ArrowRightIcon, CloseIcon, SearchIcon } from "./Icons";
 
 const QUICK_QUERIES = ["생기부", "졸업증명서", "ㅈㅇㅈㅁ", "학원 등록", "폐교 졸업"];
 
+/** 주소의 c 값: 없음 = 홈에서는 첫 분류(학생), 검색에서는 전체 / "all" = 전체를 직접 고름 / 그 밖 = 분류 이름 */
+const ALL = "all";
+
 export function SearchPage({ data, q, cat }: { data: AppData; q: string; cat: string }) {
   const [input, setInput] = useState(q);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -51,7 +54,10 @@ export function SearchPage({ data, q, cat }: { data: AppData; q: string; cat: st
     setInput((cur) => (cur.trim() === q.trim() ? cur : q));
   }, [q]);
 
-  const hits = useMemo(() => data.index.search(q, { category: cat || undefined }), [data, q, cat]);
+  const filter = cat && cat !== ALL ? cat : ""; // 검색 결과 거르기(없으면 전체)
+  const hits = useMemo(() => data.index.search(q, { category: filter || undefined }), [data, q, filter]);
+  // 홈 첫 화면은 가장 많이 찾는 첫 분류(데이터 순서상 학생)를 보여준다 — 담당자 요청 2026-11-16
+  const homeCat = cat === ALL ? "" : cat || data.categories[0] || "";
   const open = (h: Hit) => (window.location.hash = hitHref(h));
 
   const counts = useMemo(() => {
@@ -113,7 +119,7 @@ export function SearchPage({ data, q, cat }: { data: AppData; q: string; cat: st
               <a
                 key={c || "all"}
                 href={href("/", { q: input.trim() || undefined, c: c || undefined })}
-                className={`shrink-0 ${cat === c ? "font-semibold text-ink underline underline-offset-4" : "text-muted hover:text-ink"}`}
+                className={`shrink-0 ${filter === c ? "font-semibold text-ink underline underline-offset-4" : "text-muted hover:text-ink"}`}
               >
                 {c || "전체"}
               </a>
@@ -136,7 +142,7 @@ export function SearchPage({ data, q, cat }: { data: AppData; q: string; cat: st
         )}
       </div>
 
-      <div className="mt-6">{q ? <Results hits={hits} q={q} /> : <Home data={data} cat={cat} counts={counts} />}</div>
+      <div className="mt-6">{q ? <Results hits={hits} q={q} /> : <Home data={data} cat={homeCat} counts={counts} />}</div>
     </div>
   );
 }
@@ -215,7 +221,7 @@ function Home({ data, cat, counts }: { data: AppData; cat: string; counts: Map<s
           return (
             <a
               key={c || "all"}
-              href={href("/", { c: c || undefined })}
+              href={href("/", { c: c || ALL })}
               className={`flex shrink-0 items-baseline justify-between gap-3 rounded-md py-1.5 lg:px-2.5 ${
                 active ? "font-semibold text-ink lg:bg-sunk" : "text-ink-2 hover:text-ink"
               }`}

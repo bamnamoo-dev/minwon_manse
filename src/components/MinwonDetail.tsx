@@ -72,7 +72,7 @@ export function MinwonDetail({ data, m }: { data: AppData; m: Minwon }) {
           <>
             <div className="min-w-0 space-y-10">
               <Step n={next()} title="누가 왔나요?" note="방문 시 신원 확인 서류">
-                <IdentityJudge data={data} bare />
+                <IdentityJudge data={data} />
                 {m.officerChecks.length > 0 && <OfficerChecks items={m.officerChecks} />}
               </Step>
               {(m.notes.length > 0 || m.guideScript) && (
@@ -136,7 +136,7 @@ export function MinwonDetail({ data, m }: { data: AppData; m: Minwon }) {
         )}
         {!instant && (
           <Fold title="방문 시 신원 확인" hint="본인 · 법정대리인 · 대리인">
-            <IdentityJudge data={data} bare />
+            <IdentityJudge data={data} />
           </Fold>
         )}
         <Fold title="신청방법 · 접수처" hint={[m.methods.join(", "), m.receivers.join(", ")].filter(Boolean).join(" / ")}>

@@ -5,8 +5,8 @@ import type { Guide } from "../lib/types";
 import { FileTextIcon } from "./Icons";
 import { BackLink } from "./MinwonDetail";
 import { PageViewer } from "./PageViewer";
-import { Badge, Button } from "./ui";
 
+/* 업무안내(편람 II·III·IV·VI장) — 문서형: 머리 + 읽기 폭 본문(.md), 카드 없음 */
 export function GuideDetail({ g }: { g: Guide }) {
   const [viewer, setViewer] = useState(false);
   useEffect(() => {
@@ -22,32 +22,37 @@ export function GuideDetail({ g }: { g: Guide }) {
       ),
     [g.markdown],
   );
+  const pages = `${printedPage(g.sourcePages[0])}${g.sourcePages.length > 1 ? `~${printedPage(g.sourcePages.at(-1)!)}` : ""}`;
 
   return (
-    <div className="mx-auto max-w-4xl px-4 pb-16 pt-4">
-      <div className="no-print flex flex-wrap items-center justify-between gap-2">
+    <div className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
+      <div className="no-print flex items-center justify-between pt-4">
         <BackLink />
-        <Button variant="primary" size="sm" onClick={() => setViewer(true)}>
-          <FileTextIcon size={14} />
-          편람 원문 보기 (PDF {g.sourcePages[0]}~{g.sourcePages.at(-1)}쪽)
-        </Button>
+        <button type="button" onClick={() => setViewer(true)} className="link-quiet inline-flex items-center gap-1 text-[13px]">
+          <FileTextIcon size={13} />
+          편람 원문 {pages}쪽
+        </button>
       </div>
 
-      <header className="mt-3 rounded-2xl border border-gray-200/90 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge tone="green">업무안내</Badge>
-          <span className="text-xs font-medium text-gray-500">{g.chapter}</span>
-        </div>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">{g.title}</h1>
-        <p className="mt-2 text-xs text-gray-500">
-          표가 깨져 보이면 상단의 편람 원문을 확인하세요 · 인쇄 {printedPage(g.sourcePages[0])}~{printedPage(g.sourcePages.at(-1)!)}쪽
-        </p>
-      </header>
+      <div className="mx-auto max-w-3xl">
+        <header className="border-b border-line pb-5 pt-5">
+          <div className="flex flex-wrap items-baseline gap-x-3 text-[13px] text-muted">
+            <span>업무안내</span>
+            <span>{g.chapter}</span>
+            {!g.reviewed && <span className="text-amber-700">검수 전 데이터</span>}
+          </div>
+          <h1 className="mt-2 text-[28px] font-bold leading-tight tracking-[-0.02em] text-ink sm:text-[32px]">{g.title}</h1>
+          <p className="mt-2 text-[13px] text-muted">
+            편람 인쇄 {pages}쪽 · 표가 깨져 보이면{" "}
+            <button type="button" onClick={() => setViewer(true)} className="link-quiet no-print">
+              편람 원문
+            </button>
+            을 확인하세요
+          </p>
+        </header>
 
-      <article
-        className="md mt-4 rounded-2xl border border-gray-200/90 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.03)] sm:p-7"
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+        <article className="md pt-2 text-[15.5px]" dangerouslySetInnerHTML={{ __html: html }} />
+      </div>
       {viewer && <PageViewer title={g.title} pages={g.sourcePages} onClose={() => setViewer(false)} />}
     </div>
   );
