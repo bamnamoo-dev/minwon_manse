@@ -5,12 +5,14 @@ import {
   fmtYm,
   judgeRule,
   ruleNeeds,
+  type BirthHint,
   type CellResult,
   type SchoolLevel,
   type Verdict,
   type Ym,
 } from "../lib/judge";
 import type { CertStep, Minwon, NeisPage, RuleCell, SystemId } from "../lib/types";
+import { digitsAndAdvance } from "../lib/focus";
 import { ArrowRightIcon } from "./Icons";
 import { Fold, Mark, Seg } from "./ui";
 
@@ -44,7 +46,8 @@ function cond(c: RuleCell | undefined, basis: string): string {
   return c.note ?? "";
 }
 
-export function WhereToIssue({ data, m }: { data: AppData; m: Minwon }) {
+/** birthHint: ① 누가 왔나요에서 입력한 생년월일 — ③을 직접 고치기 전까지 출생연도·생월을 자동으로 채운다 */
+export function WhereToIssue({ data, m, birthHint }: { data: AppData; m: Minwon; birthHint?: BirthHint | null }) {
   const { channels, rules } = data.bundle.rules;
   const manuals = data.bundle.manuals;
   const link = manuals?.links[m.id];
@@ -54,11 +57,16 @@ export function WhereToIssue({ data, m }: { data: AppData; m: Minwon }) {
   const neisPages = (link?.neis ?? []).map((p) => manuals.neis.pages.find((x) => x.page === p)).filter(Boolean) as NeisPage[];
   const certSteps = link?.certSystem ? manuals.certsys.sections[link.certSystem]?.steps : undefined;
 
-  const [mode, setMode] = useState<"grad" | "birth">("grad");
+  // null = 아직 직접 안 고침 → ①의 생년월일을 따른다
+  const [modePicked, setMode] = useState<"grad" | "birth" | null>(null);
   const [year, setYear] = useState("");
   const [month, setMonth] = useState("");
-  const [birthYear, setBirthYear] = useState("");
-  const [birthMonth, setBirthMonth] = useState("");
+  const [birthYearTyped, setBirthYear] = useState<string | null>(null);
+  const [birthMonthTyped, setBirthMonth] = useState<string | null>(null);
+  const mode = modePicked ?? (birthHint && !year ? "birth" : "grad");
+  const birthYear = birthYearTyped ?? (birthHint ? String(birthHint.year) : "");
+  const birthMonth = birthMonthTyped ?? (birthHint?.month ? String(birthHint.month) : "");
+  const fromHint = mode === "birth" && birthYearTyped === null && !!birthHint;
   const [level, setLevel] = useState<SchoolLevel>("고");
   const [statuses, setStatuses] = useState<string[]>([]);
   // 담당자가 직접 고른 시스템 — 입력이 바뀌면 다시 자동 판정을 따른다
@@ -110,7 +118,7 @@ export function WhereToIssue({ data, m }: { data: AppData; m: Minwon }) {
                 maxLength={4}
                 placeholder="예: 1998"
                 value={year}
-                onChange={(e) => setYear(e.target.value.replace(/\D/g, ""))}
+                onChange={(e) => setYear(digitsAndAdvance(e, 4))}
                 aria-label={`${rule!.basis} 연도`}
               />
               년
@@ -131,7 +139,7 @@ export function WhereToIssue({ data, m }: { data: AppData; m: Minwon }) {
                 maxLength={4}
                 placeholder="예: 1980"
                 value={birthYear}
-                onChange={(e) => setBirthYear(e.target.value.replace(/\D/g, ""))}
+                onChange={(e) => setBirthYear(digitsAndAdvance(e, 4))}
                 aria-label="출생연도"
               />
               년생
@@ -148,6 +156,7 @@ export function WhereToIssue({ data, m }: { data: AppData; m: Minwon }) {
                 <option value="중">중학교</option>
                 <option value="고">고등학교</option>
               </select>
+              {fromHint && <span className="ml-1 text-[13px] text-accent">① 생년월일에서 자동 입력</span>}
             </span>
           )}
         </div>

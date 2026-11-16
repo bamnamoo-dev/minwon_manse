@@ -3,6 +3,7 @@ import type { AppData } from "../lib/data";
 import { formUrl, hasIssueStep, printedPage } from "../lib/data";
 import { lastSearchHash } from "../lib/router";
 import { pushRecent } from "../lib/storage";
+import type { BirthHint } from "../lib/judge";
 import type { Minwon } from "../lib/types";
 import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, CopyIcon, DownloadIcon, EyeIcon, FileTextIcon, PrinterIcon } from "./Icons";
 import { WhereToIssue } from "./Issue";
@@ -22,9 +23,12 @@ type Viewer = { title: string; pages: number[] } | null;
 
 export function MinwonDetail({ data, m }: { data: AppData; m: Minwon }) {
   const [viewer, setViewer] = useState<Viewer>(null);
+  // ① 누가 왔나요에서 넣은 생년월일 → ③ 어디서 발급하나요 출생연도 자동 입력 (화면 상태에만, 저장하지 않음)
+  const [birthHint, setBirthHint] = useState<BirthHint | null>(null);
 
   useEffect(() => {
     pushRecent(m.id);
+    setBirthHint(null); // 다른 민원으로 넘어가면 앞 민원에서 넣은 생년월일은 지운다
     window.scrollTo(0, 0);
   }, [m.id]);
 
@@ -74,7 +78,7 @@ export function MinwonDetail({ data, m }: { data: AppData; m: Minwon }) {
           <>
             <div className="contents">
               <Step n={next()} title="누가 왔나요?" note="방문 시 신원 확인 서류">
-                <IdentityJudge data={data} />
+                <IdentityJudge key={m.id} data={data} onBirth={setBirthHint} />
                 {m.officerChecks.length > 0 && <OfficerChecks items={m.officerChecks} />}
               </Step>
               {(m.notes.length > 0 || m.guideScript) && (
@@ -87,7 +91,7 @@ export function MinwonDetail({ data, m }: { data: AppData; m: Minwon }) {
             <div className="contents">
               {issue ? (
                 <Step n={next()} title="어디서 발급하나요?" note={m.yearRuleIds.length ? "기준: 편람 발급 가능 연도표" : undefined}>
-                  <WhereToIssue key={m.id} data={data} m={m} />
+                  <WhereToIssue key={m.id} data={data} m={m} birthHint={birthHint} />
                 </Step>
               ) : (
                 <Step n={next()} title="처리 과정">

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { digitsAndAdvance } from "../lib/focus";
 import { formUrl, type AppData } from "../lib/data";
 import {
   estimateGraduation,
@@ -7,6 +8,7 @@ import {
   judgeRule,
   manAge,
   ruleNeeds,
+  type BirthHint,
   type CellResult,
   type SchoolLevel,
   type Verdict,
@@ -31,18 +33,22 @@ const VERDICT: Record<Verdict, { label: string; sym: string; cls: string }> = {
 const ESTIMATE_BASIS = ["졸업연월", "제적연월", "해당연월"];
 
 /** 연도별 발급경로 판별기. ruleId를 주면 그 증명서로 고정, 없으면 선택 목록 표시 */
-export function IssuanceJudge({ data, ruleId: fixedId }: { data: AppData; ruleId?: string }) {
+export function IssuanceJudge({ data, ruleId: fixedId, birthHint }: { data: AppData; ruleId?: string; birthHint?: BirthHint | null }) {
   const { rules, channels, reviewed } = data.bundle.rules;
   const [pickedId, setPickedId] = useState(Object.keys(rules)[0]);
   const ruleId = fixedId ?? pickedId;
   const rule = rules[ruleId];
   const needs = useMemo(() => ruleNeeds(rule), [rule]);
 
-  const [mode, setMode] = useState<"direct" | "birth">("direct");
+  // null = 아직 직접 안 고침 → 신원 확인에서 입력한 생년월일을 따른다
+  const [modePicked, setMode] = useState<"direct" | "birth" | null>(null);
   const [year, setYear] = useState("");
   const [month, setMonth] = useState("");
-  const [birthYear, setBirthYear] = useState("");
-  const [birthMonth, setBirthMonth] = useState("");
+  const [birthYearTyped, setBirthYear] = useState<string | null>(null);
+  const [birthMonthTyped, setBirthMonth] = useState<string | null>(null);
+  const mode = modePicked ?? (birthHint && !year ? "birth" : "direct");
+  const birthYear = birthYearTyped ?? (birthHint ? String(birthHint.year) : "");
+  const birthMonth = birthMonthTyped ?? (birthHint?.month ? String(birthHint.month) : "");
   const [level, setLevel] = useState<SchoolLevel>("고");
   const [statuses, setStatuses] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
@@ -137,7 +143,7 @@ export function IssuanceJudge({ data, ruleId: fixedId }: { data: AppData; ruleId
                 maxLength={4}
                 placeholder="예: 1995"
                 value={year}
-                onChange={(e) => setYear(e.target.value.replace(/\D/g, ""))}
+                onChange={(e) => setYear(digitsAndAdvance(e, 4))}
                 aria-label={`${rule.basis} — 연도`}
               />
               년
@@ -164,7 +170,7 @@ export function IssuanceJudge({ data, ruleId: fixedId }: { data: AppData; ruleId
                   maxLength={4}
                   placeholder="예: 1975"
                   value={birthYear}
-                  onChange={(e) => setBirthYear(e.target.value.replace(/\D/g, ""))}
+                  onChange={(e) => setBirthYear(digitsAndAdvance(e, 4))}
                   aria-label="출생연도"
                 />
                 년생
@@ -181,6 +187,7 @@ export function IssuanceJudge({ data, ruleId: fixedId }: { data: AppData; ruleId
                   <option value="중">중학교</option>
                   <option value="고">고등학교</option>
                 </select>
+                {birthYearTyped === null && birthHint && <span className="ml-1 text-[13px] text-accent">② 생년월일에서 자동 입력</span>}
               </div>
               <p className="mt-2 text-[13px] leading-relaxed text-ink-2">
                 {dates.length > 0 && (
@@ -261,18 +268,25 @@ function ResultList({ results, hasInput }: { results: CellResult[]; hasInput: bo
 }
 
 /** 신청인 신원 확인(방문 시) — 누가 왔는지 + 대상자 나이 → 구비서류. 제목·상자 없이 내용만(단계 안에 넣어 쓴다) */
-export function IdentityJudge({ data }: { data: AppData }) {
+/** onBirth: 생년월일(연·월)을 넣으면 위로 알려 준다 → 발급 경로의 출생연도 자동 입력 */
+export function IdentityJudge({ data, onBirth }: { data: AppData; onBirth?: (b: BirthHint | null) => void }) {
   const rules = data.bundle.identity;
   const [visitor, setVisitor] = useState<Visitor>("self");
   const [ageMode, setAgeMode] = useState<"age" | "birth">("age");
   const [age, setAge] = useState("");
-  const [birth, setBirth] = useState("");
+  const [by, setBy] = useState("");
+  const [bm, setBm] = useState("");
+  const [bd, setBd] = useState("");
 
+  const okYear = (s: string) => /^\d{4}$/.test(s) && +s >= 1900 && +s <= 2100;
+  const okMonth = (s: string) => /^\d{1,2}$/.test(s) && +s >= 1 && +s <= 12;
   const ageNum = useMemo(() => {
     if (ageMode === "age") return /^\d{1,3}$/.test(age) ? +age : undefined;
-    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(birth);
-    return m ? manAge({ year: +m[1], month: +m[2], day: +m[3] }) : undefined;
-  }, [ageMode, age, birth]);
+    if (!okYear(by) || !okMonth(bm) || !/^\d{1,2}$/.test(bd) || +bd < 1 || +bd > 31) return undefined;
+    return manAge({ year: +by, month: +bm, day: +bd });
+  }, [ageMode, age, by, bm, bd]);
+
+  const emit = (y: string, mo: string) => onBirth?.(okYear(y) ? { year: +y, month: okMonth(mo) ? +mo : undefined } : null);
 
   // (이전 버전 데이터가 캐시에 남아 있으면 규칙이 없을 수 있음 → 화면을 깨뜨리지 않고 숨김)
   if (!rules) return null;
@@ -303,7 +317,16 @@ export function IdentityJudge({ data }: { data: AppData }) {
       </div>
       <div className="flex flex-wrap items-center gap-1.5">
         <span className="mr-1 text-sm text-muted">증명서 대상자</span>
-        <select className={inputCls} value={ageMode} onChange={(e) => setAgeMode(e.target.value as "age" | "birth")} aria-label="나이 입력 방식">
+        <select
+          className={inputCls}
+          value={ageMode}
+          onChange={(e) => {
+            const v = e.target.value as "age" | "birth";
+            setAgeMode(v);
+            emit(v === "birth" ? by : "", bm);
+          }}
+          aria-label="나이 입력 방식"
+        >
           <option value="age">만 나이</option>
           <option value="birth">생년월일</option>
         </select>
@@ -321,7 +344,46 @@ export function IdentityJudge({ data }: { data: AppData }) {
             세
           </>
         ) : (
-          <input type="date" className={inputCls} value={birth} onChange={(e) => setBirth(e.target.value)} aria-label="생년월일" />
+          <span className="flex items-center gap-1">
+            <input
+              className={inputCls + " w-[4.6rem] tabular-nums"}
+              inputMode="numeric"
+              maxLength={4}
+              placeholder="1980"
+              value={by}
+              onChange={(e) => {
+                const v = digitsAndAdvance(e, 4);
+                setBy(v);
+                emit(v, bm);
+              }}
+              aria-label="생년"
+            />
+            년
+            <input
+              className={inputCls + " w-12 tabular-nums"}
+              inputMode="numeric"
+              maxLength={2}
+              placeholder="3"
+              value={bm}
+              onChange={(e) => {
+                const v = digitsAndAdvance(e, +e.currentTarget.value.replace(/\D/g, "")[0] > 1 ? 1 : 2);
+                setBm(v);
+                emit(by, v);
+              }}
+              aria-label="생월"
+            />
+            월
+            <input
+              className={inputCls + " w-12 tabular-nums"}
+              inputMode="numeric"
+              maxLength={2}
+              placeholder="25"
+              value={bd}
+              onChange={(e) => setBd(e.target.value.replace(/\D/g, "").slice(0, 2))}
+              aria-label="생일"
+            />
+            일
+          </span>
         )}
         {ageMode === "birth" && ageNum !== undefined && <span className="ml-1 text-sm font-semibold">만 {ageNum}세</span>}
       </div>
@@ -369,6 +431,7 @@ export function IdentityJudge({ data }: { data: AppData }) {
 }
 
 export function JudgePage({ data }: { data: AppData }) {
+  const [birthHint, setBirthHint] = useState<BirthHint | null>(null);
   return (
     <div className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
       <header className="pt-8">
@@ -380,10 +443,10 @@ export function JudgePage({ data }: { data: AppData }) {
       </header>
       <div className="mt-9 grid gap-x-10 gap-y-10 border-t border-line pt-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-start">
         <Step n={1} title="연도별 발급 경로">
-          <IssuanceJudge data={data} />
+          <IssuanceJudge data={data} birthHint={birthHint} />
         </Step>
         <Step n={2} title="누가 왔나요?" note="방문 시 신원 확인 서류">
-          <IdentityJudge data={data} />
+          <IdentityJudge data={data} onBirth={setBirthHint} />
         </Step>
       </div>
       <p className="mt-10 text-xs text-muted">{data.bundle.version} 기준 · 관계 법령이 바뀐 경우 법령이 우선합니다.</p>

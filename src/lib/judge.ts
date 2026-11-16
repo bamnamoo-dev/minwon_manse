@@ -112,6 +112,12 @@ export function ruleNeeds(rule: Rule): { needsDate: boolean; basisLabel: string;
 
 /* ---------------- 출생연도 → 졸업연도 추정 ---------------- */
 
+/** 신원 확인(①)에서 입력한 생년월일 → 발급 경로(③) 출생연도 자동 입력용 */
+export interface BirthHint {
+  year: number;
+  month?: number;
+}
+
 export type SchoolLevel = "초" | "중" | "고";
 const GRAD_OFFSET: Record<SchoolLevel, number> = { 초: 13, 중: 16, 고: 19 };
 
