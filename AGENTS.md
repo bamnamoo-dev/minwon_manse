@@ -56,9 +56,11 @@
 - 편람·매뉴얼 이미지, 서식 파일은 저장소에 포함되어 있어야 배포본에 들어간다(공개 자료)
 
 ## 작업 위치
-- 원본 작업 폴더: 외장하드 `H:\dev\minwon_manse`(exFAT, 사무실·집 PC에서 같이 사용). 다른 PC에서는 드라이브 문자가 바뀔 수 있음
-- exFAT이라 PC마다 처음 한 번 `git config --global --add safe.directory <드라이브>:/dev/minwon_manse` 필요
-- `C:\dev\minwon_manse`는 옮기기 전 사본(2026-11-16) — 수정하지 않는다
+- 작업 폴더: 각 PC의 `C:\dev\minwon_manse` — GitHub(`origin`, bamnamoo-dev/minwon_manse)이 사무실·집 PC를 잇는 기준 저장소
+  - 다른 PC 처음 한 번: `git clone https://github.com/bamnamoo-dev/minwon_manse.git C:\dev\minwon_manse` → `npm install`
+- 작업 시작 전 `git pull`, 끝나면 커밋
+- **master 푸시 = 즉시 배포(minwon.aisen.kr)**. 푸시는 담당자가 요청할 때만. 덜 된 작업을 다른 PC로 옮길 때는 master 말고 다른 브랜치로 푸시(배포 안 됨)
+- 외장하드 `H:\dev\minwon_manse`는 예전 사본(2026-11-16 이전 상태일 수 있음) — 작업하지 않는다
 
 ## 작업 방식
 - Phase 단위로, 그 안에서도 파일 단위로 작게 작업하고 끝날 때마다 `npm run validate` + 동작 확인.
