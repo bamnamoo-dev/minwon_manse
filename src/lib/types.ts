@@ -151,6 +151,8 @@ export interface Manuals {
 
 export interface Bundle {
   version: string;
+  /** 편람 판 이름 (예: "2026 개정판") — data/edition.json */
+  edition: string;
   builtAt: string;
   minwon: Minwon[];
   guides: Guide[];

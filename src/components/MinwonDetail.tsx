@@ -177,7 +177,7 @@ export function MinwonDetail({ data, m }: { data: AppData; m: Minwon }) {
       </div>
 
       <p className="mt-6 text-xs leading-relaxed text-muted">
-        출처: 서울특별시교육청 「민원편람」 2025 개정판 PDF {m.sourcePages[0]}~{m.sourcePages.at(-1)}쪽 (인쇄 {printedPage(m.sourcePages[0])}~
+        출처: 서울특별시교육청 「민원편람」 {data.bundle.edition} PDF {m.sourcePages[0]}~{m.sourcePages.at(-1)}쪽 (인쇄 {printedPage(m.sourcePages[0])}~
         {printedPage(m.sourcePages.at(-1)!)}쪽). 관계 법령이 개정된 경우 법령이 우선합니다.
         {data.bundle.manuals?.links[m.id] && " 발급 시스템 화면은 각 시스템 사용자 매뉴얼에서 자동 추출한 것입니다."}{" "}
         <button type="button" onClick={openSource} className="link-quiet no-print">

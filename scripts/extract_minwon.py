@@ -1,6 +1,8 @@
-"""민원편람.md (+PDF 보조) → data/minwon/*.json (민원 96건) + data/guides/*.json (업무안내)
+"""민원편람 MD (+PDF 보조) → data/minwon/*.json (민원) + data/guides/*.json (업무안내)
 
-사용법: py scripts/extract_minwon.py [--force]
+사용법: py scripts/extract_minwon.py [--force] [--md 경로 --pdf 경로 --out 폴더]
+- 읽을 편람은 data/edition.json 의 md·pdf (판이 바뀌면 그 파일만 고친다)
+- 민원 개수·분류·업무안내 위치는 편람 앞의 목차(CONTENTS)에서 읽는다(코드에 개수·번호를 적지 않음)
 - 자동 추출 결과는 "초안"이다(reviewed=false). 사람이 PDF와 대조해 검수한다.
 - 덮어쓰기 보호: 아래 파일은 다시 돌려도 건드리지 않는다(--force 시에만 덮어씀)
     1) reviewed=true 인 파일
@@ -20,8 +22,10 @@ from datetime import date
 import fitz  # PyMuPDF
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-MD = ROOT / "source" / "민원편람.md"
-PDF = ROOT / "source" / "민원편람.pdf"
+EDITION = json.loads((ROOT / "data" / "edition.json").read_text(encoding="utf-8"))
+MD = ROOT / EDITION["md"]
+PDF = ROOT / EDITION["pdf"]
+OFFSET = EDITION["printedPageOffset"]  # PDF 쪽 = 인쇄 쪽 + OFFSET
 OUT_MINWON = ROOT / "data" / "minwon"
 OUT_GUIDES = ROOT / "data" / "guides"
 REPORT = ROOT / "docs" / "extract_report.md"
@@ -29,17 +33,19 @@ RULES = ROOT / "data" / "rules" / "issuance_years.json"
 
 PAGE_RE = re.compile(r"<!--\s*PAGE:\s*(\d+)\s*-->")
 ENTRY_RE = re.compile(r"^(?:#+\s*)?(\d{1,2})\)\s*(.+?)\s*$")
-FOOTER_RE = re.compile(r"^(\d{1,3}|서울특별시교육청|■*\s*민\s*원\s*편\s*람|http://www\.sen\.go\.kr.*|[IVX]+\.\s*.{0,30})$")
+FOOTER_RE = re.compile(  # 쪽 머리말·꼬리말·가로줄 — 내용이 아님(민원 쪽 범위 계산에서 뺀다)
+    r"^(\d{1,3}|\d{1,3}\s*서울특별시교육청|서울특별시교육청(\s*\d{1,3})?|■*\s*민\s*원\s*편\s*람(\s*\d{1,3})?|\d{1,3}\s*민원편람"
+    r"|http://www\.sen\.go\.kr.*|[IVX]+\.\s*.{0,50}|[-*_]{3,}|<br\s*/?>)$")
 TOC_RE = re.compile(r"(···|…|\.{4,})\s*\d+\s*$")
 
-CATEGORIES = [
-    (1, 14, "학생"), (15, 28, "교직원"), (29, 40, "검정고시"), (41, 47, "유치원"),
-    (48, 61, "법인"), (62, 73, "학원"), (74, 81, "교습소·교습자"), (82, 87, "평생교육"),
-    (88, 90, "대안교육기관"), (91, 95, "기타"), (96, 96, "외국어(영문) 발급"),
-]
+CHAPTER_RE = re.compile(r"^(?:[IVXⅠ-Ⅻ]+\s+)?CHAPTER(?:\s+[IVXⅠ-Ⅻ]+)?$")
+TOC_ITEM_RE = re.compile(r"^(\d{1,2})([.)])\s*(.+?)\s*(?:···|…|\.{4,})[·….\s]*?(\d{1,3})\s*$")
+TOC_CHAP_RE = re.compile(r"^([IVX]+)\s*CHAPTER\s+(.+)$")
+TOC_CHAP2_RE = re.compile(r"^([IVX]+)\.\s*([가-힣 ]{1,20})$")  # "VII. 기 타"
+CATEGORIES: list[tuple[int, int, str]] = []  # (첫 번호, 끝 번호, 분류) — 목차에서 채움
 
 LABELS = {
-    "사무내용": "summary", "민원내용": "summary", "접수처": "receivers", "수수료": "fee",
+    "사무내용": "summary", "민원내용": "summary", "접수처": "receivers", "수수료": "fee", "수수류": "fee",  # 수수류: 2026판 90번 원문 오타
     "신청방법": "methods", "구비서류": "documents", "처리과": "dept", "공부대조": "ledger",
     "최종결재": "approval", "처리기간": "period", "법정처리기간": "period",
     "관련근거": "laws", "처리과정": "process", "참고사항": "notes",
@@ -53,8 +59,8 @@ def norm_label(s: str) -> str:
     s = re.sub(r"<br\s*/?>", "", s)
     s = re.sub(r"\(.*?\)", "", s)  # 처리과(협조기관) → 처리과
     s = re.sub(r"[\s*_·]", "", s)
-    if s.startswith("구비서류"):  # 구비서류<br>담당공무원확인<br>민원인제출생략
-        return "구비서류"
+    if s.startswith("구비서류") and (len(s) <= 6 or "담당공무원" in s):  # 구비서류<br>담당공무원확인<br>민원인제출생략
+        return "구비서류"  # ("구비서류 우편 또는 방문으로 제출 후…" 같은 값은 라벨이 아님)
     return s
 
 
@@ -70,6 +76,56 @@ def clean(s: str) -> str:
     s = re.sub(r"\*\*(.+?)\*\*", r"\1", s)
     s = re.sub(r"[ \t]+", " ", s)
     return "\n".join(line.strip() for line in s.split("\n")).strip()
+
+
+def norm_category(name: str) -> str:
+    name = name.strip()
+    if re.fullmatch(r"[가-힣](\s[가-힣])+", name):  # "학 생" → "학생"
+        name = name.replace(" ", "")
+    return re.sub(r"^주요\s*민원증명\s*", "", name)  # "주요 민원증명 외국어(영문) 발급" → "외국어(영문) 발급"
+
+
+def read_toc(lines: list[str], pages: list[int]) -> dict:
+    """앞쪽 목차(CONTENTS)에서 장·업무안내·분류·민원 목록과 PDF 쪽수를 읽는다."""
+    toc: dict = {"guides": [], "categories": [], "minwon": []}
+    chap = None
+    for ln, p in zip(lines, pages):
+        if p > 12:
+            break
+        l = re.sub(r"[#*]", "", ln).strip()
+        m = TOC_CHAP_RE.match(l) or TOC_CHAP2_RE.match(l)
+        if m:
+            roman = m.group(1)
+            if chap and chap[0] == "V" and roman not in ("V",):
+                roman = "VI"  # 2025판 목차는 VI장을 "VII. 기 타"로 잘못 적음
+            chap = (roman, norm_category(re.sub(r"\s+", " ", m.group(2))))  # "기 타" → "기타"
+            continue
+        m = TOC_ITEM_RE.match(l)
+        if not m or not chap:
+            continue
+        n, kind, title, printed = int(m.group(1)), m.group(2), m.group(3).strip(), int(m.group(4))
+        if chap[0] == "V":
+            if kind == ".":
+                toc["categories"].append((n, norm_category(title), printed + OFFSET))
+            else:
+                toc["minwon"].append((n, title, printed + OFFSET))
+        elif chap[0] != "I":
+            toc["guides"].append((f"{chap[0]}. {chap[1]}", n, title, printed + OFFSET))
+    nums = [n for n, _, _ in toc["minwon"]]
+    assert nums == list(range(1, len(nums) + 1)), f"목차의 민원 번호가 1부터 이어지지 않음: {nums}"
+    return toc
+
+
+def set_categories(toc: dict) -> None:
+    first: dict[str, int] = {}
+    for n, _title, pdfp in toc["minwon"]:
+        cat = [c for c in toc["categories"] if c[2] <= pdfp]
+        first.setdefault(cat[-1][1], n)
+    starts = sorted((n, name) for name, n in first.items())
+    total = len(toc["minwon"])
+    CATEGORIES.clear()
+    for k, (n, name) in enumerate(starts):
+        CATEGORIES.append((n, (starts[k + 1][0] - 1) if k + 1 < len(starts) else total, name))
 
 
 def category_of(no: int) -> str:
@@ -154,9 +210,21 @@ def load_lines() -> tuple[list[str], list[int]]:
     return lines, pages
 
 
-def find_entries(lines: list[str]) -> list[tuple[int, int, str]]:
-    """(시작줄, 번호, 제목) — 목차(점선) 제외, 1→96 순서로만 채택."""
-    start_ch5 = next(i for i, l in enumerate(lines) if l.strip() == "# CHAPTER V")
+def chapter_cover_lines(lines: list[str], pages: list[int]) -> list[int]:
+    """장 표지 쪽("CHAPTER" 줄이 있는 쪽)의 첫 줄 위치 — 목차 쪽 이후만."""
+    out, seen = [], set()
+    for ln, p in zip(lines, pages):
+        if p <= 12 or p in seen:
+            continue
+        if CHAPTER_RE.match(re.sub(r"[#*]", "", ln).strip()):
+            seen.add(p)
+            out.append(pages.index(p))
+    return out
+
+
+def find_entries(lines: list[str], pages: list[int], total: int, start_page: int) -> list[tuple[int, int, str]]:
+    """(시작줄, 번호, 제목) — V장(start_page)부터, 목차(점선) 제외, 1→total 순서로만 채택."""
+    start_ch5 = pages.index(start_page)
     found, expect = [], 1
     for i in range(start_ch5, len(lines)):
         l = lines[i].strip()
@@ -166,7 +234,7 @@ def find_entries(lines: list[str]) -> list[tuple[int, int, str]]:
         if m and int(m.group(1)) == expect:
             found.append((i, expect, m.group(2).strip()))
             expect += 1
-            if expect > 96:
+            if expect > total:
                 break
     return found
 
@@ -474,54 +542,31 @@ def build_entry(no: int, title: str, block: list[str], pages: list[int], P: Page
 GUIDE_HEAD_RE = re.compile(r"^#{1,2}\s*(0[1-9]|[12][0-9])\.?\s+(.+?)\s*$")
 
 
-def extract_guides(lines: list[str], pages: list[int], P: Pages) -> list[dict]:
-    def idx_of(pred, start=0):
-        return next(i for i in range(start, len(lines)) if pred(lines[i].strip()))
-
-    ch2 = idx_of(lambda l: l == "# CHAPTER II")
-    ch3 = idx_of(lambda l: l == "# III", ch2)
-    ch4 = idx_of(lambda l: l.startswith("# 01 교원자격 무시험검정"))
-    ch5 = idx_of(lambda l: l == "# CHAPTER V")
-    ch6 = idx_of(lambda l: l == "# CHAPTER VI")
-
-    toc4 = []
-    for l in lines[:120]:
-        m = re.match(r"^(\d{1,2})\.\s*(.+?에 관한 사항)", l.strip())
-        if m:
-            toc4.append((int(m.group(1)), m.group(2)))
-
+def extract_guides(lines: list[str], pages: list[int], P: Pages, toc: dict, covers: list[int]) -> list[dict]:
+    """목차의 II·III·IV·VI장 항목을 쪽 위치로 찾아 업무안내로 나눈다(장 표지 쪽에서 끊음)."""
     def key(s: str) -> str:
-        return re.sub(r"[\s·ㆍ•*#|0-9]", "", s)
+        return re.sub(r"[\s·ㆍ•*#|0-9.()（）]", "", s)
 
     starts: list[tuple[int, str, str]] = []
-    for i in range(ch2, ch4):
-        m = GUIDE_HEAD_RE.match(lines[i].strip())
-        if m:
-            chap = "II. 민원처리 일반" if i < ch3 else "III. 민원신청 안내"
-            starts.append((i, chap, m.group(2).strip()))
-    pos = ch4
-    for n, t in toc4:
-        k = key(t)
-        for i in range(pos, ch5):
-            if k and k == key(lines[i])[-len(k):] and len(key(lines[i])) <= len(k) + 4:
-                starts.append((i, "IV. 주요 민원처리 업무 안내", t))
-                pos = i + 1
-                break
-    for i in range(ch6, len(lines)):
-        m = GUIDE_HEAD_RE.match(lines[i].strip())
-        if m:
-            starts.append((i, "VI. 기타", m.group(2).strip()))
-    # III장 첫 절은 번호 없는 제목("# 민원처리 과정")이라 위 규칙에 안 걸림 → 직접 추가
-    # (즉시·유기한 민원, 제증명 발급 형태, 신청인 신원 확인·위임장 — 43~46쪽)
-    first_iii = idx_of(lambda l: l == "# 민원처리 과정", ch3)
-    starts.append((first_iii, "III. 민원신청 안내", "민원처리 과정 (즉시·유기한 민원, 발급 형태, 신청인 신원 확인·위임장)"))
+    for chap, n, title, pdfp in toc["guides"]:
+        k = key(title)
+        cand = [i for i, p in enumerate(pages) if pdfp - 1 <= p <= pdfp + 2 and not PAGE_RE.search(lines[i])]
+        hit = next((i for i in cand if k and key(lines[i]).endswith(k) and len(key(lines[i])) <= len(k) + 8
+                    and not TOC_RE.search(lines[i]) and not re.match(r"^\s*\d{1,2}\.\s", lines[i])), None)
+        if hit is None:  # 제목 줄을 못 찾으면 그 쪽 첫 줄
+            hit = pages.index(pdfp)
+        if chap.startswith("III"):
+            chap = "III. 민원신청 안내"  # 장 이름은 처음 만든 판(2025) 표기로 고정
+            if n == 1:
+                title += " (즉시·유기한 민원, 발급 형태, 신청인 신원 확인·위임장)"
+        starts.append((hit, chap, title))
 
     starts.sort()
     bounds = [s[0] for s in starts] + [len(lines)]
     guides = []
     for k, (i, chap, title) in enumerate(starts):
         end = bounds[k + 1]
-        for cut in (ch3, ch4, ch5):  # 장이 바뀌는 곳에서 끊는다
+        for cut in covers:  # 장이 바뀌는 곳에서 끊는다
             if i < cut <= end:
                 end = cut
         sp = sorted({p for p in pages[i:end] if not P.is_blank(p) and not P.is_toc(p)}) or [pages[i]]
@@ -558,12 +603,26 @@ def save(path: pathlib.Path, obj: dict, force: bool, protected: list[str]) -> bo
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--force", action="store_true", help="검수완료·수정된 파일도 덮어씀(주의)")
+    ap.add_argument("--md", help="다른 편람 MD (기본: data/edition.json)")
+    ap.add_argument("--pdf", help="다른 편람 PDF")
+    ap.add_argument("--out", help="결과 폴더(minwon/·guides/·extract_report.md) — 판 비교용 임시 추출")
     args = ap.parse_args()
+    global MD, PDF, OUT_MINWON, OUT_GUIDES, REPORT
+    if args.md:
+        MD, PDF = pathlib.Path(args.md), pathlib.Path(args.pdf)
+    if args.out:
+        out = pathlib.Path(args.out)
+        OUT_MINWON, OUT_GUIDES, REPORT = out / "minwon", out / "guides", out / "extract_report.md"
 
     lines, line_pages = load_lines()
     P = Pages(lines, line_pages)
-    entries = find_entries(lines)
-    ch6 = next(i for i, l in enumerate(lines) if l.strip() == "# CHAPTER VI")
+    toc = read_toc(lines, line_pages)
+    set_categories(toc)
+    covers = chapter_cover_lines(lines, line_pages)
+    v_start = toc["categories"][0][2] - 1  # V장 첫 분류 표지 바로 앞 쪽(장 표지)
+    entries = find_entries(lines, line_pages, len(toc["minwon"]), v_start)
+    assert len(entries) == len(toc["minwon"]), f"본문에서 찾은 민원 {len(entries)}건 ≠ 목차 {len(toc['minwon'])}건"
+    ch6 = next(c for c in covers if c > entries[-1][0])
     issues: list[str] = []
     protected: list[str] = []
     OUT_MINWON.mkdir(parents=True, exist_ok=True)
@@ -575,7 +634,7 @@ def main() -> None:
         e = build_entry(no, title, lines[start:end], line_pages[start:end], P, issues)
         written += save(OUT_MINWON / f"{e['id']}.json", e, args.force, protected)
 
-    guides = extract_guides(lines, line_pages, P)
+    guides = extract_guides(lines, line_pages, P, toc, covers)
     g_written = sum(save(OUT_GUIDES / f"{g['id']}.json", g, args.force, protected) for g in guides)
 
     todo, lost_rows, form_rows = [], [], []
@@ -593,6 +652,7 @@ def main() -> None:
 
     REPORT.write_text(
         "# 추출 리포트\n\n"
+        f"- 편람: {MD.name}\n"
         f"- 생성일: {date.today().isoformat()}\n"
         f"- 민원 {len(entries)}건 발견 / {written}건 저장 · 업무안내 {len(guides)}건 / {g_written}건 저장\n"
         f"- 덮어쓰기 보호로 건너뜀: {len(protected)}건 {('— ' + ', '.join(protected)) if protected else ''}\n"

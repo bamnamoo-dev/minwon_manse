@@ -496,7 +496,7 @@
       "group": "학생",
       "basis": "졸업연월",
       "minwonIds": [
-        "M96"
+        "M91"
       ],
       "cells": {
         "neis": {
@@ -545,7 +545,7 @@
       "group": "학생",
       "basis": "재학상태",
       "minwonIds": [
-        "M96"
+        "M91"
       ],
       "cells": {
         "neis": {
@@ -594,7 +594,7 @@
       "group": "학생",
       "basis": "입학연월",
       "minwonIds": [
-        "M96"
+        "M91"
       ],
       "cells": {
         "neis": {
@@ -766,7 +766,7 @@
       "group": "검정고시",
       "basis": "합격연도",
       "minwonIds": [
-        "M96"
+        "M91"
       ],
       "cells": {
         "neis": {
@@ -811,7 +811,7 @@
       "group": "검정고시",
       "basis": "합격연도",
       "minwonIds": [
-        "M96"
+        "M91"
       ],
       "cells": {
         "neis": {

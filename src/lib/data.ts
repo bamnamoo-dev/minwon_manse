@@ -41,7 +41,7 @@ export function useAppData(): { data?: AppData; error?: string } {
 
 /** PDF 쪽 → 페이지 이미지 경로 */
 export const pageImg = (p: number) => `${import.meta.env.BASE_URL}pages/p${p}.webp`;
-/** PDF 쪽 → 편람 인쇄 쪽수 */
+/** PDF 쪽 → 편람 인쇄 쪽수 (2025·2026판 모두 앞쪽 10쪽 차이 — data/edition.json printedPageOffset) */
 export const printedPage = (p: number) => p - 10;
 
 /** 이 민원에 '어디서 발급하나요?' 단계가 있는지 (연도별 발급 규칙 또는 발급 시스템 매뉴얼 연결) */

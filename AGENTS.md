@@ -1,10 +1,11 @@
 # 민원만세 — AI 코딩 에이전트 작업 규칙
 
-서울특별시교육청 「민원편람」(2025)을 원 소스로 한 **담당자용 종합 민원 검색기**.
-최근 작업·결정·남은 일: `docs/작업기록_2026-11-16.md` · 전체 계획: `docs/민원만세_개발계획서.md` · 디자인 개편: `docs/디자인_개편계획.md` · 데이터 검수 현황: `docs/검수_체크리스트.md`, `docs/extract_report.md`
+서울특별시교육청 「민원편람」(**2026 개정판**, 2026-11-19 2025판에서 이관)을 원 소스로 한 **담당자용 종합 민원 검색기**.
+최근 작업·결정·남은 일: `docs/작업기록_2026-11-19.md`(2026판 이관), `docs/작업기록_2026-11-16.md` · 전체 계획: `docs/민원만세_개발계획서.md` · 디자인 개편: `docs/디자인_개편계획.md` · 데이터 검수 현황: `docs/검수_체크리스트.md`, `docs/extract_report.md`
 
 ## 절대 규칙
-1. `source/` 파일(민원편람.md, 민원편람.pdf)은 **절대 수정하지 않는다.**
+1. `source/` 편람 원본은 **절대 수정하지 않는다.** (2025판 `민원편람.md/.pdf`, 2026판 `민원편람(2026).pdf`)
+   - 예외: `민원편람(2026).md`는 우리가 변환한 파일 — 변환 오류를 **PDF 글자대로** 고칠 때만 손대고 `docs/민원편람2026_MD변환기록.md`에 적는다
 2. 민원 내용은 **`data/` JSON에서만 읽는다.** 코드에 민원 내용·연도·서류를 하드코딩하지 않는다.
 3. **편람에 없는 내용을 지어내지 않는다.** 모르면 `TODO(검수필요)`로 표시하고 사람에게 묻는다.
 4. `"reviewed": true` 인 데이터는 사람이 검수한 것 → 에이전트가 임의로 바꾸지 않는다.
@@ -19,10 +20,12 @@
 
 ## 쪽 번호
 - JSON의 `sourcePages`, `pdfPages` = **PDF 물리 쪽수** (= MD의 `<!-- PAGE: n -->`, = `p{n}.webp`)
-- 편람 인쇄 쪽수 = PDF 쪽수 − 10 (예: 졸업증명서 PDF 139쪽 = 인쇄 129쪽)
+- 편람 인쇄 쪽수 = PDF 쪽수 − 10 (예: 2026판 졸업증명서 PDF 141쪽 = 인쇄 131쪽)
 
 ## 주요 데이터
-- `data/minwon/M01~M96.json` 민원 96건 (스키마: `scripts/validate.ts`의 `Minwon`)
+- `data/edition.json` **지금 쓰는 편람 판**(md·pdf 경로, 판 이름, 인쇄 쪽 차이) — 추출기·쪽 이미지·화면 출처 문구가 모두 여기서 읽음
+- `data/minwon/M01~M91.json` 민원 91건 — **ID = 2026판 편람 번호** (스키마: `scripts/validate.ts`의 `Minwon`)
+  - 2025판(96건) 번호와 다름. 옛 번호 ↔ 새 번호: `data/edition_map.json` (null = 2026판에서 없어진 민원)
   - `forms[]` 서식별 PDF 쪽 · `infoPages` 서식 앞의 참고 안내 쪽 · `officerChecks` 담당공무원 확인사항
   - `documentsSource` 구비서류 출처(요약표 / 신청서에서 자동 추출 / 편람에 목록 없음)
   - `pdfTextPages` MD 변환에서 빠져 PDF 텍스트로 보충한 쪽 (화면에서는 원문 이미지 우선 표시)
@@ -31,7 +34,7 @@
   - `from`+`status` 동시 존재 = "status에 해당하거나 from 이후" (예: 재직자 또는 2003년 이후 퇴직자)
   - 연월 비교는 'YYYY' 또는 'YYYY-MM' 문자열. 'YYYY'만 있으면 그해 1월로 간주
 - `data/rules/identity.json` 방문자 유형 × 대상자 나이 → 구비서류
-- `data/guides/G01~G37.json` II·III·IV·VI장 업무안내(markdown 원문)
+- `data/guides/G01~G38.json` II·III·IV·VI장 업무안내(markdown 원문)
 - `data/synonyms.json` 검색 동의어
 - `data/forms_files.json` 민원 ↔ 서식 파일 연결(사람이 관리). `form`=편람 서식 이름과 같으면 그 줄에, 없으면 `label`로 추가 서식. `common.위임장`은 신원 확인(대리인)에 표시. data/minwon 은 고치지 않고 build_data 에서 합침
 - `data/manuals/` 발급 시스템 매뉴얼(민원 상세 「어디서 발급하나요?」)
@@ -40,8 +43,9 @@
   - 매뉴얼 원본 PDF 2개는 `source/`에만 두고 git에 넣지 않음(.gitignore)
 
 ## 명령
-- `npm run extract` — MD → data/minwon, data/guides 재생성 (reviewed=true 보호)
-- `npm run render-pages` — PDF → public/pages
+- `npm run extract` — MD → data/minwon, data/guides 재생성 (reviewed=true 보호). 민원 개수·분류·업무안내 위치는 편람 목차에서 읽음
+- 새 판이 나오면: PDF·MD를 `source/`에 넣고 `data/edition.json` 수정 → `scripts/migrate_edition.py` 사용법대로(옛 판·새 판 임시 추출 → 비교·이관) → 보고서 `docs/편람_이관보고_<연도>.md`
+- `npm run render-pages` — 편람 PDF(edition.json) → public/pages (남는 옛 쪽 이미지는 지움)
 - `npm run render-manuals` — 나이스·학교증명발급시스템 매뉴얼 → data/manuals/*.json + public/neis·certsys 이미지
 - `npm run validate` — 데이터 검증 (빌드 전 필수)
 - `npm run dev` / `npm run build`

@@ -1,0 +1,8 @@
+{
+  "_comment": "지금 쓰는 민원편람 판. 새 판이 나오면 source/ 에 PDF·MD 를 넣고 여기만 바꾼 뒤 scripts/migrate_edition.py 로 데이터를 옮긴다.",
+  "year": 2026,
+  "label": "2026 개정판",
+  "md": "source/민원편람(2026).md",
+  "pdf": "source/민원편람(2026).pdf",
+  "printedPageOffset": 10
+}

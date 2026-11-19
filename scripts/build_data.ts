@@ -113,6 +113,7 @@ const identity = {
   reviewed: !!idFile._meta.reviewed,
 };
 
+const edition = read("data/edition.json"); // 지금 쓰는 편람 판 (판이 바뀌면 이 파일만 고침)
 const manualLinks = read("data/manuals/links.json");
 const manuals = {
   order: manualLinks._meta.systemOrder,
@@ -123,7 +124,8 @@ const manuals = {
 };
 
 const bundle = {
-  version: "2025 개정판 민원편람",
+  version: `${edition.label} 민원편람`,
+  edition: edition.label as string,
   builtAt: new Date().toISOString().slice(0, 10),
   minwon,
   guides,

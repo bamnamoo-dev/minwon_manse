@@ -11,7 +11,7 @@ const read = (p: string) => JSON.parse(readFileSync(join(ROOT, p), "utf-8"));
 
 const Minwon = z.object({
   id: z.string().regex(/^M\d{2}$/),
-  no: z.number().int().min(1).max(96),
+  no: z.number().int().min(1),
   title: z.string().min(2),
   category: z.string().min(1),
   aliases: z.array(z.string()),
@@ -33,7 +33,7 @@ const Minwon = z.object({
   yearRuleIds: z.array(z.string()),
   forms: z.array(z.object({ name: z.string(), pdfPages: z.array(z.number().int()), hwp: z.string().nullable() })),
   infoPages: z.array(z.number().int()),
-  sourcePages: z.array(z.number().int().min(1).max(467)).min(1),
+  sourcePages: z.array(z.number().int().min(1)).min(1),
   pdfTextPages: z.array(z.number().int()),
   rawMarkdown: z.string().min(10),
   reviewed: z.boolean(),
@@ -115,7 +115,14 @@ for (const f of files) {
   for (const f of e.forms) for (const p of f.pdfPages) if (!pages.has(p)) errors.push(`${e.id}: 서식 쪽 ${p}가 sourcePages 밖`);
   if (e._todo) warn.push(`${e.id} ${e.title}: ${e._todo}`);
 }
-if (files.length !== 96) errors.push(`민원 파일 수 ${files.length} (96이어야 함)`);
+/* 민원 번호는 편람 번호와 같고 1부터 빠짐없이 이어져야 한다(개수는 판마다 다름 — data/edition.json) */
+const nums = files.map((f) => read(`data/minwon/${f}`) as { id: string; no: number }).sort((a, b) => a.no - b.no);
+nums.forEach((m, i) => {
+  if (m.no !== i + 1) errors.push(`민원 번호가 이어지지 않음: ${i + 1}번 자리에 ${m.id}(no ${m.no})`);
+  if (m.id !== `M${String(m.no).padStart(2, "0")}`) errors.push(`${m.id}: id 와 no(${m.no})가 맞지 않음`);
+});
+const edition = read("data/edition.json") as { md: string; pdf: string; label: string };
+for (const k of ["md", "pdf"] as const) if (!existsSync(join(ROOT, edition[k]))) errors.push(`data/edition.json ${k}: ${edition[k]} 없음`);
 
 const rules = Rules.safeParse(read("data/rules/issuance_years.json"));
 if (!rules.success) errors.push(`issuance_years.json: ${rules.error.message}`);
