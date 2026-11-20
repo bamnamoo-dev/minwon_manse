@@ -153,6 +153,8 @@ export interface Bundle {
   version: string;
   /** 편람 판 이름 (예: "2026 개정판") — data/edition.json */
   edition: string;
+  /** PDF 쪽 − 편람 인쇄 쪽 — data/edition.json */
+  printedPageOffset: number;
   builtAt: string;
   minwon: Minwon[];
   guides: Guide[];

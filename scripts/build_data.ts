@@ -126,6 +126,7 @@ const manuals = {
 const bundle = {
   version: `${edition.label} 민원편람`,
   edition: edition.label as string,
+  printedPageOffset: edition.printedPageOffset as number,
   builtAt: new Date().toISOString().slice(0, 10),
   minwon,
   guides,

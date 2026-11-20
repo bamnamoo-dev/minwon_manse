@@ -76,8 +76,8 @@ function Page({ data, route }: { data: AppData; route: Route }) {
 function NotFound() {
   return (
     <div className="p-12 text-center">
-      <p className="text-slate-600">찾는 페이지가 없습니다.</p>
-      <a href="#/" className="mt-3 inline-block text-sm font-medium text-brand-600 underline">
+      <p className="text-ink-2">찾는 페이지가 없습니다.</p>
+      <a href="#/" className="mt-3 inline-block text-sm font-medium text-accent underline">
         검색으로 돌아가기
       </a>
     </div>

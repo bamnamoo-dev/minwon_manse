@@ -1,14 +1,14 @@
 import { useEffect, useState, type ReactNode } from "react";
 import type { AppData } from "../lib/data";
-import { formUrl, hasIssueStep, printedPage } from "../lib/data";
+import { formUrl, hasIssueStep, pageRange, printedPage } from "../lib/data";
 import { lastSearchHash } from "../lib/router";
-import { pushRecent } from "../lib/storage";
 import type { BirthHint } from "../lib/judge";
 import type { Minwon } from "../lib/types";
 import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, CopyIcon, DownloadIcon, EyeIcon, FileTextIcon, PrinterIcon } from "./Icons";
 import { WhereToIssue } from "./Issue";
 import { IdentityJudge } from "./Judge";
-import { PageViewer, printPages } from "./PageViewer";
+import { PageViewer } from "./PageViewer";
+import { printPages } from "../lib/print";
 import { DashList, Fold, NavyHero, Step } from "./ui";
 import { categoryTint } from "../lib/colors";
 
@@ -28,7 +28,6 @@ export function MinwonDetail({ data, m }: { data: AppData; m: Minwon }) {
   const [birthHint, setBirthHint] = useState<BirthHint | null>(null);
 
   useEffect(() => {
-    pushRecent(m.id);
     setBirthHint(null); // 다른 민원으로 넘어가면 앞 민원에서 넣은 생년월일은 지운다
     window.scrollTo(0, 0);
   }, [m.id]);
@@ -177,8 +176,7 @@ export function MinwonDetail({ data, m }: { data: AppData; m: Minwon }) {
       </div>
 
       <p className="mt-6 text-xs leading-relaxed text-muted">
-        출처: 서울특별시교육청 「민원편람」 {data.bundle.edition} PDF {m.sourcePages[0]}~{m.sourcePages.at(-1)}쪽 (인쇄 {printedPage(m.sourcePages[0])}~
-        {printedPage(m.sourcePages.at(-1)!)}쪽). 관계 법령이 개정된 경우 법령이 우선합니다.
+        출처: 서울특별시교육청 「민원편람」 {data.bundle.edition} PDF {pageRange(m.sourcePages)}쪽 (인쇄 {pageRange(m.sourcePages.map(printedPage))}쪽). 관계 법령이 개정된 경우 법령이 우선합니다.
         {data.bundle.manuals?.links[m.id] && " 발급 시스템 화면은 각 시스템 사용자 매뉴얼에서 자동 추출한 것입니다."}{" "}
         <button type="button" onClick={openSource} className="link-quiet no-print">
           편람 원문 보기

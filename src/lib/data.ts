@@ -11,12 +11,18 @@ export interface AppData {
 }
 
 let cache: Promise<AppData> | null = null;
+/** PDF 쪽 − 인쇄 쪽 (data/edition.json printedPageOffset, 데이터를 불러올 때 채움) */
+let pageOffset = 0;
 
 function load(): Promise<AppData> {
   cache ??= fetch(`${import.meta.env.BASE_URL}data/bundle.json`)
     .then((r) => {
       if (!r.ok) throw new Error(`데이터를 불러오지 못했습니다 (${r.status})`);
       return r.json() as Promise<Bundle>;
+    })
+    .then((bundle) => {
+      pageOffset = bundle.printedPageOffset;
+      return bundle;
     })
     .then((bundle) => ({
       bundle,
@@ -41,8 +47,11 @@ export function useAppData(): { data?: AppData; error?: string } {
 
 /** PDF 쪽 → 페이지 이미지 경로 */
 export const pageImg = (p: number) => `${import.meta.env.BASE_URL}pages/p${p}.webp`;
-/** PDF 쪽 → 편람 인쇄 쪽수 (2025·2026판 모두 앞쪽 10쪽 차이 — data/edition.json printedPageOffset) */
-export const printedPage = (p: number) => p - 10;
+/** PDF 쪽 → 편람 인쇄 쪽수 (차이는 data/edition.json printedPageOffset) */
+export const printedPage = (p: number) => p - pageOffset;
+/** 쪽 목록 → "141" 또는 "141~143" */
+export const pageRange = (pages: number[]) =>
+  pages.length > 1 && pages.at(-1) !== pages[0] ? `${pages[0]}~${pages.at(-1)}` : `${pages[0]}`;
 
 /** 이 민원에 '어디서 발급하나요?' 단계가 있는지 (연도별 발급 규칙 또는 발급 시스템 매뉴얼 연결) */
 export const hasIssueStep = (data: AppData, m: Minwon) =>

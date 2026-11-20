@@ -121,7 +121,9 @@ nums.forEach((m, i) => {
   if (m.no !== i + 1) errors.push(`민원 번호가 이어지지 않음: ${i + 1}번 자리에 ${m.id}(no ${m.no})`);
   if (m.id !== `M${String(m.no).padStart(2, "0")}`) errors.push(`${m.id}: id 와 no(${m.no})가 맞지 않음`);
 });
-const edition = read("data/edition.json") as { md: string; pdf: string; label: string };
+const edition = read("data/edition.json") as { md: string; pdf: string; label: string; printedPageOffset: unknown };
+if (!Number.isInteger(edition.printedPageOffset) || (edition.printedPageOffset as number) < 0)
+  errors.push(`data/edition.json printedPageOffset: 0 이상의 정수여야 함 (${String(edition.printedPageOffset)})`);
 for (const k of ["md", "pdf"] as const) if (!existsSync(join(ROOT, edition[k]))) errors.push(`data/edition.json ${k}: ${edition[k]} 없음`);
 
 const rules = Rules.safeParse(read("data/rules/issuance_years.json"));
